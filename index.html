@@ -1306,6 +1306,27 @@ section.results{padding:72px 56px 28px;min-width:0;overflow-y:auto;
     width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--accent);
     border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px
   }
+  /* Väntskärmen när en rapport byggs. Bygget tar flera sekunder — avsnitten öppnas ett i
+     taget och varje diagram ritas om och fångas som bild — och en stillastående textrad
+     säger inte om något händer eller om verktyget hängt sig. Snurran är samma som i
+     figurernas laddläge, och under den ligger en förloppsmätare: antalet avsnitt är känt
+     i förväg, så mätaren kan vara verklig och inte bara en rörelse på låtsas. */
+  .amr-ov{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+    background:rgba(250,247,240,.92);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+  .amr-ov-kort{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:250px;max-width:min(340px,86vw);
+    padding:26px 30px 22px;background:#fff;border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 14px 38px rgba(56,47,35,.13)}
+  .amr-ov-kort .spinner{margin:0 auto 12px;border-top-color:var(--petrol)}
+  .amr-ov-text{margin:0 0 14px;font:600 var(--ts-text)/1.45 var(--font-ui);color:var(--ink);text-align:center}
+  .amr-ov-spar{width:100%;height:5px;border-radius:3px;background:var(--spar-yta,#f2ede2);
+    overflow:hidden;box-shadow:inset 0 0 0 1px var(--spar-kant,#a89572)}
+  .amr-ov-fyll{display:block;height:100%;width:0;border-radius:3px;
+    background:linear-gradient(90deg,#8cc3c5,var(--petrol));transition:width .35s var(--ease-out)}
+  /* Utan rörelse blir snurran en stillastående ring; förloppsmätaren bär då beskedet. */
+  @media (prefers-reduced-motion:reduce){
+    .amr-ov-kort .spinner{animation:none}
+    .amr-ov-fyll{transition:none}
+  }
   .pill{
     display:inline-block;font:600 var(--ts-etikett)/1 ui-monospace,Menlo,Consolas,monospace;
     padding:4px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);
@@ -2258,6 +2279,32 @@ section.results{padding:72px 56px 28px;min-width:0;overflow-y:auto;
 /* anywhere krävs: break-word sänker inte tabellcellers min-bredd, så långa
    ord sprängde ändå. Avstavning gör nödbrytningarna läsbara. */
 .r-fig th,.r-fig td{overflow-wrap:anywhere;hyphens:auto}
+/* Talkolumnernas rubriker är korta och står för sig: "Annonser", "Sysselsatta", "Andel".
+   Med anywhere fick webbläsaren krympa kolumnen under sitt längsta ord och bröt då ordet
+   var som helst — "Annonser" blev A/nn/on/se/r på fem rader i en tabell med flera
+   talkolumner. Utan ordbrytning reserverar kolumnen minst det längsta ordets bredd, och
+   rubriker på flera ord bryter mellan orden som förut. Namnkolumnen får fortsatt brytas:
+   där finns yrkesnamn som verkligen är för långa för sin spalt. Avstavning står kvar som
+   sista utväg, och de få rubriker som har ett riktigt långt ord bär mjukt bindestreck. */
+.r-fig .rapport-table thead th.gd-c,
+.r-fig .lanald-table thead th.gd-c,
+.r-fig .gymdim-table thead th.gd-c{overflow-wrap:normal;word-break:keep-all}
+/* Talkolumnerna innehåller korta tal och behöver inte figurernas fulla innerkant. Den
+   halveras för dem, vilket drog ned tabellens minsta bredd från 543 till 507 punkter — nog
+   för att rekryteringstrycket ska rymmas i fler kortbredder utan att behöva rullas. */
+.r-fig .lanald-table th.gd-c,
+.r-fig .lanald-table td.gd-c,
+.r-fig .vy-rt .rapport-table th.gd-c,
+.r-fig .vy-rt .rapport-table td.gd-c{padding-left:7px;padding-right:7px}
+/* Ryms tabellen ändå inte rullar behållaren i sidled, men det syntes inte: kolumnen till
+   höger såg bortklippt ut. En toning i högerkanten visar att det finns mer, samma grepp som
+   vynavigeringen redan använder. Den släcks när tabellen ryms och i rapporten, där inget
+   rullar. */
+.r-fig .rapport-table-wrap{position:relative}
+.r-fig .rapport-table-wrap.kan-rulla::after{
+  content:"";position:absolute;top:0;bottom:0;right:0;width:34px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(250,247,240,0),var(--paper,#faf7f0))}
+.amr-view .rapport-table-wrap.kan-rulla::after{display:none}
 .r-fig .rapport-table thead th{white-space:normal}
 .r-fig .rapport-table tbody td:first-child{white-space:normal}
 .r-chart canvas{max-width:100%}
@@ -3364,6 +3411,10 @@ main.view > aside{position:relative;z-index:60}
   .r-fig .lanald-table thead th,
   .r-fig .gymdim-table thead th,
   .r-fig .vy-rt .rapport-table thead th{overflow-wrap:break-word;hyphens:auto;word-break:break-word}
+  /* Även i mobilläget hålls talkolumnernas rubriker ihop ordvis. */
+  .r-fig .lanald-table thead th.gd-c,
+  .r-fig .gymdim-table thead th.gd-c,
+  .r-fig .vy-rt .rapport-table thead th.gd-c{overflow-wrap:normal;word-break:keep-all}
   .r-fig .lanald-table th.la-rank,
   .r-fig .lanald-table td.la-rank{width:2.6em;white-space:nowrap;overflow-wrap:normal;word-break:keep-all;padding-left:3px;padding-right:3px;text-align:right}
   /* Namnkolumnen är den andra när tabellen har rangnummer, annars den första.
@@ -5189,16 +5240,22 @@ section.results .rd-pin-forkl{color:var(--ink-soft)}
     <div id="regionStatus"></div>
     <div id="regionCompare" class="vcmp" hidden></div>
     <div id="regionBody" hidden>
-      <h3 class="r-sec first">Sysselsättning och arbetslöshet</h3>
       <!-- Nyckeltalen är en figur som alla andra: rubrik, beskrivande text, innehåll.
            Korten låg tidigare bara löst under avsnittsrubriken, utan något som sa vad de
-           var eller vilket område de avsåg. -->
+           var eller vilket område de avsåg.
+           Figuren står före första avsnittsrubriken och märks därför som inledande material,
+           vilket är vad Översikt visar. Innan den fick sitt figurkort var den en bar kpi-row,
+           och avsnittsväxlaren har en särregel som alltid visar en sådan under Översikt —
+           den regeln biter inte på kortet runtomkring, så korten hamnade i stället i
+           "Sysselsättning och arbetslöshet" och Översikt stod tom. Platsen i markupen avgör
+           nu, vilket är samma härledning som alla andra figurer följer. -->
       <div class="r-fig" id="figKpiLan">
         <p class="r-fig-title">Nyckeltal</p>
         <p class="r-fig-sub" id="kpiRowSub">De nedanstående nyckeltalen ger en översikt över arbetsmarknadsförhållandena i länet.</p>
         <div class="kpi-row" id="kpiRow"></div>
         <p class="r-src">SCB, Statistikdatabasen. Fullständig källa står under den figur där måttet redovisas.</p>
       </div>
+      <h3 class="r-sec first">Sysselsättning och arbetslöshet</h3>
       <div class="r-fig" style="margin-top:18px">
         <p class="r-fig-title">Sysselsättningsgrad över tid</p>
         <p class="r-fig-sub" id="subSysReg" data-bas="Andel sysselsatta av befolkningen 20–66 år.">Andel sysselsatta av befolkningen 20–66 år.</p>
@@ -5417,14 +5474,15 @@ section.results .rd-pin-forkl{color:var(--ink-soft)}
     <div id="kommunStatus"></div>
     <div id="kommunCompare" class="vcmp" hidden></div>
     <div id="kommunBody" hidden>
-      <h3 class="r-sec first">Sysselsättning och arbetslöshet</h3>
-      <!-- Se motsvarande figur i länsvyn. -->
+      <!-- Se motsvarande figur i länsvyn: den står före första avsnittsrubriken för att
+           höra till Översikt. -->
       <div class="r-fig" id="figKpiKom">
         <p class="r-fig-title">Nyckeltal</p>
         <p class="r-fig-sub" id="kpiRowSubKom">De nedanstående nyckeltalen ger en översikt över arbetsmarknadsförhållandena i kommunen.</p>
         <div class="kpi-row" id="kpiRowKom"></div>
         <p class="r-src">SCB, Statistikdatabasen. Fullständig källa står under den figur där måttet redovisas.</p>
       </div>
+      <h3 class="r-sec first">Sysselsättning och arbetslöshet</h3>
       <div class="r-fig" style="margin-top:18px">
         <p class="r-fig-title">Sysselsättningsgrad över tid</p>
         <p class="r-fig-sub" id="subSysKom" data-bas="Andel sysselsatta av befolkningen 20–66 år.">Andel sysselsatta av befolkningen 20–66 år.</p>
@@ -14268,6 +14326,30 @@ function gotoKommunByCode(code){
   focusViewTitle("kommun");
 }
 window.gotoKommunByCode=gotoKommunByCode;
+/* Tabeller som är bredare än sitt kort rullar i sidled. Klassen sätts när det faktiskt är
+   fallet, så att toningen i högerkanten bara syns när det finns mer att se. Kontrollen körs
+   vid fönsterändring och när innehåll ritas om, eftersom kolumnbredderna beror på data. */
+(function rullbaraTabeller(){
+  function pröva(){
+    try{
+      document.querySelectorAll(".r-fig .rapport-table-wrap").forEach(function(w){
+        w.classList.toggle("kan-rulla", w.scrollWidth > w.clientWidth + 1);
+      });
+    }catch(e){}
+  }
+  window.__provaRullning=pröva;
+  var t=null;
+  function sen(){ clearTimeout(t); t=setTimeout(pröva, 120); }
+  window.addEventListener("resize", sen);
+  document.addEventListener("scroll", function(e){
+    if(e.target&&e.target.classList&&e.target.classList.contains("rapport-table-wrap"))pröva();
+  }, true);
+  if(window.MutationObserver){
+    try{ new MutationObserver(sen).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",sen); else sen();
+})();
+
 (function bindGeoTargets(){
   function handler(e){
     if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;
@@ -16859,7 +16941,14 @@ window.__KOMMUN_MAP={
     ".amr-cover-date{font:500 var(--ts-rubrik)/1.5 var(--font-ui);color:rgba(255,255,255,.72);margin:0}",
     ".amr-cover-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}",
     ".amr-cover-srcard{display:inline-flex;align-items:center}",
-    ".amr-cover-sr{height:46px;width:auto;display:block;filter:brightness(0) invert(1)}",
+    /* Logotypen är ritad med hårfina linjer. Vid 46 punkters höjd blev ordmärkets versaler
+       2,5 punkter och linjerna en fjärdedels punkt — under vad ett tryck kan återge, så
+       märket blev en grå fläck. Den skalas till 110 punkter, där versalerna är 6 punkter och
+       linjerna knappt en. Källan är 500 × 579 bildpunkter och räcker till 185 punkter vid
+       300 dpi, så upplösningen är inte det som begränsar. Ett vitt fält bakom ger dessutom
+       märket den kontrast en vändning till vitt inte kan ge på en mörk, otydlig botten. */
+    ".amr-cover-sr{height:110px;width:auto;display:block}",
+    ".amr-cover-srcard{background:#faf7f0;border-radius:6px;padding:16px 20px}",
     ".amr-cover-srword{font:800 var(--ts-titel-l)/1 var(--font-display);color:#fff}",
     "@media (max-width:480px){.amr-cover-title{font-size:var(--ts-cover)}}"
   ].join("\n");
@@ -16878,14 +16967,14 @@ window.__KOMMUN_MAP={
     /* A4-ytan är smalare än mobilbrytpunkten, så vyns mobilregel lade nyckeltalen
        i en enda kolumn. Två kolumner ger jämna par och luftiga kort på papper. */
     ".amr-view .kpi-row,.amr-view .kpi-row.kpi-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}",
-/* Varje avsnitt började tidigare på en ny sida. Med de många korta avsnitt vi delat
-       upp vyerna i blev följden sidor som fylldes till en tredjedel, och en rubrik kunde bli
-       ensam kvar när dess figur inte rymdes under den. Avsnitten flyter nu ihop och skiljs
-       åt av rubriken, som är kraftigt satt och får luft ovanför. */
+/* Varje kapitel börjar på en ny sida, utan undantag. Det kostar halvfyllda sidor på
+       de kortaste avsnitten, men gör rapporten läsbar som en rapport: numret i innehålls-
+       förteckningen pekar på en sida där kapitlet faktiskt börjar, och man kan bläddra till
+       ett avsnitt utan att leta mitt på en sida. Regeln sitter på rubriken själv och inte på
+       avståndsdiven, eftersom paged.js hanterar brytning före ett blockelement mer pålitligt. */
     ".amr-view .amr-secbreak{height:0;margin:0;padding:0}",
-    ".amr-view h3.r-sec{margin-top:30px}",
-    ".amr-view h3.r-sec.first{margin-top:0}",
-    ".amr-view h3.r-sec{break-after:avoid;page-break-after:avoid}",
+    ".amr-view h1.r-sec{break-before:page;page-break-before:always}",
+    ".amr-view h1.r-sec{break-after:avoid;page-break-after:avoid}",
     ".amr-view .r-fig{break-inside:avoid;page-break-inside:avoid;box-shadow:none!important}",
     ".amr-view .vy-analys{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}",
     ".amr-view .r-fig-title,.amr-view .r-fig-sub,.amr-view .r-src{break-inside:avoid;page-break-inside:avoid}",
@@ -16903,12 +16992,35 @@ window.__KOMMUN_MAP={
     ".amr-view .amr-chart-img{width:100%;height:auto;display:block}",
     ".amr-view .lq-fill{transition:none!important}",
     /* Avsnittsrubriken i rapporten: vyns fällpil och pekaraffordans hör skärmen till. */
-    /* Avsnittsrubriken låg på 17 px och analysrubriken på 16 — en enda pixel isär, vilket
-       inte är en nivåskillnad utan ser ut som ett fel. Skillnaden bars bara av linjen under
-       och av färgen. Avsnittet höjs till 21 px, så skalan blir avsnitt 21, analysrubrik 16,
-       brödtext 14 och figurrubrik 13. */
-    ".amr-view h3.r-sec{display:block;font:700 21px/1.25 var(--font-ui);letter-spacing:.01em;color:var(--ink);margin:0 0 18px;padding:0 0 8px;border-bottom:2px solid var(--ink);cursor:default}",
-    ".amr-view h3.r-sec::after,.amr-view h3.r-sec::before{content:none!important;display:none!important;border:0!important}",
+    /* Kapitelrubriken. Eftersom varje kapitel nu börjar på egen sida ska rubriken också
+       bära den tyngden — den ska läsas som en kapitelöppning och inte som ännu en mellan-
+       rubrik. Skalan blir kapitel 30, underrubrik 17, brödtext 14 och figurrubrik 13.
+       Numret sätts i egen färg och lite mindre, så det leder in i titeln utan att ta över. */
+    ".amr-view h1.r-sec{display:block;font:800 30px/1.15 var(--font-display,var(--font-ui));letter-spacing:-.015em;color:var(--ink);margin:0 0 30px;padding:0 0 16px;border-bottom:3px solid var(--ink);cursor:default}",
+    /* Numret sattes mindre och i accentfärg och drog därför till sig blicken som ett eget
+       element bredvid rubriken. Numret och titeln är samma rubrikrad: allt utom avståndet
+       efter numret ärvs från rubriken. */
+    ".amr-view h1.r-sec .amr-nr{font:inherit;color:inherit;letter-spacing:inherit;margin-right:.32em}",
+    ".amr-view h1.r-sec::after,.amr-view h1.r-sec::before{content:none!important;display:none!important;border:0!important}",
+    /* Underrubrik, nivå 2. Den låg tätt mot stycket ovanför och läste sig därför som en
+       fetstilt rad i samma text i stället för som en ny underavdelning. Luften ovanför är
+       nu mångdubbelt större än luften under, så rubriken hör ihop med det som följer. */
+    ".amr-view h2.vy-analys-h{display:block;font:700 17px/1.35 var(--font-ui);letter-spacing:0;color:var(--rubrik);margin:34px 0 10px}",
+    ".amr-view .vy-analys:first-child h2.vy-analys-h{margin-top:0}",
+    ".amr-view h1.r-sec + .vy-analys h2.vy-analys-h{margin-top:0}",
+    ".amr-view h2.vy-analys-h .amr-nr{font:inherit;color:inherit;letter-spacing:inherit;margin-right:.4em}",
+    ".amr-view h2.vy-analys-h{break-after:avoid;page-break-after:avoid}",
+    ".amr-view h2.vy-analys-h::after,.amr-view h2.vy-analys-h::before{content:none!important;display:none!important}",
+    /* Figur- och tabellnumret står före rubriken, i samma storlek men i accentfärg. */
+    /* Figur- och tabellnumret stod i accentfärg och skilde sig därmed från rubriken det hör
+       till, som om numret vore en egen etikett bredvid namnet. Numret och namnet är samma
+       rubrikrad och sätts likadant — etiketten ärver allt av .r-fig-title. */
+    ".amr-view .amr-figetikett{color:inherit;font:inherit;letter-spacing:inherit}",
+    /* Figurkorten hade en linje över och en under. Med ett kort per figur och flera figurer
+       per sida blev papperet fullt av vågräta streck som inte skiljer något åt — kortens
+       egen luft och rubrikerna räcker. Linjerna hör till skärmens täta listvy. */
+    ".amr-view .r-fig{border-top:0!important;border-bottom:0!important;padding-top:8px;padding-bottom:14px}",
+    ".amr-view .r-fig+.r-fig{margin-top:0}",
     /* Rapportprosan får sluta en sida; att tvinga ihop den med figuren fick paged.js
        att i stället stycka prosan mitt i. Rubrikraden håller dock ihop med sin text.
        Undantag: står prosan direkt efter en avsnittsrubrik är den avsnittets inledning,
@@ -16933,9 +17045,10 @@ window.__KOMMUN_MAP={
     ".amr-view .rapport-table tbody tr:last-child{break-before:avoid;page-break-before:avoid}",
     ".amr-view .r-src{break-before:avoid;page-break-before:avoid}",
     ".amr-view .r-fig-sub{break-after:avoid;page-break-after:avoid}",
-    /* När paged.js ändå styckar ett element visas rubrik, undertext och diagram bara
-       i första fragmentet, inte som dubbletter på fortsättningssidan. */
-    ".amr-view [data-split-from]>.r-fig-title,.amr-view [data-split-from]>.r-fig-sub,.amr-view [data-split-from]>.amr-chart-img,.amr-view [data-split-from]>.la-summary,.amr-view .vy-analys[data-split-from]>.vy-analys-h{display:none!important}",
+    /* Dubbletter av rubrik, undertext och diagram på fortsättningssidor rensas efter
+       pagineringen, i __amrEfter. Villkoret satt tidigare i css på data-split-from, men den
+       märkningen kan bäras av det första fragment som faktiskt har innehåll — se kommentaren
+       där — och då försvann figurens rubrik i stället för att bara dubbletten togs bort. */
     /* Tabellceller radbryts utan avstavningsstreck och utan att kolumner kapas. */
     ".amr-view .rapport-table th{hyphens:manual;-webkit-hyphens:manual;white-space:normal;word-break:normal}",
     ".amr-view .rapport-table td{white-space:normal;overflow-wrap:break-word}",
@@ -16953,10 +17066,28 @@ window.__KOMMUN_MAP={
     ".amr-view p{orphans:2;widows:2}",
     ".amr-view .amr-halla{break-inside:avoid;page-break-inside:avoid}",
     ".amr-view .amr-knapptext{display:inline-block;text-align:left}",
+    /* Innehållsförteckning. Egen sida efter omslaget, med ledarprickar mellan titel och
+       sidnummer. Sidnumret hämtas med target-counter mot kapitlets ankare — stöds det inte
+       av renderaren blir kolumnen tom och raden går ändå att läsa. */
+    ".amr-toc{break-before:page;page-break-before:always;break-after:page;page-break-after:always;padding:0 0 10mm}",
+    ".amr-toc-h{font:800 30px/1.15 var(--font-display,var(--font-ui));letter-spacing:-.015em;color:var(--ink);margin:0 0 26px;padding:0 0 16px;border-bottom:3px solid var(--ink)}",
+    ".amr-toc-lista{list-style:none;margin:0;padding:0;counter-reset:none}",
+    ".amr-toc-lista li{margin:0 0 2px;break-inside:avoid;page-break-inside:avoid}",
+    ".amr-toc-lista a{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--ink);font:600 15px/2.1 var(--font-ui)}",
+    ".amr-toc-nr{flex:0 0 28px;color:var(--petrol);font-weight:700;font-variant-numeric:tabular-nums}",
+    ".amr-toc-titel{flex:0 1 auto}",
+    ".amr-toc-ledare{flex:1 1 auto;min-width:14px;align-self:center;height:0;border-bottom:1px dotted var(--linje-fig,#d3c6ae)}",
+    /* Sidnumret måste sitta på elementet som bär href, annars kan target-counter inte
+       slå upp målet. Det ligger därför på länkens ::after och inte i ett eget spann. */
+    ".amr-toc-lista a::after{content:target-counter(attr(href url), page);flex:0 0 auto;font-variant-numeric:tabular-nums;color:var(--ink-soft);font-weight:700}",
     /* Den förklarade termen är klickbar i vyn men vanlig text i rapporten: prickad
        understrykning och pekarfärg hör till interaktionen, inte till papperet. */
     ".amr-view .term{border:0;color:inherit;cursor:default;text-decoration:none}",
     ".amr-view .r-fig.amr-delbar{break-inside:auto!important;page-break-inside:auto!important}",
+    /* Figurens öppning — rubrik, undertext och första innehållsblocket — hålls ihop, så att
+       ett figurnummer aldrig blir ensamt kvar sist på en sida. */
+    ".amr-view .amr-figstart{break-inside:avoid!important;page-break-inside:avoid!important}",
+
     /* Analysrubrikerna tappade sitt format på papperet. Formatet sätts i vyn av
        "section.results .vy-analys-h", men rapportklonen ligger i main.amr-view och
        aldrig i section.results — regeln nådde alltså aldrig fram. Kvar blev grund-
@@ -17140,16 +17271,47 @@ window.__KOMMUN_MAP={
         try{ utFonster=window.open("","_blank"); }catch(e){ utFonster=null; }
         if(utFonster){ try{
           utFonster.document.open();
-          utFonster.document.write('<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Skapar rapport \u2026</title></head><body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#faf7f0;color:#2b4a56;font:600 15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Inter,sans-serif">Skapar rapport \u2026</body></html>');
+          /* Det nya fönstret öppnas tomt och står och väntar tills dokumentet skrivs dit. Utan
+             något som rör sig ser det ut som en trasig flik. Samma snurra som i verktyget,
+             med egna regler eftersom fönstret inte delar stilmall. */
+          utFonster.document.write('<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Skapar rapport \u2026</title>'
+            +'<style>@keyframes snurr{to{transform:rotate(360deg)}}'
+            +'body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#faf7f0;color:#2b4a56;font:600 15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Inter,sans-serif}'
+            +'.s{width:30px;height:30px;border:3px solid #eee6d8;border-top-color:#3b7992;border-radius:50%;animation:snurr .8s linear infinite}'
+            +'@media (prefers-reduced-motion:reduce){.s{animation:none}}</style></head>'
+            +'<body><div class="s" aria-hidden="true"></div><p style="margin:0">Skapar rapport \u2026</p></body></html>');
           utFonster.document.close();
         }catch(e){} }
       }
 
       var ov=document.createElement("div");
-      ov.textContent="Skapar rapport \u2026";
-      ov.style.cssText="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(250,247,240,.88);font:700 15px/1 var(--font-ui);color:var(--petrol)";
+      ov.className="amr-ov";
+      /* role=status med aria-live gör att skärmläsare läser upp varje ny stegtext utan att
+         flytta fokus. Snurran och mätaren är rent visuella och märks som dekor. */
+      ov.innerHTML='<div class="amr-ov-kort" role="status" aria-live="polite">'
+        +'<div class="spinner" aria-hidden="true"></div>'
+        +'<p class="amr-ov-text">Skapar rapport \u2026</p>'
+        +'<div class="amr-ov-spar" aria-hidden="true"><span class="amr-ov-fyll"></span></div>'
+        +'</div>';
       document.body.appendChild(ov);
-      function stang(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
+      var __ovText=ov.querySelector(".amr-ov-text"), __ovFyll=ov.querySelector(".amr-ov-fyll");
+      function ovText(t){ if(__ovText)__ovText.textContent=t; }
+      /* Mätaren stannar på 96 procent tills dokumentet är skrivet, så den aldrig står full
+         medan något återstår. */
+      function ovAndel(a){ if(__ovFyll)__ovFyll.style.width=Math.max(0,Math.min(96,a))+"%"; }
+      /* Diagrammen fångas som bilder och skalas sedan i rapporten efter tillgänglig bredd.
+         Fångades de vid skärmens bredd blev bildformatet fel: en tidsserie ritad drygt 900
+         pixlar bred och 275 hög blev omkring hundra pixlar hög på papperets 386, alltså
+         ihoptryckt mot faktakorten bredvid som behåller sin höjd. Vyn sätts därför till
+         papperets textbredd — A4 minus marginalerna, samma mått som pagineringen räknar med
+         — innan diagrammen ritas om och fångas. Då ritar Chart.js i den proportion bilden
+         visas i, och den delade figurens diagram fyller samma höjd som korten bredvid,
+         precis som i vyn. Brytpunkten för mobil utgår från fönstrets bredd och inte
+         elementets, så layouten står kvar; bara diagramytorna smalnar. */
+      var __amrBredd=Math.round(162*96/25.4), __amrBrForr=body.style.width;
+      function __amrAterstall(){ try{ body.style.width=__amrBrForr||""; }catch(e){} }
+      try{ body.style.width=__amrBredd+"px"; }catch(e){}
+      function stang(){ __amrAterstall(); if(ov.parentNode)ov.parentNode.removeChild(ov); }
 
       try{ [].slice.call(body.querySelectorAll("canvas")).forEach(function(cv){
         var ch=window.Chart&&Chart.getChart?Chart.getChart(cv):null;
@@ -17226,18 +17388,21 @@ window.__KOMMUN_MAP={
       }
       var __vantatTotalt=0; /* total väntbudget så exporten aldrig drar ut orimligt */
       function steg(){
-        if(i>=knappar.length){ klart(); return; }
+        if(i>=knappar.length){ ovAndel(88); ovText("St\u00e4ller samman rapporten \u2026"); klart(); return; }
         var namn=(knappar[i].textContent||"").trim();
         try{ knappar[i].click(); }catch(e){}
         i++;
+        /* Avsnitten utgör merparten av arbetet, men inte allt: efter dem ritas diagrammen om
+           och fångas som bilder. De sista tolv procenten sparas därför till det. */
+        ovAndel(knappar.length?Math.round(i/knappar.length*88):40);
         var start=Date.now();
         (function vanta(){
           if(laddarKvar()&&Date.now()-start<8000&&__vantatTotalt<20000){
             __vantatTotalt+=220;
-            ov.textContent="Skapar rapport \u2026 v\u00e4ntar p\u00e5 "+(namn?namn.toLowerCase():"data");
+            ovText("H\u00e4mtar "+(namn?namn.toLowerCase():"data")+" \u2026");
             setTimeout(vanta,220); return;
           }
-          ov.textContent="Skapar rapport \u2026";
+          ovText("Skapar rapport \u2026");
           setTimeout(function(){ fanga(); steg(); }, 360);
         })();
       }
@@ -17263,6 +17428,10 @@ window.__KOMMUN_MAP={
       function byggDok(){
         try{
           var clone=body.cloneNode(true);
+          /* Bredden återställs efter fångsten. Klonen får inte bära inlinemåttet till
+             papperet, där spaltbredden sätts av @page. */
+          __amrAterstall();
+          if(clone.style)clone.style.width="";
           /* Avsnittsväxlaren döljer med klassen sec-off. I rapporten ska alla avsnitt
              med, så klassen rensas ur klonen. Renderarens egen döljning ligger kvar i
              style.display och sätts om nedan utifrån vad som faktiskt syntes. */
@@ -17454,6 +17623,92 @@ window.__KOMMUN_MAP={
             if(nySektion){ var br=document.createElement("div"); br.className="amr-secbreak"; clone.insertBefore(br,e); }
             if(sec!=null)prev=sec;
           });
+          /* ===== Rubriknivåer, numrering och figurförteckning ================================
+             Här lämnar rapporten avsiktligt WYSIWYG-principen. Vyn är ett uppslagsverk man
+             klickar sig runt i, där rubriker inte behöver nummer. Papperet är en rapport man
+             läser och hänvisar till, och då behövs en ordning att peka på: avsnitten blir
+             nivå 1, analysrubrikerna nivå 2, och figurer och tabeller får löpande nummer så
+             att de kan nämnas i text. Numren sätts på klonen, aldrig på vyn.
+             Rubrikerna får också riktig semantik — h1 och h2 i stället för h3 respektive p —
+             så att innehållsförteckningen och skärmläsare läser samma struktur som ögat. */
+          /* Materialet före första avsnittsrubriken är vyns Översikt: nyckeltalen och den
+             inledande texten. I vyn behöver det ingen rubrik, eftersom avsnittsväxlarens
+             piller redan säger var man står. På papperet finns ingen växlare, och utan rubrik
+             blev innehållet en namnlös inledning som föll utanför både numreringen och
+             innehållsförteckningen. Ett kapitel skjuts därför in överst, med samma namn som
+             pillret bär. Det sker bara om det finns något att sätta rubriken över — annars
+             hade rapporten inletts med ett tomt kapitel. */
+          (function(){
+            var forsta=clone.querySelector("h3.r-sec");
+            if(forsta===clone.firstElementChild)return;      /* inget före första avsnittet */
+            var e=clone.firstElementChild, harNagot=false;
+            while(e && e!==forsta){
+              if(((e.style&&e.style.display)||"")!=="none"){
+                if((e.textContent||"").trim().length>0){ harNagot=true; break; }
+                if(e.querySelector&&e.querySelector("img,canvas,svg,table")){ harNagot=true; break; }
+              }
+              e=e.nextElementSibling;
+            }
+            if(!harNagot)return;
+            var h=document.createElement("h3");
+            h.className="r-sec first";
+            h.textContent="\u00d6versikt";
+            clone.insertBefore(h, clone.firstElementChild);
+            /* Avsnittsrubriken "first" på den gamla första rubriken är inte längre sann. */
+            if(forsta&&forsta.classList)forsta.classList.remove("first");
+          })();
+          var __toc=[], __kap=0, __fig=0, __tab=0;
+          function __esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+          (function(){
+            function nrSpan(txt){ return '<span class="amr-nr">'+txt+'</span> '; }
+            [].slice.call(clone.children).forEach(function(e){
+              if(!e.classList)return;
+              if(e.classList.contains("r-sec")){
+                __kap++;
+                var titel=(e.textContent||"").trim();
+                var h=document.createElement("h1");
+                h.className=e.className; h.setAttribute("data-niva","1");
+                h.id="amr-kap-"+__kap;
+                h.innerHTML=nrSpan(__kap+".")+__esc(titel);
+                if(e.getAttribute("data-rsec")!=null)h.setAttribute("data-rsec",e.getAttribute("data-rsec"));
+                e.parentNode.replaceChild(h,e);
+                __toc.push({nr:__kap, titel:titel, id:h.id});
+              }
+            });
+          })();
+          /* Analysrubrikerna ligger inuti sina textblock, inte som syskon till avsnitten, så
+             de numreras i ett andra svep där kapitlet härleds ur närmast föregående h1. */
+          (function(){
+            var kap=0, under=0;
+            [].slice.call(clone.querySelectorAll("h1.r-sec, .vy-analys-h")).forEach(function(e){
+              if(e.tagName==="H1"){ kap=parseInt(e.id.replace("amr-kap-",""),10)||0; under=0; return; }
+              if(!kap)return;                       /* inledande material före första avsnittet */
+              under++;
+              var titel=(e.textContent||"").trim();
+              var h=document.createElement("h2");
+              h.className=e.className; h.setAttribute("data-niva","2");
+              h.innerHTML='<span class="amr-nr">'+kap+"."+under+'</span> '+__esc(titel);
+              e.parentNode.replaceChild(h,e);
+            });
+          })();
+          /* Figur- och tabellnummer. Varje figurkort får ett nummer före sin rubrik. Kortet
+             räknas som tabell om det innehåller en tabell, annars som figur — omställnings-
+             vägarna har både staplar och tabell och räknas då som tabell, eftersom tabellen
+             är det man hänvisar till. Kort utan rubrik, som nyckeltalsraderna, numreras inte. */
+          [].slice.call(clone.querySelectorAll(".r-fig")).forEach(function(f){
+            var t=f.querySelector(".r-fig-title"); if(!t)return;
+            /* Nyckeltalsraderna är kort, inte figurer, och numreras inte. Övriga figurkort
+               numreras om de bär något som går att hänvisa till. */
+            if(f.querySelector(".kpi-row")&&!f.querySelector("table,img,canvas,svg"))return;
+            if(!f.querySelector("table,img,canvas,svg,.r-chart,.lq-list,.ovg-form,.omst-bars,.brist-list,.jobed-list,.rapport-table-wrap"))return;
+            var arTabell=!!f.querySelector("table");
+            var nr=arTabell?(++__tab):(++__fig);
+            var etikett=document.createElement("span");
+            etikett.className="amr-figetikett";
+            etikett.textContent=(arTabell?"Tabell ":"Figur ")+nr+".";
+            t.insertBefore(document.createTextNode(" "), t.firstChild);
+            t.insertBefore(etikett, t.firstChild);
+          });
           [].slice.call(clone.querySelectorAll("canvas")).forEach(function(cv){
             if(!cv.parentNode)return;
             var u=urls[cv.getAttribute("data-amrcv")];
@@ -17476,6 +17731,20 @@ window.__KOMMUN_MAP={
             +'<div class="amr-cover-main"><div class="amr-cover-rule"></div><span class="amr-cover-eyebrow">Arbetsmarknadsrapport</span>'
             +'<h1 class="amr-cover-title">'+subject+'</h1>'+(datum?'<p class="amr-cover-date">'+datum+'</p>':"")+'</div>'
             +'<div class="amr-cover-foot">'+(srLogo?'<span class="amr-cover-srcard"><img class="amr-cover-sr" src="'+srLogo.getAttribute("src")+'" alt="Strategir\u00e5det"></span>':'<span class="amr-cover-srword">Strategir\u00e5det</span>')+'</div></section>';
+          /* Innehållsförteckning. Endast nivå 1 redovisas: rapportens kapitel är det man
+             letar efter, och en förteckning som också rymmer varje analysrubrik blir en
+             andra rapport i sig. Sidnumret sätts av paged.js genom target-counter mot
+             kapitlets ankare; stöds det inte faller raden tillbaka på titeln utan siffra,
+             vilket fortfarande går att läsa. */
+          var toc=__toc.length
+            ? ('<section class="amr-toc"><h1 class="amr-toc-h">Inneh\u00e5ll</h1><ol class="amr-toc-lista">'
+               +__toc.map(function(t){
+                   return '<li><a href="#'+t.id+'"><span class="amr-toc-nr">'+t.nr+'</span>'
+                     +'<span class="amr-toc-titel">'+__esc(t.titel)+'</span>'
+                     +'<span class="amr-toc-ledare"></span></a></li>';
+                 }).join("")
+               +'</ol></section>')
+            : "";
           var titel=(subject?subject+" \u2013 ":"")+"Arbetsmarknadsrapport";
           var doc="<!doctype html><html lang=\"sv\"><head><meta charset=\"utf-8\">"
             +"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
@@ -17494,6 +17763,18 @@ window.__KOMMUN_MAP={
    +"if(!senaste||!t.tBodies.length)continue;"
    +"var kopia=senaste.cloneNode(true);kopia.setAttribute('data-amrupprepad','1');"
    +"t.insertBefore(kopia,t.firstChild);}}"
+   /* Rubrik, undertext och diagram ska stå en gång per figur: i det första fragment som
+      faktiskt bär dem. Villkoret låg tidigare i css och prövade data-split-from, men paged.js
+      kan lägga ett tomt inledande fragment sist på föregående sida. Då bar det första
+      riktiga fragmentet den märkningen, och figuren förlorade sin rubrik helt i stället för
+      att bara dubbletten togs bort. Identiteten hämtas ur data-ref, som paged.js sätter lika
+      på alla fragment av samma element. */
+   +"try{var sedd={},fr=document.querySelectorAll('.amr-view .r-fig,.amr-view .vy-analys');"
+   +"for(var a=0;a<fr.length;a++){var f=fr[a],ref=f.getAttribute('data-ref');if(!ref)continue;"
+   +"var hu=f.querySelectorAll('.amr-figstart,.r-fig-title,.r-fig-sub,.amr-chart-img,.la-summary,.vy-analys-h');"
+   +"if(!hu.length)continue;"
+   +"if(sedd[ref]){for(var c=0;c<hu.length;c++)hu[c].style.display='none';}else sedd[ref]=1;}"
+   +"}catch(e){}"
    +"}catch(e){}};"
    /* Figurer som \u00e4r h\u00f6gre \u00e4n en sida kan aldrig uppfylla break-inside:avoid. Paged.js
       flyttar dem d\u00e5 till en egen sida och l\u00e4mnar resten av f\u00f6reg\u00e5ende sida tom \u2014 det \u00e4r
@@ -17505,13 +17786,35 @@ window.__KOMMUN_MAP={
    +"var B=Math.round(162*96/25.4),H=Math.round(251*96/25.4);"
    +"var gW=v.style.width;v.style.width=B+'px';"
    +"var n=v.querySelectorAll('.r-fig');"
-   +"for(var i=0;i<n.length;i++){if(n[i].getBoundingClientRect().height>H*0.6)n[i].classList.add('amr-delbar');}"
+   /* Figurer högre än sextio procent av sidan görs delbara. En delbar figur kunde brytas
+      direkt efter sin rubrik, så rubriken blev ensam kvar sist på sidan och figuren började
+      på nästa. Rubrik, undertext och det första innehållsblocket läggs därför i en behållare
+      som inte får brytas inuti. Det är den enda mekanism som biter: paged.js läser
+      break-inside:avoid men kastar uttryckligen bort break-after:avoid.
+      Behållaren skapas bara om den ryms på en halv sida. En rubrik knuten till en flersidig
+      tabell hade blivit ett omöjligt krav, och då bryter paged.js ändå — men på ett sämre
+      ställe än i dag. */
+   +"for(var i=0;i<n.length;i++){var f=n[i];"
+   +"if(f.getBoundingClientRect().height<=H*0.6)continue;"
+   +"f.classList.add('amr-delbar');"
+   +"if(f.querySelector('.amr-figstart'))continue;"
+   +"var d=f.firstElementChild,hu=[];"
+   +"while(d&&d.classList&&(d.classList.contains('r-fig-title')||d.classList.contains('r-fig-sub'))){hu.push(d);d=d.nextElementSibling;}"
+   +"if(!hu.length||!d)continue;"
+   +"var hjd=0;for(var q=0;q<hu.length;q++)hjd+=hu[q].getBoundingClientRect().height;"
+   +"hjd+=d.getBoundingClientRect().height;"
+   +"if(hjd>H*0.5)continue;"
+   +"hu.push(d);"
+   +"var w=document.createElement('div');w.className='amr-figstart';"
+   +"f.insertBefore(w,hu[0]);for(var q2=0;q2<hu.length;q2++)w.appendChild(hu[q2]);"
+   +"}"
    +"v.style.width=gW;"
    +"}catch(e){}};"
    +"window.PagedConfig={auto:true,before:function(){try{window.__amrForbered();}catch(e){}},after:function(){try{window.__amrEfter();}catch(e){}window.__amrDone=true;setTimeout(function(){try{window.focus();window.print();}catch(e){}},150);}};window.addEventListener('load',function(){setTimeout(function(){if(!window.__amrDone){try{window.print();}catch(e){}}},4000);});</scr"+"ipt>"
             +"<scr"+"ipt>"+(window.__pagedKalla?window.__pagedKalla():"")+"</scr"+"ipt>"
             +"</head><body class=\"amr-print\">"
             +cover
+            +toc
             +'<main class="amr-view">'+clone.outerHTML+'</main>'
             +"</body></html>";
           var w=(utFonster&&!utFonster.closed)?utFonster:null;
@@ -17562,10 +17865,18 @@ window.__KOMMUN_MAP={
            var tt=hd.querySelector(".rapport-title"); subject=tt?tt.textContent.trim():""; }catch(e){}
       if(!subject)subject=(data&&(data.name||data.regionName))||"";
 
+      /* Samma väntskärm som rapportexporten. Bygget är lika långt och lika tyst. */
       var ov=document.createElement("div");
-      ov.textContent="Skapar PowerPoint \u2026";
-      ov.style.cssText="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(250,247,240,.88);font:700 15px/1 var(--font-ui);color:var(--petrol)";
+      ov.className="amr-ov";
+      ov.innerHTML='<div class="amr-ov-kort" role="status" aria-live="polite">'
+        +'<div class="spinner" aria-hidden="true"></div>'
+        +'<p class="amr-ov-text">Skapar PowerPoint \u2026</p>'
+        +'<div class="amr-ov-spar" aria-hidden="true"><span class="amr-ov-fyll"></span></div>'
+        +'</div>';
       document.body.appendChild(ov);
+      var __ovText=ov.querySelector(".amr-ov-text"), __ovFyll=ov.querySelector(".amr-ov-fyll");
+      function ovText(t){ if(__ovText)__ovText.textContent=t; }
+      function ovAndel(a){ if(__ovFyll)__ovFyll.style.width=Math.max(0,Math.min(96,a))+"%"; }
       function stang(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
 
       try{ [].slice.call(body.querySelectorAll("canvas")).forEach(function(cv){
@@ -17596,9 +17907,10 @@ window.__KOMMUN_MAP={
       }
       var si=0;
       function steg(){
-        if(si>=knappar.length){ klart(); return; }
+        if(si>=knappar.length){ ovAndel(88); ovText("St\u00e4ller samman presentationen \u2026"); klart(); return; }
         try{ knappar[si].click(); }catch(e){}
         si++;
+        ovAndel(knappar.length?Math.round(si/knappar.length*88):40);
         setTimeout(function(){ fanga(); steg(); }, 340);
       }
       function klart(){
