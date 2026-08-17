@@ -7313,7 +7313,13 @@ section.results .vcmp .rapport-matrix-wrap{
       <h3 class="r-sec">Yrken och arbetsgivare</h3>
       <!-- Branschfiguren är borttagen. Den byggde på en härledning från yrkesstrukturen och
            tillförde lite utöver yrkesfördelningen, som visar samma sak direkt. Yrkesfiguren
-           står nu ensam över hela bredden. -->
+           står nu ensam över hela bredden.
+           Den var kortvarigt återinsatt, och frågan prövades då mot arbetsgivardatan: kan
+           SNI-koden hos den som publicerat annonsen ge en mätt branschfördelning i stället för
+           en härledd? Nej, inte som den ser ut. Arbetsgivarlistan per kompetens täcker i median
+           48 procent av kompetensens annonser, och i 55 procent av kompetenserna skulle
+           bemanningsbranschen bli den största — arbetsgivarens SNI beskriver arbetsgivaren och
+           inte var arbetet utförs. Ingen av de två vägarna bär alltså en branschfigur. -->
       <div>
         <div class="r-fig">
           <p class="r-fig-title">Yrken där kompetensen efterfrågas</p>
@@ -10196,9 +10202,12 @@ moveNavIndicator();
           var o=reg[r[0]]||[];
           var _ratt=null; try{ _ratt=window.__agRattad?window.__agRattad(o[0]):null; }catch(e){}
           var _sni=_ratt?_ratt[0]:(o[2]||""), _snit=_ratt?_ratt[1]:(o[3]||"");
-          var _hg=String(_sni).replace(/\D/g,"").slice(0,2);
-          var _hgt=""; try{ _hgt=window.__agBransch?window.__agBransch(o[0],_sni):""; }catch(e){}
-          if(_hgt&&String(o[0]||"").slice(0,4)==="2321")_hg="86";
+          /* Samma regel som listan använder, hämtad ur arbetsgivarmodulen i stället för
+             upprepad här. Tidigare stod regionregeln som en egen rad, och kommunregeln hade
+             behövt läggas till på två ställen. */
+          var _hg="", _hgt="";
+          try{ _hg=window.__agHuvudgrupp?window.__agHuvudgrupp(o[0],_sni):String(_sni).replace(/\D/g,"").slice(0,2); }catch(e){}
+          try{ _hgt=window.__agBransch?window.__agBransch(o[0],_sni):""; }catch(e){}
           rows.push([typ,niva,kod,agNamn(typ,kod),geoTyp,geoKod,geoNamn,
                      o[0]||"",o[1]||"",_sni,_snit,_hg,_hgt,r[1],r[2]]);
         });
@@ -33966,14 +33975,33 @@ var UNDERLAG = [
       ut.push(p("Den viktade medianlönen i de yrken som efterfrågar kompetensen är <b>"+_lon
         +" kronor</b> i månaden"+ar(_L&&_L.ar)+"."+_lj+niva("avser riket"),"Lönenivå"));
     }
-    var _yrk3=tre(d.yrken);
-    if(_yrk3) ut.push(p("Kompetensen efterfrågas oftast i yrkena "+_yrk3
-      +((d.yrken&&d.yrken.length>3)?(", av sammanlagt <b>"+tal(d.yrken.length)+" yrken</b>"):"")+".",
-      "Yrken där kompetensen efterfrågas"));
-    /* Branschbilden säger i vilken del av näringslivet kompetensen efterfrågas. */
-    var _br=forst(d.branscher);
-    if(_br) ut.push(p("Den bransch som oftast efterfrågar kompetensen är <b>"+_br+"</b>.",
-      "Yrken där kompetensen efterfrågas"));
+    /* Yrkespunkten. Här stod tidigare två punkter: en som räknade upp de tre vanligaste
+       yrkena, och en som sa hur stor del av annonserna de bär. Den första byggde på d.yrken,
+       ett fält som är tomt i den nationella grenen, så i praktiken visades bara den andra —
+       en andel utan att läsaren fick veta vilka yrken det gällde. Namnen och andelen hör ihop
+       och står nu i samma punkt, hämtade ur samma underlag som figuren pilen leder till.
+       Saknas volymtalen räcker namnen, och saknas namnen faller punkten bort. */
+    try{
+      var _V=(typeof kompYrkeVolym==="function")?kompYrkeVolym(d.code):null;
+      var _rader=(_V&&_V.rader&&_V.rader.length)?_V.rader:null;
+      var _namn3=_rader?tre(_rader.map(function(r){ return r.namn; })):tre(d.yrken);
+      if(_namn3){
+        var _a3=null;
+        if(_rader&&_V.tot){
+          var _s3=0, _t3=_rader.slice(0,3);
+          for(var _i3=0;_i3<_t3.length;_i3++)_s3+=(_t3[_i3].antal||0);
+          if(_s3>0)_a3=100*_s3/_V.tot;
+        }
+        var _antal=_rader?((_V.nYrken&&_V.nYrken>_rader.length)?_V.nYrken:_rader.length)
+                         :((d.yrken&&d.yrken.length)||0);
+        ut.push(p("Kompetensen efterfrågas oftast i yrkena "+_namn3
+          +((_a3!=null)?(", som tillsammans b\u00e4r <b>"+tal(_a3,_a3<10?1:0)+" procent</b> av annonserna")
+                       :"")
+          +((_antal>3)?(". Kompetensen f\u00f6rekommer i sammanlagt <b>"+tal(_antal)+" yrken</b>.")
+                      :"."),
+          "Yrken där kompetensen efterfrågas"));
+      }
+    }catch(e){}
     /* Kvalifikationsnivån säger hur stor del av efterfrågan som finns i yrken med högskolekrav. */
     /* Kvalifikationsnivån räknas ur samma underlag som figuren, med samtliga annonser som
        jämförelsenorm. Måttet finns bara på riksnivå. */
@@ -34367,10 +34395,16 @@ var UNDERLAG = [
        Två åtgärder:
        1. Branschen redovisas på tvåsiffernivå, SNI 2025 huvudgrupp. Nivån räcker för att säga
           vad arbetsgivaren gör och slipper spreta.
-       2. Regionerna klassificeras alltid som 86 Hälso- och sjukvård. Alla har den koden bland
-          sina verksamheter, men vilken som blivit den officiella varierar. Regioner känns igen
-          på organisationsnumret: 2321 inleder samtliga regioner utom Gotland, som är både
-          region och kommun och därför bär ett kommunnummer.
+       2. Regionerna klassificeras alltid som 86 Hälso- och sjukvård och kommunerna som 84
+          Offentlig förvaltning och försvar. Alla har den koden bland sina verksamheter, men
+          vilken som blivit den officiella varierar. Av 290 kommuner i underlaget stod 120 under
+          något annat: Stockholm som förskoleutbildning, Kalmar som uthyrning av fastigheter,
+          Skellefteå som anläggning av vägar, Ljusnarsberg som datordrifttjänster. En kommun
+          bedriver alltihop, och vilken gren som råkat bli den registrerade säger inget om var
+          arbetet finns. Båda känns igen på organisationsnumret: 2321 inleder samtliga regioner
+          utom Gotland, som är både region och kommun och därför bär ett kommunnummer, och 2120
+          inleder kommunerna. Kommunala bolag har egna organisationsnummer och rörs inte —
+          ett kommunalt bostadsbolag är verkligen fastighetsverksamhet.
        Enskilda felkodningar rättas i RATTAD, med koden i sin helhet så att den blir rätt även
        där femsiffernivån används, till exempel i csv-uttaget. */
     var SNI2 = {"01":"Jordbruk och jakt samt stödverksamhet i anslutning härtill","02":"Skogsbruk","03":"Fiske och vattenbruk","05":"Kolutvinning","06":"Utvinning av råpetroleum och naturgas","07":"Utvinning av metallmalmer","08":"Annan utvinning av mineral","09":"Stödverksamhet avseende utvinning","10":"Livsmedelsframställning","11":"Framställning av drycker","12":"Tobaksvarutillverkning","13":"Textilvarutillverkning","14":"Tillverkning av kläder","15":"Tillverkning av läder- och skinnvaror och liknande varor av andra material","16":"Tillverkning av trä och varor av trä och kork, utom möbler: tillverkning av varor av halm, rotting o.d.","17":"Pappers- och pappersvarutillverkning","18":"Grafisk produktion och reproduktion av inspelningar","19":"Tillverkning av stenkolsprodukter och raffinerade petroleumprodukter","20":"Tillverkning av kemikalier och kemiska produkter","21":"Tillverkning av farmaceutiska basprodukter och läkemedel","22":"Tillverkning av gummi- och plastvaror","23":"Tillverkning av andra icke-metalliska mineraliska produkter","24":"Stål- och metallframställning","25":"Tillverkning av metallvaror utom maskiner och apparater","26":"Tillverkning av datorer, elektronikvaror och optik","27":"Tillverkning av elapparatur","28":"Tillverkning av övriga maskiner","29":"Tillverkning av motorfordon, släpfordon och påhängsvagnar","30":"Tillverkning av andra transportmedel","31":"Tillverkning av möbler","32":"Annan tillverkning","33":"Reparation, underhåll och installation av maskiner och utrustning","35":"El-, gas- och ångförsörjning samt luftkonditionering","36":"Vattenförsörjning","37":"Avloppsrening","38":"Insamling av avfall, återvinning och bortskaffande","39":"Sanering, efterbehandling av jord och vatten samt annan verksamhet för föroreningsbekämpning","41":"Byggande av bostadshus och andra byggnader","42":"Anläggningsarbeten","43":"Specialiserad bygg- och anläggningsverksamhet","46":"Parti- och provisionshandel","47":"Detaljhandel","49":"Landtransport; transport i rörsystem","50":"Sjötransport","51":"Lufttransport","52":"Magasinering, varulagring och stödverksamhet avseende transport","53":"Post- och kurirverksamhet","55":"Hotell- och logiverksamhet","56":"Restaurang-, catering- och barverksamhet","58":"Förlagsverksamhet","59":"Film-, video- och tv-programverksamhet, ljudinspelning och musikutgivning","60":"Planering, radio- och tv-sändning, nyhetsbyråer och annan distribution av medieinnehåll","61":"Telekommunikation","62":"Dataprogrammering, datakonsultverksamhet o.d.","63":"Datainfrastruktur, databehandling, hosting och annan informationsverksamhet","64":"Finansiell verksamhet utom försäkrings- och pensionsfondsverksamhet","65":"Försäkrings-, återförsäkrings- och pensionsfondsverksamhet utom obligatorisk socialförsäkring","66":"Stödverksamhet avseende finansiella tjänster och försäkringsverksamhet","68":"Fastighetsverksamhet","69":"Juridisk och ekonomisk konsultverksamhet","70":"Verksamheter som utövas av huvudkontor samt konsultverksamhet avseende företag","71":"Arkitekt- och teknisk konsultverksamhet; teknisk provning och analys","72":"Vetenskaplig forskning och utveckling","73":"Reklamverksamhet, marknadsundersökningar och PR","74":"Annan verksamhet inom juridik, ekonomi, vetenskap och teknik","75":"Veterinärverksamhet","77":"Uthyrning och leasing","78":"Arbetsförmedling, bemanning och annan personalrelaterad verksamhet","79":"Resebyrå- och researrangörsverksamhet samt annan boknings- och reserelaterad verksamhet","80":"Säkerhets- och bevakningsverksamhet","81":"Fastighetsrelaterad stödverksamhet samt skötsel och underhåll av grönytor","82":"Kontorstjänster och annan stödverksamhet till företag","84":"Offentlig förvaltning och försvar; obligatorisk socialförsäkring","85":"Utbildning","86":"Hälso- och sjukvård","87":"Vård och omsorg med boende","88":"Öppna sociala insatser","90":"Konstnärligt skapande och scenkonst","91":"Biblioteks-, arkiv- och museiverksamhet m.m.","92":"Spel- och vadhållningsverksamhet","93":"Sport-, fritids- och nöjesverksamhet","94":"Intressebevakning; religiös verksamhet","95":"Reparation och underhåll av datorer, hushållsartiklar och varor för personligt bruk samt motorfordon och motorcyklar","96":"Konsumenttjänster","97":"Förvärvsarbete i hushåll","98":"Hushållens produktion av diverse varor och tjänster för eget bruk","99":"Verksamhet vid internationella organisationer, utländska ambassader o.d."};
@@ -34383,8 +34417,13 @@ var UNDERLAG = [
       var o=String(orgnr||"");
       return o.slice(0,4)==="2321" || !!REGION_ORGNR[o];
     }
+    /* Gotland är både region och kommun. Regionprövningen går först, så ön räknas som region. */
+    function arKommun(orgnr){
+      return !arRegion(orgnr) && String(orgnr||"").slice(0,4)==="2120";
+    }
     function sniHuvudgrupp(orgnr, kod){
       if(arRegion(orgnr)) return "86";
+      if(arKommun(orgnr)) return "84";
       var k=String(kod||"").replace(/\D/g,"");
       return k.length>=2 ? k.slice(0,2) : "";
     }
@@ -34402,6 +34441,7 @@ var UNDERLAG = [
               bemanning:!!r[4]};
     }
     try{ window.__agBransch=function(orgnr,kod){ return agBransch(orgnr,kod); };
+         window.__agHuvudgrupp=function(orgnr,kod){ return sniHuvudgrupp(orgnr,kod); };
          window.__agRattad=function(orgnr){ return RATTAD[String(orgnr)]||null; }; }catch(e){}
     /* Två skilda fall som tidigare fick samma besked. Saknas datafilen är det inte uppgiften
        som fattas utan filen, och då ska det stå så, annars letar man efter ett fel i statistiken
@@ -34437,8 +34477,9 @@ var UNDERLAG = [
       s.textContent="Arbetsf\u00f6rmedlingen, Historiska platsannonser. Annonser 2023 och fram\u00e5t, "
         +"kopplade till arbetsgivarens organisationsnummer. Arbetsst\u00e4llets l\u00e4ge avg\u00f6r geografin, "
         +"medan branschen f\u00f6ljer arbetsgivarens SNI p\u00e5 huvudgruppsniv\u00e5 (SNI 2025, tv\u00e5 siffror). "
-        +"Regioner redovisas som h\u00e4lso- och sjukv\u00e5rd, eftersom koden s\u00e4tts p\u00e5 arbetsgivaren som "
-        +"helhet och d\u00e4rf\u00f6r kan peka p\u00e5 en sidoverksamhet. De fem st\u00f6rsta arbetsgivarna st\u00e5r f\u00f6r "
+        +"Regioner redovisas som h\u00e4lso- och sjukv\u00e5rd och kommuner som offentlig f\u00f6rvaltning, "
+        +"eftersom koden s\u00e4tts p\u00e5 arbetsgivaren som helhet och d\u00e4rf\u00f6r kan peka p\u00e5 en sidoverksamhet. "
+        +"De fem st\u00f6rsta arbetsgivarna st\u00e5r f\u00f6r "
         +String(g.koncentration).replace(".",",")+" procent av annonseringen.";
     }
   }
