@@ -4529,6 +4529,49 @@ section.results .vy-analys{margin:34px 0 12px}
   background:var(--petrol,#3b7992);opacity:.55}
 .sum-text{flex:1 1 auto;min-width:0}
 .sum-text b{font-weight:700}
+/* ===== Kortets huvud: etikett och tal ==================================================
+   Rutan var en lodrät rad textkort och läste sig som en vägg. Talet stod en tid till vänster
+   om texten, men ett tal är en rad högt och texten två eller tre, så vänsterspalten bar alltid
+   tom höjd under sig. Nu står måttets namn som liten överskrift, talet stort under den och
+   meningen sist. Ingen luft blir kvar, och både vilket mått som avses och dess värde går att
+   läsa utan att meningen läses.
+   Pilen ligger i övre högra hörnet i höjd med etiketten. Låg den kvar vid sidan av texten
+   lämnade den en lucka i kortets högerkant. */
+/* Kortet är två fält: ett huvud med etikett, tal och pil, och en text under. Kortets egen
+   inre marginal är noll, så att huvudets ton når ut i kanterna; varje fält bär sin egen.
+   Texten hade tidigare en osynlig kant lodrätt i linje med pilen, eftersom hela kortet
+   reserverade utrymme för den. Nu är det bara huvudet som gör det, och texten löper ut till
+   högerkanten. */
+.sum-kort.har-huvud{display:block;position:relative;padding:0;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 3px -2px rgba(130,112,75,.25)}
+.sum-kort.har-huvud .sum-huvud{display:block;margin:0;padding:10px 52px 9px 16px;
+  background:#f3eee3;border-bottom:1px solid #e7dfd0}
+.sum-kort.har-huvud .sum-text{padding:11px 16px 12px}
+.sum-etikett{display:block;font:600 13px/1.3 var(--font-ui);letter-spacing:.02em;margin:0 0 2px}
+/* Färgen sattes först på klassen ensam och slog inte igenom. Vad som vann går inte att se i
+   filen, så den sätts med en starkare selektor och utskriven färg i stället för genom
+   variabeln — då finns inget led kvar som kan falla bort. Både vyn och rapporten täcks. */
+section.results .sum-kort .sum-etikett,
+.sum-box .sum-kort .sum-etikett,
+.amr-view .sum-kort .sum-etikett{color:#2f6479}
+.sum-tal{display:block;font:600 24px/1.1 var(--font-ui);color:var(--ink,#382f23);
+  letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+/* Ett namn är inte ett tal. Satt i tjugofyra punkter bryts det över flera rader och tar över
+   kortet, så det får en lugnare grad och normalt radavstånd. */
+.sum-tal.sum-tal-ord{font:600 17px/1.3 var(--font-ui);letter-spacing:0}
+.sum-kort.har-huvud>.sum-pil{position:absolute;top:9px;right:11px}
+.sum-kort.har-huvud .sum-text{display:block}
+/* Pilen tas bort i tryck. Utrymmet den lämnade ska då inte stå kvar som en tom marginal. */
+@media print{ .sum-kort.har-huvud .sum-huvud{padding-right:16px} }
+.amr-view .sum-kort.har-huvud .sum-huvud{padding-right:16px}
+
+/* Två spalter när det finns bredd. Samma innehåll blir hälften så högt och läser sig som en
+   översikt i stället för en lista. Under den bredden står korten kvar i en spalt. */
+@media (min-width:1100px){
+  section.results .sum-box.sum-kortform .sum-kortlista{grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:14px}
+}
+
 /* Jämförelsemeningarna stod i en dovare ton för att skilja dem från talet. I en ruta som ska
    läsas på tjugo sekunder blev det i stället två textfärger i samma mening, och på papperet
    läste den ljusare tonen som något mindre viktigt. All text i rutan har nu samma färg som
@@ -4587,12 +4630,22 @@ section.results .sum-box.sum-kortform{background:none;border:0;box-shadow:none;p
    padding noll av samma skäl. */
 section.results .sum-box.sum-kortform .sum-kortlista,
 section.results .sum-box.sum-kortform .sum-rutnat{padding:16px 0 0}
-.sum-kort{display:flex;align-items:center;gap:14px;background:var(--paper,#faf7f0);
-  border:1px solid var(--line,#f1ebe0);border-radius:12px;padding:12px 13px 12px 16px;
+/* Kortets kropp är vit. Den var tidigare sandfärgad och blev vit först vid svävning, och
+   texten läste sig märkbart bättre i det läget. Huvudet behåller sin sandton, så skillnaden
+   mellan rubrikfältet och texten står kvar. */
+.sum-kort{display:flex;align-items:center;gap:14px;background:#fff;
+  /* Kanten låg tidigare mot en sandfärgad kropp och syntes. Mot vitt försvann den nästan
+     helt, och korten flöt ihop med sidan. Tonen är därför något djupare, fortfarande svag
+     nog att inte rama in. */
+  border:1px solid #ebe3d5;border-radius:12px;padding:12px 13px 12px 16px;
   font:400 var(--ts-text)/1.55 var(--font-ui);
   transition:border-color .17s var(--ease),transform .17s var(--ease),background .17s var(--ease)}
 .sum-kort{cursor:pointer}
-.sum-kort:hover{background:#fff;border-color:var(--blagra,#8fb3c2);transform:translateY(-1px)}
+/* Bakgrunden är redan vit, så svävningen märks i kanten, lyftet och huvudets ton i stället. */
+.sum-kort:hover{border-color:var(--blagra,#8fb3c2);transform:translateY(-1px)}
+.sum-kort.har-huvud:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.95), 0 3px 8px -4px rgba(130,112,75,.35)}
+.sum-kort.har-huvud:hover .sum-huvud{background:#efe8db}
+.sum-kort.har-huvud{align-items:stretch}
 .sum-kort .sum-text{flex:1 1 auto;min-width:0}
 
 .sum-rutnat{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:20px}
@@ -7272,7 +7325,7 @@ section.results .vcmp .rapport-matrix-wrap{
            figurer. Sju likalydande rutor i samma vy läses inte, de blir möbler. Den står nu
            en gång, i sammanfattningen, där läsaren möter vyn först. Nedladdningsvyn har kvar
            sin egen, eftersom den som hämtar tabellerna inte passerar här. -->
-      <div class="fakta-ruta komp-forbehall"><b>Om kompetensuppgifterna</b>Kompetenserna är sammanställda med Arbetsförmedlingens tjänst JobAd Enrichments. I Arbetsmarknadsnavet redovisas underlaget i stort sett utan egna omtolkningar. Metoderna för att identifiera och namnge kompetenser kan ändras mellan åren. Det påverkar jämförbarheten över tid.</div>
+      <div class="fakta-ruta komp-forbehall"><b>Om kompetensuppgifterna</b>Kompetenserna är sammanställda med Arbetsförmedlingens tjänst JobAd Enrichments. I Arbetsmarknadsnavet redovisas underlaget i stort sett utan egna omtolkningar. Vissa avgränsningar har gjorts avseende urvalet av kompetenser som ingår i och redovisas i Arbetsmarknadsnavet.</div>
 
       <!-- Översiktsavsnittet är tillbaka i vyn. Det flyttades ut när antalen i annonsdatan
            ansågs otillförlitliga. Den bedömningen är omprövad: arkivet och API:t sammanfaller
@@ -7494,7 +7547,7 @@ section.results .vcmp .rapport-matrix-wrap{
     <p class="dl-note">Filerna är i CSV-format med semikolon som avgränsare, tecknen kodas i UTF-8 och decimaltal skrivs med komma. De öppnas direkt i Excel. Några tabeller är stora och tar längre tid att skapa.</p>
         <!-- Samma förbehåll som står i kompetensvyn. Den som laddar ned tabellerna och räknar
              vidare på egen hand behöver det minst lika mycket som den som läser en figur. -->
-        <div class="fakta-ruta komp-forbehall"><b>Om kompetensuppgifterna</b>Kompetenserna är sammanställda med Arbetsförmedlingens tjänst JobAd Enrichments. I Arbetsmarknadsnavet redovisas underlaget i stort sett utan egna omtolkningar. Metoderna för att identifiera och namnge kompetenser kan ändras mellan åren. Det påverkar jämförbarheten över tid.</div>
+        <div class="fakta-ruta komp-forbehall"><b>Om kompetensuppgifterna</b>Kompetenserna är sammanställda med Arbetsförmedlingens tjänst JobAd Enrichments. I Arbetsmarknadsnavet redovisas underlaget i stort sett utan egna omtolkningar. Vissa avgränsningar har gjorts avseende urvalet av kompetenser som ingår i och redovisas i Arbetsmarknadsnavet.</div>
     <div id="dlList"></div>
   </div>
 </main>
@@ -8543,6 +8596,36 @@ function _demoRenderInto(kpiId,chartId,srcId,forsChartId,forsSrcId,subId,data,na
     return;
   }
   var i0=0, iN=data.years.length-1, y0=data.years[i0], yN=data.years[iN];
+  /* Talen bakom figuren sparas på vyns tillstånd. Sammanfattningen behöver dem, och den ska
+     inte räkna om något själv: den ska säga samma sak som figuren säger. Referensen är
+     rikets serie när den finns med. */
+  try{
+    var _st=(kpiId==="demoKpiRowKom")?window.kommunState:window.regionState;
+    if(_st&&_st.data){
+      var _tot=function(a,i){ return (a&&a[i]!=null)?a[i]:null; };
+      var _bef0=(_tot(data.unga,i0)||0)+(_tot(data.arbf,i0)||0)+(_tot(data.aldre,i0)||0);
+      var _befN=(_tot(data.unga,iN)||0)+(_tot(data.arbf,iN)||0)+(_tot(data.aldre,iN)||0);
+      var _rik=(refs&&refs.length)?refs.filter(function(r){ return /^riket$/i.test(String(r.label||"")); })[0]:null;
+      var _rd=_rik&&_rik.data;
+      var _rb0=_rd?((_tot(_rd.unga,i0)||0)+(_tot(_rd.arbf,i0)||0)+(_tot(_rd.aldre,i0)||0)):null;
+      var _rbN=_rd?((_tot(_rd.unga,iN)||0)+(_tot(_rd.arbf,iN)||0)+(_tot(_rd.aldre,iN)||0)):null;
+      _st.data.demo={
+        ar0:y0, arN:yN,
+        bef0:_bef0||null, befN:_befN||null,
+        befTillv:(_bef0>0)?(100*(_befN-_bef0)/_bef0):null,
+        befTillvRik:(_rb0>0)?(100*(_rbN-_rb0)/_rb0):null,
+        aldreTillv:(_tot(data.aldre,i0)>0)?(100*(data.aldre[iN]-data.aldre[i0])/data.aldre[i0]):null,
+        aldreAndel:(_bef0>0&&_tot(data.aldre,i0)!=null)?(100*data.aldre[i0]/_bef0):null,
+        fk0:_tot(data.fors,i0), fkN:_tot(data.fors,iN),
+        forsSerie:(data.fors&&data.fors.slice)?data.fors.slice():null,
+        fkRikN:_rd?_tot(_rd.fors,iN):null
+      };
+      /* Sammanfattningen ritas först i vyns kedja, medan den här figuren hämtar sina tal och
+         kommer långt senare. Kortet om demografin fanns därför inte när rutan byggdes.
+         Rutan ritas om när talen är på plats. */
+      if(window._sumOm)window._sumOm(kpiId==="demoKpiRowKom"?"sumKom":"sumLan");
+    }
+  }catch(e){}
   function shareOf(arr,i){ var t=data.total[i]; return t>0?(arr[i]/t*100):0; }
   function chgPct(arr){ return arr[i0]>0?((arr[iN]-arr[i0])/arr[i0]*100):null; }
   function chip(pct,invert){ if(pct==null)return ""; var good=invert?(pct<0):(pct>0); var flat=Math.abs(pct)<0.05; var cls=flat?"flat":(good?"up":"down"); var ar=flat?"":(pct>0?"\u25b2":"\u25bc"); return '<span class="delta '+cls+'">'+ar+' '+(pct>0?"+":"")+fmt1(pct)+' % till '+yN+'</span>'; }
@@ -8641,6 +8724,22 @@ function _ovgRenderInto(listId,subId,srcId,data,keyDefs,formList){
     return '<div class="ovg-form"><div class="ovg-form-h">'+f[1]+'</div>'+rows+'</div>';
   }).join('');
   L.innerHTML=html;
+  /* Talen sparas på vyns tillstånd, så att sammanfattningen kan säga samma sak som figuren
+     utan att räkna om något. Nyckeln egen är området, riket är jämförelsen. */
+  try{
+    var _st=(listId==="ovgListKom")?window.kommunState:(listId==="ovgList"?window.regionState:null);
+    if(_st&&_st.data){
+      var _ovg={ar:year, former:{}};
+      forms.forEach(function(f){
+        var dd=data[f[0]]; if(!dd||!dd.byKey)return;
+        var _egen=(dd.byKey.kommun!=null)?dd.byKey.kommun
+                 :((dd.byKey.lan!=null)?dd.byKey.lan:dd.byKey.riket);
+        _ovg.former[f[0]]={namn:f[1], egen:_egen, riket:dd.byKey.riket};
+      });
+      _st.data.ovg=_ovg;
+      if(window._sumOm)window._sumOm(listId==="ovgListKom"?"sumKom":"sumLan");
+    }
+  }catch(e){}
   requestAnimationFrame(function(){document.querySelectorAll("#"+listId+" .ovg-fill").forEach(function(x){x.style.width=x.dataset.w+"%";});});
   /* Undertexten sa inte vilken nivå staplarna avser. Nivåerna framgår av raderna, men
      den som läser undertexten ensam ska också få veta det. */
@@ -9344,6 +9443,17 @@ async function fetchYrkeAntal(regions){
       out[rc][area]=(out[rc][area]||0)+v; out[rc]._tot+=v;
     });
   });
+  /* Året står i tidsdimensionens etikett. Svaret hämtar bara den senaste årgången, så det
+     finns exakt ett år att bära med. Både figurens källrad och sammanfattningens kort
+     behöver det. */
+  try{
+    var _tk=id.find(function(c){ return /tid/i.test(c); });
+    if(_tk&&dim[_tk]&&dim[_tk].category){
+      var _lab=dim[_tk].category.label||{};
+      var _kk=Object.keys(dim[_tk].category.index||{});
+      if(_kk.length)out._year=_lab[_kk[0]]||_kk[0];
+    }
+  }catch(e){}
   return out;
 }
 
@@ -9536,6 +9646,7 @@ function buildKommunData(code,live){
       privShareReg:_privShareKom(live&&live.bransch?live.bransch[code]:null),
       privShareRik:_privShareKom(live&&live.bransch?live.bransch["00"]:null),
       /* Andelen företagare bland de sysselsatta. Hämtas asynkront och kan saknas. */
+      ftgAr:(live.ftg&&live.ftg.reg)?(live.ftg.reg.ar||null):null,
       ftgReg:(live.ftg&&live.ftg.reg)?live.ftg.reg.andel:null,
       ftgRik:(live.ftg&&live.ftg.rik)?live.ftg.rik.andel:null},
     sysSeries:sysSeries,sysYears:sysYears,
@@ -9567,6 +9678,10 @@ function buildKommunData(code,live){
       });
       return (traff===kn.length&&traff>0)?ut:null;   /* bara om samtliga kommuner kom med */
     })(),
+    /* Näringsgrensfördelningen bär sitt år i _year. Det följer nu med, så att både figurens
+       källrad och sammanfattningens kort kan säga vilken årgång talen kommer ur. */
+    branschAr:((live&&live.bransch&&live.bransch._year)||null),
+    yrkeAr:((live&&live.yrke&&live.yrke._year)||null),
     branschAvd:((live&&live.bransch&&live.bransch[code]&&live.bransch[code]._avd)||null),
     branschAvdRik:((live&&live.bransch&&live.bransch["00"]&&live.bransch["00"]._avd)||null),
     baro:baro,_peerSys:peerSys,_peerArb:peerArb,_lanData:{code:lan}};
@@ -9627,9 +9742,11 @@ function renderKommunArbTrend(){
 }
 function renderKommunSpec(){
   var d=kommunState.data, code=kommunState.code;
-  var srcB=d._brReal?"SCB, Statistikdatabasen. Specialiseringskvot mot riket.":"Uppgiften saknas.";
+  /* Samma årgång som i länsvyn, skriven i källraden så att kortet kan säga den. */
+  var _lqArK=d.yrkeAr?(", år "+d.yrkeAr):"", _brArK=d.branschAr?(", år "+d.branschAr):"";
+  var srcB=d._brReal?("SCB, Statistikdatabasen"+_brArK+". Specialiseringskvot mot riket."):"Uppgiften saknas.";
   var scopeY=d._komYrkeReal?"kommunen":(d._yrkeLanReal?(d.lanName||"länet"):"kommunen");
-  var srcY=d._komYrkeReal?"SCB, Statistikdatabasen. Avser \u00e5ldern 20\u201365 \u00e5r i kommunen.":(d._yrkeLanReal?("SCB, Statistikdatabasen. Avser "+(d.lanName||"l\u00e4net")+", d\u00e5 yrke inte redovisas p\u00e5 kommunniv\u00e5."):"Uppgiften saknas f\u00f6r kommunen.");
+  var srcY=d._komYrkeReal?("SCB, Statistikdatabasen"+_lqArK+". Avser \u00e5ldern 20\u201365 \u00e5r i kommunen."):(d._yrkeLanReal?("SCB, Statistikdatabasen. Avser "+(d.lanName||"l\u00e4net")+", d\u00e5 yrke inte redovisas p\u00e5 kommunniv\u00e5."):"Uppgiften saknas f\u00f6r kommunen.");
   renderLqOne({list:d.lqYrke,isY:true,scope:scopeY,code:code,titleId:"lqTitleKom",subId:"lqSubKom",srcId:"srcLqKom",listId:"lqListKom",linkBransch:false,src:srcY});
   renderLqOne({list:d.lqBransch,isY:false,scope:"kommunen",code:code,titleId:"lqBrTitleKom",subId:"lqBrSubKom",srcId:"srcLqBrKom",listId:"lqBrListKom",linkBransch:false,src:srcB});
 }
@@ -9796,7 +9913,7 @@ async function loadKommunData(){
     fetchMatchning().catch(function(){return null;}),
     /* Företagandet hämtas i samma svep som övriga mått, så att andelen finns i
        datamodellen när jämförelsetabellen byggs. Anropet har en tidsgräns. */
-    ((typeof window.__ftgIKedja==="function")?window.__ftgIKedja(code,6000):Promise.resolve(null))
+    ((typeof window.__ftgIKedja==="function")?window.__ftgIKedja(code,15000):Promise.resolve(null))
   ]);
   if(kommunState.code!==code)return;
   var data=buildKommunData(code,{syss:_r[0],arbl:_r[1],utb:_r[2],bransch:_r[3],yrkeLan:_r[4],peerSys:_r[5],komYrke:_r[6],syss2024:_r[7],arbl2024:_r[8],peerArb:_r[9],medink:_r[10],utbFord:_r[11],pendling:_r[12],grupper:_r[13],match:_r[14],ftg:_r[15]}); kommunState.data=data; kommunState.saknasData=data.saknasData;
@@ -10371,7 +10488,7 @@ async function loadRegionData(){
     fetchMatchning().catch(()=>null),
     /* Företagandet hämtas i samma svep som övriga mått, så att andelen finns i datamodellen
        när jämförelsetabellen byggs. Anropet har en tidsgräns och kan aldrig hindra vyn. */
-    ((typeof window.__ftgIKedja==="function")?window.__ftgIKedja(code,6000):Promise.resolve(null))
+    ((typeof window.__ftgIKedja==="function")?window.__ftgIKedja(code,15000):Promise.resolve(null))
   ]);
   if(regionState.code!==code)return;
   const data=buildRegionData(code,{syss,arbl,yrke,utb,bransch,syss2024,arbl2024,medink,utbFord,pendling,grupper,match,ftg});
@@ -10474,12 +10591,15 @@ function buildRegionData(code,live){
   }
   let privShareReg=live.bransch?_privShare(live.bransch[code]):null, privShareRik=live.bransch?_privShare(live.bransch["00"]):null;
   let medInkReg=null,medInkRik=null;
-  if(live.medink&&live.medink[code]){const _l=latest(live.medink[code]);medInkReg=_l?_l.value:null;}
+  /* Året följer med värdet, så att kortet kan säga vilken årgång talet kommer ur. */
+  let medInkAr=null;
+  if(live.medink&&live.medink[code]){const _l=latest(live.medink[code]);medInkReg=_l?_l.value:null;medInkAr=_l?_l.year:null;}
   if(live.medink&&live.medink["00"]){const _lr=latest(live.medink["00"]);medInkRik=_lr?_lr.value:null;}
   const saknasData=!(sysReg!=null||arbReg!=null||utbReg!=null||lqYrke.length||lqBransch.length);
-  return {code,name:(typeof regionName==="function"?regionName(code):code),saknasData,utbFord:(live.utbFord||null),kpis:{sysReg,sysRik,arbReg,arbRik,utbReg,utbRik,sysReg2024,sysRik2024,arbReg2024,arbRik2024,privShareReg,privShareRik,medInkReg,medInkRik,
+  return {code,name:(typeof regionName==="function"?regionName(code):code),saknasData,utbFord:(live.utbFord||null),kpis:{sysReg,sysRik,arbReg,arbRik,utbReg,utbRik,sysReg2024,sysRik2024,arbReg2024,arbRik2024,privShareReg,privShareRik,medInkReg,medInkRik,medInkAr,
       /* Andelen företagare bland de sysselsatta. Hämtas asynkront och kan saknas, och
          jämförelsetabellen streckar då cellen som för andra mått utan värde. */
+      ftgAr:(live.ftg&&live.ftg.reg)?(live.ftg.reg.ar||null):null,
       ftgReg:(live.ftg&&live.ftg.reg)?live.ftg.reg.andel:null,
       ftgRik:(live.ftg&&live.ftg.rik)?live.ftg.rik.andel:null},sysSeries,sysYears,arbSeries,arbYears,lqYrke,lqBransch,
     sys24Series,sys24Years,arb24Series,arb24Years,
@@ -10493,6 +10613,10 @@ function buildRegionData(code,live){
       if(!egen)return null;
       return {ar:m.ar, egen:egen, rik:((code==="00")?null:m.riket)}; })(),
 
+    /* Näringsgrensfördelningen bär sitt år i _year. Det följer nu med, så att både figurens
+       källrad och sammanfattningens kort kan säga vilken årgång talen kommer ur. */
+    branschAr:((live&&live.bransch&&live.bransch._year)||null),
+    yrkeAr:((live&&live.yrke&&live.yrke._year)||null),
     branschAvd:((live&&live.bransch&&live.bransch[code]&&live.bransch[code]._avd)||null),
     branschAvdRik:((live&&live.bransch&&live.bransch["00"]&&live.bransch["00"]._avd)||null),
     baro:(typeof regBaro==="function"?regBaro(code):[])};
@@ -11269,7 +11393,10 @@ function renderNaringsbredd(cfg){
     }
   }
   var src=document.getElementById(cfg.srcId);
-  if(src)src.textContent="SCB, Statistikdatabasen, sysselsatta efter n\u00e4ringsgren (dagbefolkning). Ju h\u00f6gre andel i de st\u00f6rsta n\u00e4ringsgrenarna, desto mer samlad \u00e4r syssels\u00e4ttningen.";
+  /* Årgången stod inte i källraden. Utan den kan sammanfattningens kort inte heller säga
+     vilket år talet avser, och regeln är att kortet bara får säga det figuren säger. */
+  var _nbAr=(cfg.data&&cfg.data.branschAr)?(", \u00e5r "+cfg.data.branschAr):"";
+  if(src)src.textContent="SCB, Statistikdatabasen, sysselsatta efter n\u00e4ringsgren (dagbefolkning)"+_nbAr+". Ju h\u00f6gre andel i de st\u00f6rsta n\u00e4ringsgrenarna, desto mer samlad \u00e4r syssels\u00e4ttningen.";
 }
 function renderRegionNb(){ var d=regionState.data; if(!d)return; renderNaringsbredd({data:d,code:regionState.code,namn:d.name,figId:"nbFigLan",kpiId:"nbKpiLan",canvasId:"cNbLan",legId:"legNbLan",srcId:"srcNbLan",chartKey:"nbLan"}); }
 function renderKommunNb(){ var d=kommunState.data; if(!d)return; renderNaringsbredd({data:d,code:kommunState.code,namn:d.name,figId:"nbFigKom",kpiId:"nbKpiKom",canvasId:"cNbKom",legId:"legNbKom",srcId:"srcNbKom",chartKey:"nbKom"}); }
@@ -11355,10 +11482,13 @@ function renderLqOne(cfg){
 }
 function renderSpecialisering(){
   var d=regionState.data, code=regionState.code, us=regionState.saknasData;
+  /* Årgången stod inte i källraden, och sammanfattningens kort kunde därför inte heller
+     säga den. Den skrivs nu ut här först, och kortet följer efter. */
+  var _lqAr=d.yrkeAr?(", år "+d.yrkeAr):"";
   renderLqOne({list:d.lqYrke,isY:true,scope:"länet",code:code,titleId:"lqTitle",subId:"lqSub",srcId:"srcLq",listId:"lqList",linkBransch:false,
-    src:"SCB, Statistikdatabasen, Yrkesregistret. Specialiseringskvoten är en egen beräkning."});
+    src:"SCB, Statistikdatabasen, Yrkesregistret"+_lqAr+". Specialiseringskvoten är en egen beräkning."});
   renderLqOne({list:d.lqBransch,isY:false,scope:"länet",code:code,titleId:"lqBrTitle",subId:"lqBrSub",srcId:"srcLqBr",listId:"lqBrList",linkBransch:true,
-    src:"SCB, Statistikdatabasen, Yrkesregistret. Specialiseringskvoten är en egen beräkning."});
+    src:"SCB, Statistikdatabasen, Yrkesregistret"+_lqAr+". Specialiseringskvoten är en egen beräkning."});
 }
 function bcToggle(btn){ var col=btn.closest(".bc-col"); if(!col)return; var open=col.classList.toggle("bc-open"); btn.setAttribute("aria-expanded",open?"true":"false"); var l=btn.querySelector(".bc-toggle-lbl"); if(l)l.textContent=open?"Dölj lista":"Visa lista"; }
 (function(){
@@ -12516,7 +12646,7 @@ async function fetchRegionTotals(){
          ihop. Avviker källans total loggas det i stället för att tyst ändra talet. */
       var kallTot=st.tot?las(ri,st.tot):null;
       if(kallTot>0 && window.__summakoll) window.__summakoll("yrkesställning "+(rC[ri]||ri), tot, kallTot);
-      return {anst:anst, ab:ab, egen:egen, tot:tot,
+      return {anst:anst, ab:ab, egen:egen, tot:tot, ar:ar,
               andelAnst:100*(anst||0)/tot, andelAb:100*(ab||0)/tot, andelEgen:100*(egen||0)/tot,
               andel:100*((ab||0)+(egen||0))/tot};
     }
@@ -12533,7 +12663,12 @@ async function fetchRegionTotals(){
      i den kedja som vyn väntar på, och ett svar som dröjer stoppade därmed hela länsvyn
      på "Hämtar data". Anropet får en tidsgräns: hinner det inte fram lämnas måttet tomt,
      figuren döljs och tabellcellen streckas, precis som när uppgiften saknas. Svaret
-     cachas ändå av modulen, så nästa gång området visas finns talet på plats. */
+     cachas ändå av modulen, så nästa gång området visas finns talet på plats.
+
+     Gränsen låg först på sex sekunder. Vid en genomgång av samtliga tjugoett län i följd
+     löpte den ut för nästan varje län: SCB svarar långsammare när anropen kommer tätt, och
+     måttet föll då bort ur hela genomgången. Femton sekunder räcker med marginal och märks
+     inte i vanligt bruk, eftersom vyn ritas färdig ändå medan anropet är ute. */
   window.__ftgIKedja=function(kod,ms){
     var p=(typeof window.__ftgHamta==="function")?window.__ftgHamta(kod):Promise.resolve(null);
     return Promise.race([
@@ -12543,7 +12678,7 @@ async function fetchRegionTotals(){
            något gick fel i egentlig mening. */
         try{ console.warn("[företagande] hämtningen hann inte inom tidsgränsen för "+kod+", måttet lämnas tomt denna gång"); }catch(e){}
         los(null);
-      }, ms||6000); })
+      }, ms||15000); })
     ]);
   };
 
@@ -13098,6 +13233,13 @@ async function renderLanAlder(){
   }
   var rows=res.rows;
   var totAvg=0; rows.forEach(function(r){ totAvg+=r.avgPerAr; });
+  /* Summan och antalet yrkesgrupper sparas på vyns tillstånd. Sammanfattningen hade en punkt
+     om andelen 55 år och äldre, men det måttet finns inte i länsvyn — det är yrkesvyns mått,
+     och punkten skrevs därför aldrig. Ersättningsbehovet är det som faktiskt visas här. */
+  try{ if(window.regionState&&window.regionState.data){
+    window.regionState.data.avg={perAr:totAvg, grupper:rows.length, ar:res.ar||null};
+    if(window._sumOm)window._sumOm("sumLan");
+  } }catch(e){}
   /* Tabellen går att sortera på samtliga kolumner, som branschtabellen. Urvalet av de
      tjugo görs efter sorteringen, så att en sortering på andel 55 år visar de tjugo
      äldsta yrkesgrupperna och inte de tjugo största omsorterade. Stapelns längd mäts
@@ -15525,6 +15667,18 @@ function renderYrkeBrist(){
     return;}
   /* Finns bedömning igen ska figuren tillbaka. */
   { var _bf2=$("#bristListY").closest(".r-fig"); if(_bf2)_bf2.hidden=false; }
+  /* Gruppens bedömning sparas på vyns tillstånd. Sammanfattningens punkt läste d.lage, som
+     kommer ur barometern på fyrställig nivå. Yrkesvyn arbetar med tresiffriga yrkesgrupper,
+     och uppslaget gav därför alltid null: punkten skrevs aldrig. Här finns bedömningarna för
+     gruppens medlemmar, och det är dem figuren visar. */
+  try{
+    if(window.yrkeState&&yrkeState.data){
+      var _bc={brist:0,paradox:0,balans:0,overskott:0};
+      members.forEach(function(k){ var l=lage(k); if(l&&_bc[l]!=null)_bc[l]++; });
+      var _dom=["brist","paradox","balans","overskott"].reduce(function(a,b){ return _bc[b]>_bc[a]?b:a; },"brist");
+      yrkeState.data.baroGrupp={antal:members.length, rakning:_bc, dominerande:_dom};
+    }
+  }catch(e){}
   const lab={brist:"Brist",balans:"Balans",overskott:"Överskott",paradox:"Paradox"},cls={brist:"chip-brist",balans:"chip-balans",overskott:"chip-overskott",paradox:"chip-paradox"};
   if(window.__anaBrist){var _bc={brist:0,paradox:0,balans:0,overskott:0};members.forEach(function(k){var st2=lage(k)||"balans";var k2=(_bc[st2]!=null)?st2:"brist";_bc[k2]++;});__anaBrist($("#bristListY").closest(".r-fig"),_bc,["yrke i gruppen","yrken i gruppen"],_lanNamn);}
   $("#bristListY").innerHTML=members.map(function(k){
@@ -18469,18 +18623,127 @@ window.gotoKommunByCode=gotoKommunByCode;
   function oppnaAvsnitt(kropp, sec){
     if(!kropp)return;
     if((kropp.getAttribute("data-secsel")||"snabb")===String(sec))return;
-    var bar=document.getElementById(kropp.id+"-secbar")||document.querySelector('[id$="-secbar"]');
     var p=null;
     var barer=[].slice.call(document.querySelectorAll(".sec-bar"));
     for(var i=0;i<barer.length&&!p;i++){
       if(barer[i].nextElementSibling===kropp||barer[i].parentElement===kropp.parentElement)
         p=barer[i].querySelector('.sec-pill[data-sec="'+sec+'"]');
     }
-    if(!p)p=document.querySelector('.sec-pill[data-sec="'+sec+'"]');
-    if(p){ try{ p.click(); return; }catch(e){} }
+    /* Sista utvägen sökte igenom hela dokumentet efter ett piller med rätt nummer. Numren
+       börjar om i varje vy, så träffen kunde ligga i en annan vy: klicket bytte då avsnitt
+       där, medan vyn läsaren stod i låg kvar. Figuren förblev dold, hoppet svarade att den
+       inte visas, och knappen såg död ut. Sökningen hålls därför inom samma vy.
+       Har avsnittet inget piller — det händer när rubriken räknats som tom och utgått ur
+       navet — sätts läget direkt på kroppen i stället. */
+    if(!p){
+      var vyEl=kropp.closest?kropp.closest(".view"):null;
+      if(vyEl)p=vyEl.querySelector('.sec-pill[data-sec="'+sec+'"]');
+    }
+    if(p){ try{ p.click(); return "piller"; }catch(e){} }
     kropp.setAttribute("data-secsel",String(sec));
     if(window.__applySecNav)window.__applySecNav(kropp);
+    return "direkt";
   }
+
+  /* Avsnittsbytet rullar resultatytan till toppen med mjuk rullning. Hoppet rullade sedan
+     vidare till figuren efter en fast fördröjning, och den gissningen höll inte: rullningen
+     mot toppen pågick fortfarande och vann. Fördröjningen är därför utbytt mot en avvaktan.
+     Vi lyssnar på rullningen och fortsätter först när den legat still i etthundratjugo
+     millisekunder. Sker ingen rullning alls fortsätter vi efter en bildruta, och ett tak på
+     en och en halv sekund gör att hoppet aldrig blir hängande. */
+  function narRullningenStannat(el, klar){
+    var mal=el||window, t=null, tak=null, gjort=false;
+    function fardig(){
+      if(gjort)return; gjort=true;
+      clearTimeout(t); clearTimeout(tak);
+      try{ mal.removeEventListener("scroll", vid); }catch(e){}
+      klar();
+    }
+    function vid(){ clearTimeout(t); t=setTimeout(fardig,120); }
+    try{ mal.addEventListener("scroll", vid, {passive:true}); }catch(e){ fardig(); return; }
+    t=setTimeout(fardig,180);
+    tak=setTimeout(fardig,1500);
+  }
+
+  /* Mätning av ett hopp, för felsökning. Skriver ut vad som faktiskt händer i stället för
+     vad koden är tänkt att göra: vilken behållare som rullar, var den står före och efter,
+     vem som anropar scrollIntoView, och hur läget ser ut en halv sekund senare. Körs som
+     __hoppDiagnos("Nyckeltal") i konsolen. */
+  /* Fälla på avsnittsläget. Attributet data-secsel ställs tillbaka av någon efter hoppet,
+     och vem det är går inte att se i koden — flera vägar leder dit. Fällan ersätter
+     setAttribute på kroppen och skriver ut anropskedjan varje gång värdet ändras, så att
+     den skyldiga syns i stället för att gissas. Körs som __spionaAvsnitt("regionBody") och
+     stängs av med __spionaAvsnitt(null). */
+  var _spion=null;
+  window.__spionaAvsnitt=function(bodyId){
+    if(_spion){ try{ _spion.el.setAttribute=_spion.origo; }catch(e){} _spion=null;
+      console.log("fällan avstängd"); if(!bodyId)return; }
+    if(!bodyId)return;
+    var el=document.getElementById(bodyId);
+    if(!el){ console.warn("hittar ingen kropp med id "+bodyId); return; }
+    var origo=el.setAttribute.bind(el);
+    _spion={el:el, origo:el.setAttribute};
+    el.setAttribute=function(namn, varde){
+      if(namn==="data-secsel"){
+        var fran=el.getAttribute("data-secsel");
+        if(String(fran)!==String(varde)){
+          var stack=(new Error()).stack||"";
+          console.log("%cdata-secsel: "+fran+" \u2192 "+varde, "color:#3b7992;font-weight:600");
+          console.log(stack.split("\n").slice(1,7).join("\n"));
+        }
+      }
+      return origo(namn, varde);
+    };
+    console.log("fällan satt på "+bodyId+". Klicka på kortet nu.");
+  };
+
+  window.__hoppDiagnos=function(rubrik, vy){
+    var poster=window.__figurRegister(rubrik||"");
+    var exakta=poster.filter(function(r){ return r.rubrik===(rubrik||""); });
+    var r=(vy?exakta.filter(function(x){ return x.vy===vy; })[0]:null)||exakta[0]||poster[0];
+    if(!r){ console.warn("hittar ingen figur med rubriken "+rubrik); return; }
+    var kropp=document.getElementById(r.kropp||"");
+    var res=kropp&&kropp.closest?kropp.closest(".results"):null;
+    var f=document.getElementById(r.id);
+    var logg=[];
+    function las(vad){
+      var el=document.getElementById(r.id);
+      var rk=el?el.getBoundingClientRect():null;
+      logg.push({steg:vad,
+        secsel:kropp?(kropp.getAttribute("data-secsel")||"snabb"):null,
+        secOff:el?!!(el.classList&&el.classList.contains("sec-off")):null,
+        hojd:rk?Math.round(rk.height):null,
+        toppIVy:rk?Math.round(rk.top):null,
+        resScroll:res?Math.round(res.scrollTop):null,
+        fonsterScroll:Math.round(window.scrollY||0)});
+    }
+    console.log("figur:", r.rubrik, "| vy:", r.vy, "| id:", r.id, "| sec:", r.sec, "| kropp:", r.kropp);
+    console.log("rullbehållare:", res?("results, rullbar: "+(res.scrollHeight>res.clientHeight)):"ingen .results hittad");
+    var origo=f?f.scrollIntoView:null;
+    if(f)f.scrollIntoView=function(){ logg.push({steg:"scrollIntoView anropas",
+      resScroll:res?Math.round(res.scrollTop):null, toppIVy:Math.round(f.getBoundingClientRect().top)});
+      return origo.apply(this, arguments); };
+    var rullningar=0;
+    function raknare(){ rullningar++; }
+    if(res)res.addEventListener("scroll", raknare, {passive:true});
+    window.addEventListener("scroll", raknare, {passive:true});
+    las("före");
+    window.__hoppaTillFigur(r).then(function(svar){
+      las("direkt efter hoppet");
+      setTimeout(function(){
+        las("500 ms senare");
+        setTimeout(function(){
+          las("1500 ms senare");
+          if(res)res.removeEventListener("scroll", raknare);
+          window.removeEventListener("scroll", raknare);
+          if(f&&origo)f.scrollIntoView=origo;
+          console.log("svar:", svar);
+          console.log("rullningshändelser:", rullningar);
+          console.table(logg);
+        }, 1000);
+      }, 500);
+    });
+  };
 
   /* Svarar med om figuren faktiskt gick att visa. En figur kan finnas i registret men vara
      dold för det valda området — kommunvyns rekryteringstryck visas först när en kommun är
@@ -18501,10 +18764,23 @@ window.gotoKommunByCode=gotoKommunByCode;
        öppna. Fördröjningen är noll när vyn redan är framme. */
     return new Promise(function(klar){
       setTimeout(function(){
-        if(kropp&&r.sec!=null)oppnaAvsnitt(kropp, r.sec);
-        setTimeout(function(){
+        var _bytt=(kropp&&r.sec!=null)?oppnaAvsnitt(kropp, r.sec):null;
+        /* Ett pillerklick rullar resultatytan till toppen med mjuk rullning, så att läsaren
+           börjar överst i det nya avsnittet. Hoppet rullade sedan till figuren efter sextio
+           millisekunder, mitt under den rullningen, och toppen vann: man hamnade högst upp i
+           vyn i stället för vid figuren. Efter ett pillerklick väntar hoppet därför tills
+           rullningen hunnit lägga sig. Har inget piller klickats står fördröjningen kvar på
+           en bildruta. */
+        function utfor(){
           var f=document.getElementById(r.id);
           if(!f){ klar({ok:false, orsak:"figuren finns inte i dokumentet", post:r}); return; }
+          /* Öppnade pillerklicket inte avsnittet — det kan ha gått till en annan vy, eller
+             saknats — sätts läget på kroppen direkt och navet körs om. Ett andra försök
+             kostar en bildruta och räddar de fall där figuren annars stannar dold. */
+          if(kropp&&r.sec!=null&&(kropp.getAttribute("data-secsel")||"snabb")!==String(r.sec)){
+            kropp.setAttribute("data-secsel",String(r.sec));
+            if(window.__applySecNav)window.__applySecNav(kropp);
+          }
           /* Pekar posten på en rubrik inuti ett kort markeras kortet, eftersom ramen hör
              till kortet — men rullningen går till rubriken. */
           var mark=f.classList&&f.classList.contains("r-fig")?f:(f.closest?f.closest(".r-fig"):f)||f;
@@ -18518,7 +18794,15 @@ window.gotoKommunByCode=gotoKommunByCode;
           }
           klar({ok:true, synlig:synlig, post:r,
                 orsak:synlig?"":"figuren visas inte för det valda området"});
-        }, 60);
+        }
+        if(_bytt==="piller"){
+          /* Resultatytan är egen rullbehållare på skrivbordet och rullar med fönstret på
+             mobil. Vi väntar på den som faktiskt rör sig. */
+          var res=(kropp&&kropp.closest)?kropp.closest(".results"):null;
+          narRullningenStannat((res&&res.scrollHeight>res.clientHeight)?res:window, utfor);
+        } else {
+          setTimeout(utfor,60);
+        }
       }, byteAvVy?220:0);
     });
   };
@@ -20604,11 +20888,17 @@ window.__reportInject=function(bodyId, rd, data, MAP){
        tidigare bort utan ett ord, och en byggare kunde därför skriva ett stycke om en figur som
        aldrig kom med — det var samvariationsnätverket i yrkesrapporten. Nu syns det i konsolen
        att något ratats, så att texten omkring kan rättas i stället för att bli hängande. */
+    /* Varningen skrevs vid varje omritning av vyn, alltså varje gång ett nytt område valdes.
+       Den säger samma sak varje gång och hör hemma en gång per vy och session. */
     try{
+      window.__igLoggat=window.__igLoggat||{};
       var _ig=Object.keys(_ignorerade);
-      if(_ig.length)console.warn("[rapport] blocktyper som inte tas med ur byggaren ("+bodyId+"):",
+      if(_ig.length&&!window.__igLoggat[bodyId]){
+        window.__igLoggat[bodyId]=1;
+        console.warn("[rapport] blocktyper som inte tas med ur byggaren ("+bodyId+"):",
         _ig.map(function(t){ return t+" \u00d7"+_ignorerade[t]; }).join(", "),
         "\u2014 figurer h\u00e4mtas ur vyn, s\u00e5 en figur som bara finns i byggaren kan inte visas.");
+      }
     }catch(e){}
     /* Vissa figurrubriker skrivs om av renderaren. "Efterfrågan per län – antal" heter
      "Efterfrågan per län – andel" när antalsspärren är på, och en exakt jämförelse mot
@@ -21724,6 +22014,12 @@ window.__KOMMUN_MAP={
     ".amr-view .sum-wrap,.amr-view .sum-box{break-inside:auto;page-break-inside:auto}",
     ".amr-view .sum-kortlista{display:block;padding:0}",
     ".amr-view .sum-kort{break-inside:avoid;page-break-inside:avoid;margin:0 0 9px}",
+    /* Kortets huvud bär en ton och en linje. Webbläsaren skriver som förval inte ut
+       bakgrunder, och huvudet blev då vitt mot vitt i pdf:en: rubriken och talet såg ut
+       att sväva ovanför texten utan att höra ihop med den. Tonen och linjen tvingas fram,
+       och skuggan tas bort eftersom den inte hör hemma på papper. */
+    ".amr-view .sum-kort.har-huvud .sum-huvud{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#f3eee3;border-bottom:1px solid #e7dfd0}",
+    ".amr-view .sum-kort.har-huvud{box-shadow:none}",
     ".amr-view .sum-kort:last-child{margin-bottom:0}",
     ".amr-view .sum-rutnat{display:block}",
     ".amr-view .sum-ruta,.amr-view .sum-item{break-inside:avoid;page-break-inside:avoid;margin:0 0 9px}"
@@ -25894,7 +26190,17 @@ window.__applySecNav=function(body){
       })();
 
       if(window.__syncSecBars)window.__syncSecBars();
-      if(cur!=="snabb" && !bar.querySelector('.sec-pill[data-sec="'+cur+'"]')){ cur="snabb"; body.setAttribute("data-secsel","snabb"); }
+      /* Kontrollen frågade pillerraden om avsnittet finns. Det gav fel svar: raden slås upp
+         i början av funktionen och kan vara utbytt när vi kommer hit, och __syncSecBars körs
+         dessutom raden ovanför. Var svaret nej ställdes läget till snabb, och raden längre
+         upp gjorde snabb till noll. Följden var att ett avsnitt man just öppnat föll tillbaka
+         till det första så snart navet byggdes om — och navet byggs om av självläkningen så
+         snart antalet avsnitt med innehåll ändras, vilket det gör just när ett avsnitt öppnas.
+         Ett hopp till en figur i ett annat avsnitt landade därför överst i vyn.
+         Frågan ställs nu till samma lista som pillren byggdes av. Den kan inte vara inaktuell,
+         eftersom den är funktionens egen. */
+      var _finnsAvsnitt=headings.some(function(o){ return String(o.idx)===String(cur); });
+      if(cur!=="snabb" && !_finnsAvsnitt){ cur="snabb"; body.setAttribute("data-secsel","snabb"); }
       var _pills=bar.querySelector(".sec-pills"), _arrow=bar.querySelector(".sec-arrow");
       (function(){
         var toc=document.getElementById(bodyId+"-toc"); if(!toc)return;
@@ -28535,8 +28841,25 @@ B["Lönenivå"]=function(c){
     st.push("Lediga jobb ställs mot två olika baser. Per 100 i arbetskraften visar hur många lediga jobb som finns i förhållande till alla som arbetar eller söker arbete. Per arbetslös visar hur många lediga jobb som går på varje arbetslös, det vill säga hur många som konkurrerar om varje ledigt jobb. Båda talen avser senaste kvartalet och jämförs med riket.");
     return {rubrik:"Lediga jobb och matchning", stycken:st};
   };
+  /* Diagrammen som jämför ett område med riket lägger rikets serie först, så att dess
+     skuggade staplar hamnar bakom områdets. Prosan läste serie noll och beskrev därför
+     rikets fördelning oavsett vilket område som valts: samma program och samma andel stod
+     i alla tjugoen länstexter. Serien väljs på etiketten i stället för på ordningen. */
+  function staplarOmrade(ch){
+    try{
+      var ds=(ch&&ch.data&&ch.data.datasets)||[];
+      for(var i=0;i<ds.length;i++){
+        if(!/^riket$/i.test(String(ds[i].label||""))){
+          var s=serie(ch,i); if(!s)break;
+          return s.et.map(function(e,j){ return {namn:e, v:s.v[j]}; })
+                     .filter(function(r){ return r.v!=null&&!isNaN(r.v); });
+        }
+      }
+    }catch(e){}
+    return staplar(ch);
+  }
   B["Examinerade per gymnasieprogram"]=function(c){
-    var rd=staplar(c.chart); var t=toppText(rd,"programmen","de examinerade i diagrammet");
+    var rd=staplarOmrade(c.chart); var t=toppText(rd,"programmen","de examinerade i diagrammet");
     return t&&{rubrik:"Dimensionering av gymnasieutbildningar", stycken:["Figuren visar hur gymnasieexamina fördelar sig över program. "+t+""]};
   };
   B["Utbildningsnivå"]=function(c){
@@ -33496,6 +33819,14 @@ var UNDERLAG = [
 </script>
 
 <script>
+/* Figurer som hämtar sina tal blir klara långt efter att sammanfattningen ritats. Den som
+   sparar tal åt ett kort ritar därför om rutan när talen är på plats. Rutan skriver bara om
+   markupen när den ändrats, så en omritning för mycket kostar ingenting. */
+function _sumOm(boxId){
+  try{ if(window.__sumRita&&document.getElementById(boxId))window.__sumRita(boxId); }catch(e){}
+}
+try{ window._sumOm=_sumOm; }catch(e){}
+
 /* ===== Sammanfattningen ==================================================================
    Rutan står först i varje vy och samlar de nyckeltal som gäller den valda enheten själv.
    Länets tal utelämnas i kommunvyn och rikets i läns- och kommunvyn, eftersom en läsare som
@@ -33548,7 +33879,61 @@ var UNDERLAG = [
      ett hopp till fel ställe. */
   /* Etiketten används av rutnätsformen, som sätter den som kortrubrik. Formerna som
      redovisar punkterna i en lista bryr sig inte om den. */
-  function p(text, figur, etikett){ return text?{text:text, figur:figur, etikett:etikett}:null; }
+  /* Femte argumentet är kortets huvudtal, lyft ur meningen och satt i stor stil till vänster.
+   Det är frivilligt, så äldre anrop är oförändrade och kort utan tal ser ut som förut.
+   Ett sjätte argument bar en talserie för ett mikrodiagram; det är borttaget. */
+  /* Namn ur datan skrivs in i markupen: branschnamn, yrkesnamn, kompetensetiketter,
+     arbetsgivarnamn. Källorna är register och taxonomier, inte fritext — arbetsgivarna slås
+     upp på organisationsnummer — så en vinkelparentes i ett namn är osannolik. Omkodningen
+     står ändå kvar, av två skäl som båda är verkliga i dagens data: 739 av 12 878
+     arbetsgivarnamn bär ett et-tecken, och ett et-tecken som inte kodas om kan börja en
+     teckenentitet. Och en källa som byts ut senare bär inte nödvändigtvis samma garantier.
+
+     Omkodningen måste tåla att göras två gånger. Namnen kodas om vid ingången, i postNamn,
+     och etiketten och talet kodas om här; ett namn som blir kortets tal passerar därmed båda.
+     Utan skydd blev "Clockwork Bemanning & Rekrytering AB" till "&amp;amp;" på skärmen.
+     Kända entiteter läses därför tillbaka först, så att en andra omkodning inte lägger på ett
+     lager till. Löptexten byggs av byggarna och bär avsiktlig markup, och kodas inte om. */
+  /* Filen har en hjälpare för ental sedan tidigare, men sammanfattningen använde den inte.
+     Ett litet område kan ha ett enda varsel, en enda yrkesgrupp eller en enda anställd, och
+     då stod det "1 personer" och "1 yrkesgrupper" i rutan. */
+  /* Figurmålet angavs som en rubrik utan vy. Uppslaget tar då första träffen i vyordningen
+     region, kommun, yrke, bransch, kompetens, utbstat — och tio av läns- och kommunvyns
+     rubriker finns i båda vyerna. Från kommunvyn hoppade alltså tio kort till länsvyn, och
+     "Vanliga vägar in" i kompetensvyn till yrkesvyn. Vyn läggs på vid utgången ur varje
+     byggare, så att målet aldrig kan bli en annan vys figur. Mål som redan anger vy rörs
+     inte. */
+  function _iVy(lista, vy){
+    (lista||[]).forEach(function(x){
+      if(x&&typeof x.figur==="string")x.figur={rubrik:x.figur, vy:vy};
+    });
+    return lista;
+  }
+  function _ent(n,sg,pl){
+    if(n==null||isNaN(n))return "uppgift saknas";
+    n=Math.round(n);
+    return tal(n)+" "+(n===1?sg:(pl||sg));
+  }
+  function txt(v){
+    if(v==null)return v;
+    var ENT={amp:"&",lt:"<",gt:">",quot:'"'};
+    return String(v).replace(/&(amp|lt|gt|quot);/g,function(_,e){ return ENT[e]; })
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function p(text, figur, etikett, tal, aret){
+    /* Året står i parentes efter etiketten, så att kortet självt säger vilken årgång talet
+       kommer ur. Saknas året skrivs ingen parentes: en tom parentes vore värre än inget. */
+    var et=etikett?txt(etikett):null;
+    if(et&&aret)et=et+" ("+txt(aret)+")";
+    /* Fetmarkeringarna i löptexten är borttagna. Rubriken bär måttet och talet, och med feta
+       tal i texten under konkurrerade tre saker om blicken. Strykningen görs här, i punkten
+       själv, i stället för i varje mening: då gäller den alla vyer och följer med till
+       rapporten, som bygger sin sammanfattning ur samma punkter. Jämförelseledens span står
+       kvar, eftersom det bär en egen ton och inte en vikt. */
+    var _t=String(text).replace(/<\/?b>/g,"");
+    return text?{text:_t, figur:figur, etikett:et, tal:(tal!=null&&tal!=="")?txt(tal):null}:null;
+  }
   /* Talet prövas efter formatering, inte före. Ett värde som inte är null men heller inte ett
      tal, till exempel NaN från en uträkning som saknat sin nämnare, tog sig annars igenom
      kontrollen och skrevs ut som ordet null. */
@@ -33590,11 +33975,16 @@ var UNDERLAG = [
      där namnet står först och ett tal efter, som ["Ungdomar", 21.5]. Paren är den vanligaste
      formen i kompetensdatan, och den kände läsaren inte igen: de närliggande kompetenserna
      föll därför bort utan spår. */
+  /* Namnen skrivs in i markupen och kodas därför om här, vid ingången. Ett arbetsgivarnamn
+     eller en kompetensetikett med vinkelparentes blev annars ett element i stället för text.
+     Samtliga byggare läser namn genom den här funktionen, så en plats räcker. */
   function postNamn(x){
     if(x==null)return null;
-    if(typeof x==="string")return x;
-    if(Array.isArray(x))return (typeof x[0]==="string")?x[0]:null;
-    return (x.namn||x.name||x.kod||x.code)||null;
+    var n=null;
+    if(typeof x==="string")n=x;
+    else if(Array.isArray(x))n=(typeof x[0]==="string")?x[0]:null;
+    else n=(x.namn||x.name||x.kod||x.code)||null;
+    return (n==null)?null:txt(n);
   }
   function forst(lista){
     if(!lista||!lista.length)return null;
@@ -33604,9 +33994,22 @@ var UNDERLAG = [
   function lanKom(d, enhet, vy){
     if(!d)return [];
     var k=d.kpis||{}, ut=[];
+    /* Är riket självt det valda området blir varje jämförelse en jämförelse med sig själv:
+       "Sysselsättningsgraden i riket är 80,4 procent. I riket är motsvarande grad 80,4
+       procent." Rikets egna tal skickas därför in som saknade, så att jämförelseleden
+       uteblir i stället för att upprepa talet. Pendling över gränsen finns inte heller för
+       riket, och det kortet utgår. */
+    var _arRiket=(String(d.code)==="00");
+    if(_arRiket){
+      k=Object.keys(k).reduce(function(o,n2){ if(!/Rik$/.test(n2))o[n2]=k[n2]; return o; },{});
+    }
     /* Ungdomsmåtten ligger i egna serier, 20 till 24 år. De hör till samma punkt som det
        samlade måttet, eftersom det är kontrasten mellan dem som säger något. */
     function sista(serie){ return (serie&&serie.length)?serie[serie.length-1]:null; }
+    /* Årtalet per kort. Serierna bär sina år i egna listor, övriga mått har ett årsfält i
+       datan. Där året inte finns skrivs ingen parentes. */
+    var _arSys=sista(d.sysYears)||k.sysAr||d.ar||null;
+    var _arArb=sista(d.arbYears)||k.arbAr||d.ar||null;
     var _ung=num(sista(d.sys24Series&&d.sys24Series.region),1);
     var _ungA=num(sista(d.arb24Series&&d.arb24Series.region),1);
     /* Ungdomsmåtten jämförs också med riket. Utan det säger talet lite: att sysselsättningen
@@ -33617,74 +34020,144 @@ var UNDERLAG = [
     if(_sys) ut.push(p("Sysselsättningsgraden i "+enhet+" är <b>"+_sys+" procent</b>"+ar(k.sysAr||d.ar)+"."
       +(k.sysRik!=null?jmfNiva(k.sysReg,k.sysRik,"grad"):"")
       +(_ung?(" Bland unga i åldern 20 till 24 år är den <b>"+_ung+" procent</b>."
-        +(_ungRik?(" I riket är motsvarande grad <b>"+_ungRik+" procent</b>."):"")):""),
-      "Sysselsättningsgrad över tid","Sysselsättning"));
+        +(_ungRik?(" I riket är motsvarande grad <b>"+_ungRik+" procent</b>."):"")):"")
+      ,"Sysselsättningsgrad över tid","Sysselsättningsgrad",
+      _sys+"\u00a0%", _arSys));
     var _arb=num(k.arbReg,1);
     if(_arb) ut.push(p("Arbetslösheten är <b>"+_arb+" procent</b>"+ar(k.arbAr||d.ar)
       +"."+(k.arbRik!=null?jmfSkillnad(k.arbReg-k.arbRik,1):"")
       +(_ungA?(" Bland unga i åldern 20 till 24 år är den <b>"+_ungA+" procent</b>."
         +(_ungARik?(" I riket är motsvarande andel <b>"+_ungARik+" procent</b>."):"")):""),
-      "Arbetslöshet över tid","Arbetslöshet"));
-    var _mat=d.match?num(d.match.egen,1):null;
+      "Arbetslöshet över tid","Arbetslöshet",
+      _arb+"\u00a0%", _arArb));
+    /* Fältet bär ett objekt med grupper, inte ett tal: matchningsgraden ligger i
+       match.egen.tot.matchad. Kortet skrevs därför aldrig. */
+    var _matT=(d.match&&d.match.egen&&d.match.egen.tot)?d.match.egen.tot:null;
+    var _matR=_arRiket?null
+             :((d.match&&d.match.riket&&d.match.riket.tot)?d.match.riket.tot
+             :((d.match&&d.match.rik&&d.match.rik.tot)?d.match.rik.tot:null));
+    var _mat=_matT?num(_matT.matchad,1):null;
     if(_mat) ut.push(p("Den matchade förvärvsgraden är <b>"+_mat+" procent</b>"+ar(d.match&&d.match.ar)+". Måttet visar hur stor andel "
       +"som arbetar i ett yrke som motsvarar utbildningen."
-      +((d.match.rik!=null)?jmfMening(pe(d.match.egen-d.match.rik)):""),
-      "Matchad förvärvsgrad","Matchning"));
+      +((_matR&&_matR.matchad!=null)?jmfMening(pe(_matT.matchad-_matR.matchad)):""),
+      "Matchad förvärvsgrad","Matchad förvärvsgrad", _mat+"\u00a0%",
+      (d.match&&d.match.ar)||null));
     var _utb=num(k.utbReg,1);
     if(_utb) ut.push(p("Andelen med eftergymnasial utbildning är <b>"+_utb+" procent</b>"+ar(k.utbAr||d.ar)+"."
       +(k.utbRik!=null?jmfNiva(k.utbReg,k.utbRik,"andel"):""),
-      "Utbildningsnivå","Utbildningsnivå"));
+      "Utbildningsnivå","Eftergymnasial utbildning", _utb+"\u00a0%",
+      (d.utbFord&&d.utbFord._year)||k.utbAr||null));
     var _ink=num(k.medInkReg);
     /* Talet står i tusental kronor, samma enhet som nyckeltalskortet skriver som tkr och
        rapporten som "tusen kronor". Utan enheten läste sammanfattningen 382 000 kronor
        som 382 kronor. */
     if(_ink) ut.push(p("Medianinkomsten är <b>"+_ink+" tusen kronor</b> per år"+ar(k.medInkAr||d.ar)+"."
       +((k.medInkRik!=null)?jmfMening(pro(100*(k.medInkReg-k.medInkRik)/k.medInkRik)):""),
-      "Medianinkomst över tid","Medianinkomst"));
+      /* Pilen pekade på "Medianinkomst över tid". Ingen figur bär den rubriken: medianinkomsten
+         står bland nyckeltalen och har ingen egen figur. Knappen gjorde därför ingenting. */
+      "Nyckeltal","Medianinkomst", _ink+"\u00a0tkr", k.medInkAr||null));
     var _tj=num(k.privShareReg,1);
     /* Omkastningen gav "Tjänstesektorn sysselsätter 71,2 procent av de sysselsatta", alltså
        samma ord två gånger i samma mening. Den ursprungliga formen står kvar här. */
     if(_tj) ut.push(p("<b>"+_tj+" procent</b> av de sysselsatta arbetar i tjänstesektorn."
       +((k.privShareRik!=null)?jmfSkillnad(k.privShareReg-k.privShareRik,1):""),
-      "Sysselsatta per bransch","Tjänstesektorn"));
+      /* Hette "Sysselsatta per bransch". Figuren heter Näringslivets bredd. */
+      "Näringslivets bredd","Tjänstesektorn", _tj+"\u00a0%", d.branschAr||null));
+    /* Specialiseringen säger vilka yrken och branscher området har mer respektive mindre av
+       än riket. Listorna är sorterade fallande efter kvot, så den första är den mest
+       överrepresenterade och den sista den minst. De två korten bar tidigare bara en
+       uppräkning i texten och stod utan tal; nu står den mest överrepresenterade posten som
+       kortets värde, så att de går att skanna som de övriga.
+       Branschmåtten står tillsammans: tjänstesektorn, branschspecialiseringen och sedan
+       yrkesspecialiseringen, med andelen företagare efter dem. */
+    function _forstNamn(l){ var x=(l&&l.length)?l[0]:null; return x?(x.name||x.namn||null):null; }
+    /* Topp och botten togs ur samma lista utan att pröva om den räckte till sex poster. Med
+       två poster stod det "C och D utgör en större andel, medan D och C utgör en mindre", och
+       med en post nämndes samma namn i båda leden. Antalet per ände är därför hälften av
+       listan, högst tre, och räcker listan inte till två ändar utgår jämförelseledet.
+       Artikeln böjs efter antalet: en bransch är inte "Branscherna". */
+    function _andar(lista){
+      var l=lista||[], n=Math.min(3, Math.floor(l.length/2));
+      return {topp:n?tre(l.slice(0,n)):(l.length?tre(l.slice(0,1)):null),
+              botten:n?tre(l.slice(-n).reverse()):null,
+              antalTopp:n||(l.length?1:0)};
+    }
+    var _b=_andar(d.lqBransch);
+    if(_b.topp) ut.push(p((_b.antalTopp===1?"Branschen ":"Branscherna ")+_b.topp
+      +" utgör en större andel av sysselsättningen än i riket"
+      +(_b.botten?(", medan "+_b.botten+" utgör en mindre andel"):"")+".",
+      "Specialisering mot branscher","Branschspecialisering", _forstNamn(d.lqBransch),
+      d.yrkeAr||null));
+    var _y2=_andar(d.lqYrke);
+    if(_y2.topp) ut.push(p((_y2.antalTopp===1?"Yrkesområdet ":"Yrkesområdena ")+_y2.topp
+      +" utgör en större andel av sysselsättningen i "+enhet
+      +" än i riket"+(_y2.botten?(", medan "+_y2.botten+" utgör en mindre andel"):"")+"."
+      ,"Specialisering mot yrkesområden","Yrkesspecialisering",
+      _forstNamn(d.lqYrke), d.yrkeAr||null));
     var _ftg=num(k.ftgReg,1);
     if(_ftg) ut.push(p("Andelen företagare bland de sysselsatta är <b>"+_ftg+" procent</b>."
       +(k.ftgRik!=null?jmfMening(pe(k.ftgReg-k.ftgRik)):""),
-      "Företagande","Företagande"));
-    /* Specialiseringen säger vilka yrken och branscher området har mer respektive mindre av
-       än riket. Listorna är sorterade fallande efter kvot, så de sista är de minsta. */
-    var _yo=tre(d.lqYrke), _yu=treSist(d.lqYrke);
-    if(_yo) ut.push(p("Yrkesområdena "+_yo+" utgör en större andel av sysselsättningen i "+enhet
-      +" än i riket"+(_yu?(", medan "+_yu+" utgör en mindre andel"):"")+"."
-      +' <span class="sum-jmf">Måttet jämför andelar och inte antal, så ett litet yrkesområde kan '
-      +"ligga högt.</span>","Specialiseringskvoter per yrkesområde","Yrkesspecialisering"));
-    var _bo=tre(d.lqBransch), _bu=treSist(d.lqBransch);
-    if(_bo) ut.push(p("Branscherna "+_bo+" utgör en större andel av sysselsättningen än i riket"
-      +(_bu?(", medan "+_bu+" utgör en mindre andel"):"")+".",
-      "Specialiseringskvoter per bransch","Branschprofil"));
-    /* Åldersavgångarna säger hur stor del av de sysselsatta som närmar sig pension. */
+      "Företagande","Andel företagare", _ftg+"\u00a0%", k.ftgAr||null));
+    /* Punkten sa tidigare hur stor del av de sysselsatta som är 55 år eller äldre. Det måttet
+       finns i yrkesvyn men inte här, och fältet den läste bär grupperna sysselsatta och
+       arbetslösa efter kön och födelseregion. Punkten skrevs därför aldrig.
+       Ersättningsbehovet är det mått läns- och kommunvyn faktiskt visar: hur många som väntas
+       lämna arbetslivet av ålderskäl varje år, summerat över yrkesgrupperna. */
     try{
-      var G=d.grupper&&d.grupper.egen;
-      var _a55=G?num(G.andel55||G.a55,1):null;
-      if(_a55) ut.push(p("Andelen sysselsatta som är 55 år eller äldre är <b>"+_a55+" procent</b>"
-        +((d.grupper.rik&&(d.grupper.rik.andel55||d.grupper.rik.a55))
-          ?(', <span class="sum-jmf">'+pe(_a55-(d.grupper.rik.andel55||d.grupper.rik.a55))+"</span>"):"")+".",
-        "Befolkning efter åldersgrupp","Åldersavgångar"));
+      var AV=d.avg;
+      /* Substantiven böjs efter talet. I ett litet område kan behovet vara en person och
+         fördelningen en yrkesgrupp, och då stod det "1 personer" och "1 yrkesgrupper". */
+      if(AV&&AV.perAr>0) ut.push(p("Omkring <b>"+_ent(AV.perAr,"person","personer")+"</b> väntas lämna "
+        +"arbetslivet av ålderskäl varje år i "+enhet+"."
+        +(AV.grupper?(' <span class="sum-jmf">Behovet är fördelat på '
+          +_ent(AV.grupper,"yrkesgrupp","yrkesgrupper")+".</span>"):""),
+        "Ersättningsbehov från åldersavgångar per yrke","Åldersavgångar per år",
+        tal(Math.round(AV.perAr)), AV.ar||null));
     }catch(e){}
     /* Utbildningsnivån och övergången till eftergymnasial utbildning hör ihop: den ena är
        beståndet, den andra tillflödet. */
     try{
-      var UF=d.utbFord;
-      var _ov=UF?num(UF.overgang||UF.andel||null,1):null;
-      /* Pilen pekade på "Övergång till eftergymnasial utbildning". Ingen figur bär den
-         rubriken — det är avsnittsrubriken i utbildningsvyn och numera även analystextens
-         rubrik här. Uppslaget föll därför tillbaka på fritextsökningen och tog utbildnings-
-         vyns figur, alltså en annan vy än den läsaren stod i. Figuren anges nu med sin
-         verkliga rubrik och med vyn, så att läns- och kommunvyn hittar sin egen. */
-      if(_ov) ut.push(p("Andelen gymnasieelever som går vidare till eftergymnasial utbildning "
-        +"inom tre år är <b>"+_ov+" procent</b>.",
-        {rubrik:"Andel som påbörjat studier inom fem år", vy:vy},"Övergångar"));
+      /* Punkten byggde på ett fält, utbFord.overgang, som inte finns i datan. Den skrevs
+         därför aldrig. Talen tas nu ur övergångsfiguren själv, som hämtar dem från SCB och
+         numera sparar dem på vyns tillstånd. Formen som redovisas är högskola, eftersom den
+         är störst; övriga former står i figuren. */
+      var OV=d.ovg, _hg=OV&&OV.former&&OV.former.hogskola;
+      if(_hg&&_hg.egen!=null){
+        var _ovT="Av dem som gick ut gymnasiet i "+enhet+" hade <b>"+tal(_hg.egen,1)
+          +" procent</b> påbörjat en högskoleutbildning inom fem år"+ar(OV.ar)+".";
+        if(_hg.riket!=null&&!_arRiket)_ovT+=' <span class="sum-jmf">I riket är motsvarande andel '
+          +tal(_hg.riket,1)+" procent.</span>";
+        var _yh=OV.former.yrkesh;
+        if(_yh&&_yh.egen!=null)_ovT+=" Till yrkeshögskola gick <b>"+tal(_yh.egen,1)+" procent</b>.";
+        ut.push(p(_ovT,{rubrik:"Andel som påbörjat studier inom fem år", vy:vy},"Övergång till högskola",
+          tal(_hg.egen,1)+"\u00a0%", OV.ar||null));
+      }
     }catch(e){}
+    /* Demografin säger hur många som ska försörja hur många. Befolkningens utveckling och
+       försörjningskvoten hör ihop och står därför i samma punkt: kvoten stiger när de äldre
+       blir fler, oavsett om befolkningen växer eller krymper. */
+    try{
+      var DM=d.demo;
+      if(DM&&DM.befTillv!=null&&DM.arN){
+        var _riktn=(DM.befTillv>=0)?"växa":"minska";
+        var _dT="";
+        if(DM.fk0!=null&&DM.fkN!=null){
+          _dT="Försörjningskvoten i "+enhet+", antalet unga och äldre per 100 personer i "
+            +"arbetsför ålder, går från <b>"+tal(DM.fk0,1)+"</b> till <b>"+tal(DM.fkN,1)+"</b> fram till "+DM.arN+".";
+          if(DM.fkRikN!=null&&!_arRiket)_dT+=' <span class="sum-jmf">I riket väntas kvoten ligga på '
+            +tal(DM.fkRikN,1)+" vid samma tidpunkt.</span>";
+        }
+        _dT+=(_dT?" ":"")+"Befolkningen väntas <b>"+_riktn+" med "
+          +tal(Math.abs(DM.befTillv),1)+" procent</b>"+(_dT?"":" fram till "+DM.arN)+".";
+        if(DM.aldreTillv!=null)_dT+=" Gruppen 67 år och äldre "
+          +((DM.aldreTillv>=0)?"växer med <b>":"minskar med <b>")+tal(Math.abs(DM.aldreTillv),1)+" procent</b>.";
+        ut.push(p(_dT,"Försörjningskvot över tid","Försörjningskvot "+DM.arN,
+          (DM.fkN!=null)?tal(DM.fkN,1):null));
+      }
+    }catch(e){}
+    /* Här stod en äldre punkt om samma sak, byggd på utbFord.overgang. Fältet finns inte i
+       datan, så punkten skrevs aldrig. Den är ersatt av punkten ovan. */
+
     /* Varsel registreras per län. Punkten skrivs därför bara i länsvyn. */
     if(vy!=="kommun"){
       try{
@@ -33705,10 +34178,10 @@ var UNDERLAG = [
               }
               snitt=arN?(snitt/arN):0;
               var jmfOrd=(snitt>0)?((sum>snitt*1.15)?"över":((sum<snitt*0.85)?"under":"i nivå med")):"";
-              ut.push(p("Under "+VD.ar[iN]+" varslades <b>"+tal(sum)+" personer</b> i "+enhet+"."
+              ut.push(p("Under "+VD.ar[iN]+" varslades <b>"+_ent(sum,"person","personer")+"</b> i "+enhet+"."
                 +((snitt>0)?(' <span class="sum-jmf">Genomsnittet för '+VD.ar[0]+" till "+VD.ar[VD.ar.length-1]
                   +" är "+tal(Math.round(snitt))+" varslade per år, så året ligger "+jmfOrd+" den nivån.</span>"):""),
-                "Varsel","Varsel"));
+                "Varsel om uppsägning över tid","Varslade "+VD.ar[iN], tal(sum)));
             }
           }
         }
@@ -33740,7 +34213,8 @@ var UNDERLAG = [
           }catch(e){}
           ut.push(p("Av <b>"+tal(pr.rows.length)+" kommuner</b> i "+(pr.lanName||"länet")
             +" har "+enhet+" den <b>"+tal(pr.rank)+":e högsta</b> sysselsättningsgraden."+arbRad,
-            "Sysselsättningsgrad i länets kommuner","Jämförelse i länet"));
+            "Sysselsättningsgrad bland länets kommuner","Placering i länet",
+            tal(pr.rank)+" av "+tal(pr.rows.length)));
         }
       }catch(e){}
     }
@@ -33752,22 +34226,32 @@ var UNDERLAG = [
        den läsningen. Figurerna under står kvar och säger själva vilken nivå de avser. */
     if(vy!=="kommun" && d.baro && d.baro.length){
       var br=d.baro.filter(function(x){return x[1]==="brist"||x[1]==="paradox";}).length;
-      ut.push(p("Av de <b>"+tal(d.baro.length)+" yrken</b> Arbetsförmedlingen bedömer i "+enhet
-        +" visar <b>"+tal(br)+"</b> brist på arbetskraft.", "Rekryteringsläge för efterfrågade yrken","Rekryteringsläge"));
+      /* "Av de 1 yrke" är fel form. Artikeln böjs med substantivet. */
+      ut.push(p("Av "+(d.baro.length===1?"det <b>":"de <b>")+_ent(d.baro.length,"yrke","yrken")+"</b> Arbetsförmedlingen bedömer i "+enhet
+        +" visar <b>"+tal(br)+"</b> brist på arbetskraft.",
+        "Rekryteringsläge för efterfrågade yrken","Yrken med brist",
+        tal(br)+" av "+tal(d.baro.length), window.YB_OMGANG||null));
     }
     /* Kvoten arbetstillfällen per hundra boende utgick: den säger samma sak som nettot men
        kräver att läsaren räknar om den själv. Nettot är skillnaden mellan inpendling och
        utpendling, alltså hur många fler eller färre som arbetar i området än som bor där. */
     try{
-      var P=d.pendling;
-      if(P&&P.inne!=null&&P.ut!=null){
-        var netto=P.inne-P.ut;
-        ut.push(p("Pendlingen ger ett netto på <b>"+tal(Math.abs(netto))+" personer</b> "
+      /* Fälten hette inne och ut, men datan bär inPend och utPend. Punkten skrevs därför
+         aldrig, och pendlingen saknades i sammanfattningen trots att figuren fanns. */
+      var P=_arRiket?null:d.pendling;
+      var _pIn=P?((P.inPend!=null)?P.inPend:P.inne):null;
+      var _pUt=P?((P.utPend!=null)?Math.abs(P.utPend):P.ut):null;
+      if(P&&_pIn!=null&&_pUt!=null){
+        var netto=(P.netto!=null)?P.netto:(_pIn-_pUt);
+        ut.push(p("Pendlingen ger ett netto på <b>"+_ent(Math.abs(netto),"person","personer")+"</b> "
           +(netto>=0?"in till ":"ut från ")+enhet+".",
-          (vy==="kommun")?"Pendling över kommungränsen":"Pendling över länsgränsen","Pendling"));
+          (vy==="kommun")?"Pendling över kommungränsen":"Pendling över länsgränsen",
+          "Nettopendling", (netto>=0?"+":"\u2212")+tal(Math.abs(netto)), P.ar||null));
       }
     }catch(e){}
-    return ut.filter(Boolean);
+    /* Här stod en strykning av fetmarkeringarna som bara gällde kommunvyn, medan de två
+       formerna prövades mot varandra. Strykningen görs nu i p() och gäller alla vyer. */
+    return _iVy(ut.filter(Boolean), (vy==="kommun")?"kommun":"region");
   }
 
   function yrke(d){
@@ -33792,19 +34276,21 @@ var UNDERLAG = [
           }
         }
       }catch(e){}
-      ut.push(p("Yrket har <b>"+_ant+" anställda</b> i "+_omr
-        +ar(d.years&&d.years[d.years.length-1])+"."+_utv,"Antal anställda över tid"));
+      ut.push(p("Yrket har <b>"+_ent(d.antal,"anställd","anställda")+"</b> i "+_omr
+        +ar(d.years&&d.years[d.years.length-1])+"."+_utv,"Antal anställda över tid",
+        "Anställda", _ant, d.years&&d.years[d.years.length-1]));
     }
     /* Könsfördelningen står i samma figur som antalet. */
     var _kv=num(d.kvinnor,1);
-    if(_kv) ut.push(p("Andelen kvinnor i yrket är <b>"+_kv+" procent</b>.","Antal anställda över tid"));
+    if(_kv) ut.push(p("Andelen kvinnor i yrket är <b>"+_kv+" procent</b>.","Antal anställda över tid",
+      "Andel kvinnor", _kv+"\u00a0%", d.years&&d.years[d.years.length-1]));
     /* Åldersstrukturen ger ersättningsbehovet, alltså hur stor del som närmar sig pension. */
     try{
       var _a=(window.alderMatt&&d.alder&&d.alder.yrke)?alderMatt(d.alder.yrke):null;
       var _a55=_a?num(_a.andel55,1):null;
       if(_a55) ut.push(p("Andelen sysselsatta som är 55 år eller äldre är <b>"+_a55+" procent</b>. Det motsvarar "
         +"omkring <b>"+tal(Math.round(_a.perAr))+" personer</b> per år som väntas lämna yrket.",
-        "Åldersstruktur och åldersavgångar"));
+        "Åldersstruktur och åldersavgångar","55 år eller äldre", _a55+"\u00a0%", _a.ar||null));
     }catch(e){}
     /* Specialiseringen gäller det valda länet. Punkten tog tidigare första posten i listan,
        alltså landets högsta kvot, utan att säga det: i en rapport om Östergötland stod en
@@ -33820,29 +34306,43 @@ var UNDERLAG = [
         ut.push(p("Yrket utgör en <b>"+_lqOrd+"</b> andel av sysselsättningen i <b>"+_lq.name
           +"</b> än i riket, med en kvot på <b>"+tal(_lq.lq,2)+"</b>."
           +' <span class="sum-jmf">Kvoten 1,0 betyder samma andel som i riket.</span>',
-          "Specialiseringskvoter per län – Anställda"));
+          "Specialiseringskvoter per län – Anställda","Specialisering i "+_lq.name, tal(_lq.lq,2)));
       }
     }catch(e){}
     /* Utbildningsbakgrunden bland dem som redan arbetar i yrket. */
     var _edu3=tre(d.edu);
-    if(_edu3) ut.push(p("De vanligaste utbildningsbakgrunderna i yrket är "+_edu3+".","Vanliga vägar in"));
+    if(_edu3) ut.push(p("De vanligaste utbildningsbakgrunderna i yrket är "+_edu3+".","Vanliga vägar in",
+      "Vanligaste utbildningen", (d.edu&&d.edu[0])?(d.edu[0].namn||d.edu[0].name||null):null));
     /* Kompetenser och förmågor ligger i samma lista, åtskilda av sin typ. Förmågorna är de
        personliga egenskaperna, kompetenserna det som går att lära sig. */
     try{
       var K=d.kompetenser||{};
       var _k3=tre(K.kompetenser||K.komp||(Array.isArray(K)?K:null));
       if(_k3) ut.push(p("De kompetenser som oftast efterfrågas i yrkets annonser är "+_k3+"."
-        +niva("avser riket"),"Efterfrågade kompetenser"));
-      var _f3=tre(K.formagor||K.traits||K.trait);
+        +niva("avser riket"),"Efterfrågade kompetenser","Mest efterfrågade kompetensen",
+        forst(K.kompetenser||K.komp||(Array.isArray(K)?K:null))));
+      /* Förmågorna låg aldrig i kompetensfältet. De har ett eget register, YRKE_TRAIT, som
+         figuren Efterfrågade förmågor läser. Punkten skrevs därför aldrig. */
+      var _TA=(window.YRKE_TRAIT&&d.code)?window.YRKE_TRAIT[d.code]:null;
+      var _fl=_TA?Object.keys(_TA).map(function(nm){ return {namn:nm, v:_TA[nm]}; })
+                   .sort(function(a,b){ return (b.v||0)-(a.v||0); }).map(function(x){ return x.namn; }):null;
+      var _f3=tre(_fl);
       if(_f3) ut.push(p("De förmågor som oftast efterfrågas i yrkets annonser är "+_f3+"."
-        +niva("avser riket"),"Efterfrågade förmågor"));
+        +niva("avser riket"),"Efterfrågade förmågor","Mest efterfrågade förmågan", forst(_fl)));
     }catch(e){}
     /* Närliggande yrken kommer ur omställningsfiguren, som jämför kompetenskraven. */
     try{
-      var _nr=(window.yrkeNarliggande&&d.code)?yrkeNarliggande(d.code):(d.narliggande||d.omstallning||null);
+      /* Anropade yrkeNarliggande, som inte finns någonstans i filen, och föll då tillbaka på
+         två fält som datan inte bär. Punkten skrevs aldrig. Grannarna ligger i NARLIGGANDE,
+         samma register som figuren Närliggande yrken läser, och kodas om till namn. */
+      var _nrKod=(window.NARLIGGANDE&&d.code)?window.NARLIGGANDE[d.code]:null;
+      var _nr=(_nrKod&&_nrKod.length&&typeof yrkeName==="function")
+        ? _nrKod.map(function(c){ return yrkeName(c); }).filter(Boolean) : null;
       var _nr3=tre(_nr);
+      /* Pilen pekade på "Yrken med liknande kompetenskrav", som ingen figur bär. Figuren
+         heter Närliggande yrken, och det är den kortet handlar om. */
       if(_nr3) ut.push(p("Yrken med liknande kompetenskrav är "+_nr3+"."
-        +niva("avser riket"),"Yrken med liknande kompetenskrav"));
+        +niva("avser riket"),"Närliggande yrken","Närmaste yrket", forst(_nr)));
     }catch(e){}
     /* Yrkesvyn har en egen referens, riksMedianLon, som väljer rätt årgång. Den fasta siffran
        kunde peka på ett annat år än yrkets eget tal. */
@@ -33852,18 +34352,32 @@ var UNDERLAG = [
       try{ _yref=(typeof riksMedianLon==="function")?riksMedianLon(d):null; }catch(e){ _yref=null; }
       ut.push(p("Medianlönen är <b>"+_ylon+" kronor</b> i månaden."
         +(_yref?(' <span class="sum-jmf">Det är '+pro(100*(d.lon-_yref)/_yref).replace("än riket","än medianen för samtliga yrken")+".</span>"):""),
-        "Lönespridning"));
+        "Lönespridning","Medianlön", _ylon+"\u00a0kr", d.lonAr||null));
     }
     /* Matchningen ligger i match5.yrke.tot.helt, inte i ett fält som heter match. */
     var _m=(d.match5&&d.match5.yrke&&d.match5.yrke.tot)?d.match5.yrke.tot.helt:null;
     if(_m!=null) ut.push(p("Andelen med en utbildning som matchar yrket är <b>"+tal(_m,1)+" procent</b>.",
-      "Matchning mellan utbildning och yrke"));
-    if(d.lage&&window.RD_LAGE) ut.push(p("Arbetsförmedlingen bedömer rekryteringsläget som <b>"+RD_LAGE[d.lage]+"</b>"
-      +(d.ybProg?(", och på fem års sikt "+({oka:"väntas efterfrågan öka",oforandrad:"väntas den vara oförändrad",minska:"väntas den minska"}[d.ybProg]||"")):"")+".",
-      "Rekryteringsläge för yrkena i gruppen"));
+      "Matchning mellan utbildning och yrke","Matchande utbildning", tal(_m,1)+"\u00a0%",
+      (d.match5&&d.match5.ar)||null));
+    /* Läste d.lage, som slås upp i barometern på fyrställig nivå medan vyn arbetar med
+       tresiffriga yrkesgrupper. Uppslaget gav alltid null och punkten skrevs aldrig.
+       Bedömningarna för gruppens yrken sparas nu av figuren och räknas ihop här. */
+    var BG=d.baroGrupp;
+    if(BG&&BG.antal>0&&window.RD_LAGE){
+      var _bo={brist:"brist på sökande",paradox:"brist trots många sökande",
+               balans:"balans",overskott:"överskott på sökande"};
+      var _bn=BG.rakning[BG.dominerande]||0;
+      ut.push(p("Av "+(BG.antal===1?"det <b>":"de <b>")+tal(BG.antal)+(BG.antal===1?" yrke":" yrken")+"</b> i gruppen som "
+        +"Arbetsförmedlingen bedömer visar <b>"+tal(_bn)+"</b> "+(_bo[BG.dominerande]||"")+"."
+        +(d.ybProg?(' <span class="sum-jmf">På fem års sikt '
+          +({oka:"väntas efterfrågan öka",oforandrad:"väntas den vara oförändrad",minska:"väntas den minska"}[d.ybProg]||"")
+          +".</span>"):""),
+        "Rekryteringsläge för yrkena i gruppen","Yrken med "+(_bo[BG.dominerande]||"bedömning"),
+        tal(_bn)+" av "+tal(BG.antal), window.YB_OMGANG||null));
+    }
     /* Här stod en punkt om den enskilt vanligaste kompetensen. Den upprepade punkten ovan,
        som räknar upp de tre vanligaste och alltså redan börjar med samma ord. */
-    return ut.filter(Boolean);
+    return _iVy(ut.filter(Boolean),"yrke");
   }
 
   function bransch(d){
@@ -33889,21 +34403,25 @@ var UNDERLAG = [
           }
         }
       }catch(e){}
-      ut.push(p("Branschen syssels\u00e4tter <b>"+_bant+" personer</b> i "+_bomr
-        +ar(d.years&&d.years[d.years.length-1])+"."+_butv,"Sysselsatta över tid"));
+      ut.push(p("Branschen syssels\u00e4tter <b>"+_ent(d.antal,"person","personer")+"</b> i "+_bomr
+        +ar(d.years&&d.years[d.years.length-1])+"."+_butv,"Sysselsatta över tid",
+        "Sysselsatta", _bant, d.years&&d.years[d.years.length-1]));
     }
     var _bandel=num(d.andel,1);
     if(_bandel) ut.push(p("Det motsvarar <b>"+_bandel+" procent</b> av samtliga sysselsatta i "+_bomr+".",
-      "Sysselsatta över tid"));
+      "Sysselsatta över tid","Andel av sysselsättningen", _bandel+"\u00a0%",
+      d.years&&d.years[d.years.length-1]));
     var _bkv=num(d.kvinnor,1);
-    if(_bkv) ut.push(p("Andelen kvinnor i branschen är <b>"+_bkv+" procent</b>.","Sysselsatta över tid"));
+    if(_bkv) ut.push(p("Andelen kvinnor i branschen är <b>"+_bkv+" procent</b>.","Sysselsatta över tid",
+      "Andel kvinnor", _bkv+"\u00a0%", d.years&&d.years[d.years.length-1]));
     var _bftg=num(d.foretag);
-    if(_bftg) ut.push(p("Branschen rymmer <b>"+_bftg+" företag</b>"
-      +((num(d.solo,0))?(", varav <b>"+num(d.solo,0)+" procent</b> är soloföretag"):"")+".","Arbetsställen per storleksklass"));
+    if(_bftg) ut.push(p("Branschen rymmer <b>"+_ent(d.foretag,"företag","företag")+"</b>"
+      +((num(d.solo,0))?(", varav <b>"+num(d.solo,0)+" procent</b> är soloföretag"):"")+".",
+      "Arbetsställen per storleksklass","Antal företag", _bftg));
     var _bfor=num(d.foradling);
     if(_bfor) ut.push(p("Förädlingsvärdet är <b>"+_bfor+" miljoner kronor</b>"
       +((num(d.bnp,1))?(", vilket motsvarar omkring <b>"+num(d.bnp,1)+" procent</b> av BNP"):"")+".",
-      "Sysselsatta över tid"));
+      "Sysselsatta över tid","Förädlingsvärde", _bfor+"\u00a0mnkr"));
     /* Åldersavgångarna och varslen begärdes men kom aldrig med. Båda finns som figurer i
        branschvyn, och båda hör till de tal som säger något om branschens läge framåt. */
     try{
@@ -33911,7 +34429,8 @@ var UNDERLAG = [
       var _ba55=_ba?num(_ba.andel55,1):null;
       if(_ba55) ut.push(p("Andelen sysselsatta som är 55 år eller äldre är <b>"+_ba55+" procent</b>."
         +((_ba.perAr)?(" Det motsvarar omkring <b>"+tal(Math.round(_ba.perAr))+" personer</b> per år "
-          +"som väntas lämna branschen."):""),"Ersättningsbehov från åldersavgångar per bransch"));
+          +"som väntas lämna branschen."):""),"Ersättningsbehov från åldersavgångar per bransch",
+        "55 år eller äldre", _ba55+"\u00a0%", _ba.ar||null));
     }catch(e){}
     try{
       var VD=window.VARSEL;
@@ -33932,7 +34451,7 @@ var UNDERLAG = [
             ut.push(p("Under "+VD.ar[iN]+" varslades <b>"+tal(sumB)+" personer</b> i branschen i riket."
               +((snittB>0)?(' <span class="sum-jmf">Genomsnittet för '+VD.ar[0]+" till "+VD.ar[VD.ar.length-1]
                 +" är "+tal(Math.round(snittB))+" varslade per år, så året ligger "+ordB+" den nivån.</span>"):"")
-              +niva("avser riket"),"Varsel om uppsägning per län"));
+              +niva("avser riket"),"Varsel om uppsägning per län","Varslade "+VD.ar[iN], tal(sumB)));
           }
         }
       }
@@ -33946,14 +34465,15 @@ var UNDERLAG = [
           +"</b> än i riket, med en kvot på <b>"+tal(_bo.lq,2)+"</b>"
           +((_bu&&_bu.lq!=null&&_bu.name)?(". Minst andel har <b>"+_bu.name+"</b>, med <b>"+tal(_bu.lq,2)+"</b>"):"")
           +'. <span class="sum-jmf">Kvoten 1,0 betyder samma andel som i riket.</span>',
-          "Specialisering per län"));
+          "Specialisering per län","Högst specialisering", _bo.name));
     }catch(e){}
     var _y=forst(d.yrken);
-    if(_y) ut.push(p("Det st\u00f6rsta yrket i branschen \u00e4r <b>"+_y+"</b>.","Yrken i branschen"));
+    if(_y) ut.push(p("Det st\u00f6rsta yrket i branschen \u00e4r <b>"+_y+"</b>.","Yrken i branschen",
+      "Största yrket", _y));
     var _bk=forst(d.kompetenser);
     if(_bk) ut.push(p("Den kompetens som oftast efterfr\u00e5gas i annonserna \u00e4r <b>"+_bk+"</b>.",
-      "Mest efterfrågade kompetenser"));
-    return ut.filter(Boolean);
+      "Mest efterfrågade kompetenser","Mest efterfrågade kompetensen", _bk));
+    return _iVy(ut.filter(Boolean),"bransch");
   }
 
   function komp(d){
@@ -33965,12 +34485,22 @@ var UNDERLAG = [
     /* Bedömningen av utvecklingen är borttagen. Annonsunderlaget har en känd lucka från och
        med andra kvartalet 2025, och en riktningsangivelse blir då en slutsats som talen inte
        bär. Serien i figuren visar utvecklingen för den som vill bedöma den själv. */
-    if(_and) ut.push(p("Kompetensen efterfrågas i <b>"+_and+" procent</b>"+ar(d.ar)
-      +" av samtliga jobbannonser.","Efterfrågan över tid"));
+    /* Antalet står först och andelen efter. Volymen är det som säger hur stor efterfrågan är,
+       och andelen sätter den i förhållande till allt annat — den läser bäst som en följd av
+       talet den vilar på, inte tvärtom. */
     var _annk=num(d.annonser);
     if(_annk) ut.push(p("Under "+(d.ar||"det senaste året")+" innehöll <b>"+_annk+" jobbannonser</b> "
       +"ett krav eller önskemål om kompetensen"
-      +((d.region&&d.regionName)?(" i "+d.regionName):"")+".","Efterfrågan över tid"));
+      +((d.region&&d.regionName)?(" i "+d.regionName):"")+".","Efterfrågan över tid",
+      "Jobbannonser", _annk, d.ar||null));
+    /* Andelen räknas mot annonserna i det valda området, inte mot rikets, så området måste
+       stå i meningen. Årtalet stod i en parentes mitt i satsen och läste som en not; det
+       står nu sist, där det hör hemma i en mening om vad som skedde ett visst år. */
+    var _omr=(d.region&&d.regionName)?String(d.regionName):"riket";
+    if(/^(hela\s+)?riket$/i.test(_omr))_omr="riket";
+    if(_and) ut.push(p("Kompetensen efterfrågades i <b>"+_and+" procent</b> av samtliga jobbannonser i "
+      +_omr+(d.ar?(" under "+d.ar):"")+".","Efterfrågan över tid",
+      "Andel av annonserna", _and+"\u00a0%", d.ar||null));
     /* Lönenivån är viktad efter hur ofta yrkena annonseras och finns bara på riksnivå, så
        den är densamma oavsett vilket län som är valt. Det måste stå i punkten. */
     /* Lönen är ett objekt i kompetensvyn, inte ett tal: det bär den viktade nivån, hur stor
@@ -33992,7 +34522,8 @@ var UNDERLAG = [
         }
       }catch(e){}
       ut.push(p("Den viktade medianlönen i de yrken som efterfrågar kompetensen är <b>"+_lon
-        +" kronor</b> i månaden"+ar(_L&&_L.ar)+"."+_lj+niva("avser riket"),"Lönenivå"));
+        +" kronor</b> i månaden"+ar(_L&&_L.ar)+"."+_lj+niva("avser riket"),"Lönenivå",
+        "Viktad medianlön", _lon+"\u00a0kr", (_L&&_L.ar)||null));
     }
     /* Yrkespunkten. Här stod tidigare två punkter: en som räknade upp de tre vanligaste
        yrkena, och en som sa hur stor del av annonserna de bär. Den första byggde på d.yrken,
@@ -34018,7 +34549,8 @@ var UNDERLAG = [
                        :"")
           +((_antal>3)?(". Kompetensen f\u00f6rekommer i sammanlagt <b>"+tal(_antal)+" yrken</b>.")
                       :"."),
-          "Yrken där kompetensen efterfrågas"));
+          "Yrken där kompetensen efterfrågas","Vanligaste yrket",
+          (_rader&&_rader[0])?_rader[0].namn:forst(d.yrken)));
       }
     }catch(e){}
     /* Kvalifikationsnivån säger hur stor del av efterfrågan som finns i yrken med högskolekrav. */
@@ -34037,7 +34569,8 @@ var UNDERLAG = [
               :(tal(Math.abs(_hd),1)+" procentenheter "+(_hd>0?"över":"under")+" samtliga annonser"))+".</span>";
         }
         ut.push(p("Efterfrågan finns till <b>"+_hk+" procent</b> i yrken med högskolekrav."+_hj
-          +niva("avser riket"),"Kvalifikationsnivå för relevanta yrken"));
+          +niva("avser riket"),"Kvalifikationsnivå för relevanta yrken",
+          "Yrken med högskolekrav", _hk+"\u00a0%"));
       }
     }catch(e){}
     /* Närliggande kompetenser säger vad som efterfrågas tillsammans med den valda. */
@@ -34051,26 +34584,36 @@ var UNDERLAG = [
       if(_rd&&_rd.length>2){
         var _sort=_rd.filter(function(x){ return x&&x.lq>0&&x.name; })
                      .sort(function(a,b){ return b.lq-a.lq; });
-        var _over=tre(_sort.slice(0,3).map(function(x){ return x.name; }));
-        var _under=tre(_sort.slice(-3).reverse().map(function(x){ return x.name; }));
+        /* Med få län överlappade ändarna: tre högst och tre lägst ur en lista på tre gav
+           samma län i båda leden, och som skilda punkter gick det obemärkt förbi. I en
+           mening blir motsägelsen uppenbar. Antalet per ände är därför hälften av listan,
+           högst tre, så att inget län kan stå i båda. */
+        var _n=Math.min(3, Math.floor(_sort.length/2));
+        var _over=_n?tre(_sort.slice(0,_n).map(function(x){ return x.name; })):null;
+        var _under=_n?tre(_sort.slice(-_n).reverse().map(function(x){ return x.name; })):null;
         /* Orden överrepresenterad och underrepresenterad låter värderande och säger inget om
            vad måttet är. Texten beskriver i stället vad kvoten mäter: hur stor del av länets
            annonser som efterfrågar kompetensen, jämfört med samma andel i riket. */
-        if(_over) ut.push(p("Kompetensen efterfrågas i en större andel av jobbannonserna i "+_over
-          +" än i landet som helhet.","Specialisering per län – index"));
-        if(_under) ut.push(p("I "+_under+" är andelen mindre än i landet som helhet. "
-          +'<span class="sum-jmf">Måttet jämför hur stor del av länets annonser som efterfrågar '
+        /* De två ändarna av samma mått stod som var sin punkt och pekade på samma figur. De
+           läses som ett par och står nu i en punkt, med förklaringen till måttet sist. */
+        var _lqTxt="";
+        if(_over) _lqTxt+="Kompetensen efterfrågas i en större andel av jobbannonserna i "+_over
+          +" än i landet som helhet.";
+        if(_under) _lqTxt+=(_lqTxt?" I ":"I ")+_under+" är andelen mindre än i landet som helhet.";
+        if(_lqTxt) ut.push(p(_lqTxt
+          +' <span class="sum-jmf">Måttet jämför hur stor del av länets annonser som efterfrågar '
           +"kompetensen med motsvarande andel i riket, och säger inget om antalet annonser.</span>",
-          "Specialisering per län – index"));
+          "Specialisering per län – index","Högst specialisering",
+          (_sort&&_sort[0])?_sort[0].name:null));
       }
     }catch(e){}
     var _nara3=tre(d.related);
     if(_nara3) ut.push(p("De kompetenser som oftast efterfrågas tillsammans med den här är "+_nara3+".",
-      "Kompetenser som samvarierar"));
+      "Kompetenser som samvarierar","Oftast tillsammans med", forst(d.related)));
     var _utb3=tre(d.utbildningar);
     if(_utb3) ut.push(p("De vanligaste utbildningsbakgrunderna i kompetensens yrken är "
-      +_utb3+".","Vanliga vägar in"));
-    return ut.filter(Boolean);
+      +_utb3+".","Vanliga vägar in","Vanligaste utbildningen", forst(d.utbildningar)));
+    return _iVy(ut.filter(Boolean),"kompetens");
   }
 
   /* ===== Utbildningsvyns tre nivåer =====================================================
@@ -34093,17 +34636,21 @@ var UNDERLAG = [
     var d=(window.__usSum||{}).gym||{}, ut=[], namn=d.namn||"riket";
     var _tot=(d.tidTot>0)?num(d.tidTot):null;
     if(_tot) ut.push(p("I "+namn+" examinerades <b>"+_tot+" elever</b> från gymnasieskolan avgångsläsåret "
-      +d.tidAr+"."+utveckling(d.tidFran,d.tidPct,"antalet examinerade"),fig("Examinerade över tid")));
+      +d.tidAr+"."+utveckling(d.tidFran,d.tidPct,"antalet examinerade"),fig("Examinerade över tid"),
+      "Examinerade", _tot, d.tidAr));
     var _hf=num(d.hfAndel,0);
     if(_hf) ut.push(p("<b>"+_hf+" procent</b> av dem gick ett högskoleförberedande program och <b>"
-      +tal(100-Math.round(d.hfAndel),0)+" procent</b> ett yrkesprogram.",fig("Examinerade över tid")));
+      +tal(100-Math.round(d.hfAndel),0)+" procent</b> ett yrkesprogram.",fig("Examinerade över tid"),
+      "Högskoleförberedande", _hf+"\u00a0%", d.tidAr));
     var _pa=num(d.progAndel,1);
     if(_pa&&d.progNamn) ut.push(p("Störst program är <b>"+d.progNamn+"</b> med <b>"+_pa
-      +" procent</b> av årskullen."+jmfSkillnad(d.progDiff,1),fig("Examinerade per program")));
+      +" procent</b> av årskullen."+jmfSkillnad(d.progDiff,1),fig("Examinerade per program"),
+      "Största programmet", d.progNamn));
     var _ovg=num(d.ovg,1);
     if(_ovg) ut.push(p("<b>"+_ovg+" procent</b> av de examinerade hade påbörjat en högskoleutbildning inom fem år"
       +(d.ovgAr?(" (avgångsår "+d.ovgAr+")"):"")+"."
-      +(d.ovgMot?jmfSkillnad(d.ovg-d.ovgRiket,1):""),fig("Andel som påbörjat studier inom fem år")));
+      +(d.ovgMot?jmfSkillnad(d.ovg-d.ovgRiket,1):""),fig("Andel som påbörjat studier inom fem år"),
+      "Övergång till högskola", _ovg+"\u00a0%", d.ovgAr||null));
     return ut.filter(Boolean);
   }
 
@@ -34111,25 +34658,28 @@ var UNDERLAG = [
     var d=(window.__usSum||{}).yh||{}, ut=[], namn=d.namn||"riket";
     var _st=(d.stud>0)?num(d.stud):null;
     if(_st) ut.push(p("I "+namn+" fanns <b>"+_st+" studerande</b> inom yrkeshögskolan "+d.studAr+"."
-      +utveckling(d.forFran,d.forPct,"antalet studerande"),fig("Antal studerande över tid")));
+      +utveckling(d.forFran,d.forPct,"antalet studerande"),fig("Antal studerande över tid"),
+      "Studerande", _st, d.studAr));
     var _ex=(d.exam>0)?num(d.exam):null;
     /* Serierna slutar olika år: uppgiften om examinerade saknas ofta för studerandeseriens
        sista år. Årtalet skrivs därför ut när det skiljer sig, så att talen inte ser ut att
        gälla samma år. */
     if(_ex) ut.push(p("Antalet examinerade var <b>"+_ex+"</b> "
       +((d.examAr===d.studAr)?"samma år.":("år "+d.examAr+", det sista året med uppgift.")),
-      fig("Antal studerande över tid")));
+      fig("Antal studerande över tid"),"Examinerade", _ex, d.examAr));
     var _oa=num(d.omrAndel,1);
     if(_oa&&d.omrNamn) ut.push(p("Störst utbildningsområde är <b>"+d.omrNamn+"</b> med <b>"+_oa
-      +" procent</b> av de studerande."+jmfSkillnad(d.omrDiff,1),fig("Studerande per utbildningsområde")));
+      +" procent</b> av de studerande."+jmfSkillnad(d.omrDiff,1),fig("Studerande per utbildningsområde"),
+      "Största utbildningsområdet", d.omrNamn));
     var _pl=(d.platser>0)?num(d.platser):null;
     if(_pl&&d.anordNamn) ut.push(p("<b>"+_pl+" platser</b> är beviljade hos <b>"+tal(d.anordnare)
       +" anordnare</b>. Störst är <b>"+d.anordNamn+"</b> med <b>"+tal(d.anordAndel,0)+" procent</b> av utbudet.",
-      fig("Beviljade platser per anordnare")));
+      fig("Beviljade platser per anordnare"),"Beviljade platser", _pl));
     var _arb=num(d.arb,0);
     if(_arb) ut.push(p("<b>"+_arb+" procent</b> av de examinerade hade arbete året efter examen"
       +(d.arbAr?(" ("+d.arbAr+")"):"")+"."+niva("avser samtliga utbildningsområden i riket"),
-      fig("Andel i arbete ett år efter examen, per utbildningsområde")));
+      fig("Andel i arbete ett år efter examen, per utbildningsområde"),
+      "I arbete efter examen", _arb+"\u00a0%", d.arbAr||null));
     return ut.filter(Boolean);
   }
 
@@ -34138,25 +34688,186 @@ var UNDERLAG = [
     var _h=(d.hst>0)?num(d.hst):null;
     if(_h) ut.push(p(namn.charAt(0).toUpperCase()+namn.slice(1)+" hade <b>"+_h
       +" helårsstudenter</b> läsåret "+d.hstAr+"."+utveckling(d.forFran,d.forPct,"volymen"),
-      fig("Helårsstudenter över tid")));
+      fig("Helårsstudenter över tid"),"Helårsstudenter", _h, d.hstAr));
     var _k=num(d.andelK,0);
-    if(_k) ut.push(p("Andelen kvinnor är <b>"+_k+" procent</b>.",fig("Helårsstudenter över tid")));
+    if(_k) ut.push(p("Andelen kvinnor är <b>"+_k+" procent</b>.",fig("Helårsstudenter över tid"),
+      "Andel kvinnor", _k+"\u00a0%", d.hstAr));
     var _oa=num(d.omrAndel,1);
     if(_oa&&d.omrNamn) ut.push(p("Störst ämnesområde är <b>"+d.omrNamn+"</b> med <b>"+_oa
       /* Jämförelsenormen är samtliga lärosäten och inte riket i geografisk mening. */
       +" procent</b> av helårsstudenterna."+jmfSkillnad(d.omrDiff,1).replace("än i riket","än hos samtliga lärosäten"),
-      fig("Fördelning per ämnesområde")));
+      fig("Fördelning per ämnesområde"),"Största ämnesområdet", d.omrNamn));
     var _e=num(d.etab,1), _er=num(d.etabRiket,1);
     if(_e) ut.push(p("<b>"+_e+" procent</b> av de examinerade var etablerade på arbetsmarknaden ett till "
       +"ett och ett halvt år efter examen"
       +(d.etabPlats?(", vilket är plats <b>"+d.etabPlats+" av "+d.etabAntal+"</b> bland lärosätena"):"")+"."
       +(_er?(' <span class="sum-jmf">Hos samtliga lärosäten är andelen <b>'+_er+" procent</b>.</span>"):""),
-      fig("Etablering 1–1,5 år efter examen")));
+      fig("Etablering 1–1,5 år efter examen"),"Etablerade efter examen", _e+"\u00a0%"));
     else if(_er) ut.push(p("<b>"+_er+" procent</b> av de examinerade var etablerade på arbetsmarknaden ett till "
       +"ett och ett halvt år efter examen, räknat över samtliga lärosäten.",
-      fig("Etablering 1–1,5 år efter examen")));
+      fig("Etablering 1–1,5 år efter examen"),"Etablerade efter examen", _er+"\u00a0%"));
     return ut.filter(Boolean);
   }
+
+  /* ===== Spärr mot kort som tystnar =====================================================
+     Sex kort visade sig aldrig skrivas, alla av samma orsak: de läste ett fältnamn som bytts
+     eller aldrig funnits, och eftersom varje kort ligger bakom ett villkor eller i ett
+     try-block föll det bort utan ett ord. Ingen tom ruta, ingen felutskrift, bara en punkt
+     mindre. Därför kunde de ligga kvar länge.
+
+     Kontrollen kör varje byggare mot en påhittad datauppsättning som bär alla fält byggarna
+     ska läsa, och prövar att varje kort i förteckningen nedan faktiskt kommer ut. Datan är
+     påhittad med avsikt: den ska inte följa med när SCB ändrar sig, utan låsa vilka fält
+     verktyget räknar med. Byts ett fältnamn någonstans slår kontrollen larm nästa gång den
+     körs, i stället för om ett halvår.
+
+     Läggs ett kort till ska det läggas till i förteckningen. Det är en avsikt och inte en
+     olägenhet: förteckningen är kontraktet.
+
+     Kontrollen använder vyns egna hjälpare — alderMatt, kompKval, annonsKval, riksMedianLon —
+     eftersom byggarna gör det. Saknas någon av dem faller de kort som beror på den, och det
+     är avsiktligt: en hjälpare som försvinner är samma slags fel som ett fält som bytt namn.
+
+     Körs från konsolen med __kontrollSum(), och kan kallas från kontroll.js på en rad. */
+  var KORTKONTRAKT={
+    lanKom:["Sysselsättningsgraden i","Arbetslösheten är","Den matchade förvärvsgraden",
+      "Andelen med eftergymnasial","Medianinkomsten är","arbetar i tjänstesektorn",
+      "Andelen företagare","Yrkesområdena","Branscherna","väntas lämna",
+      "gick ut gymnasiet","Försörjningskvoten i","varslades","Arbetsförmedlingen bedömer",
+      "Pendlingen ger ett netto"],
+    yrke:["Yrket har","Andelen kvinnor i yrket","55 år eller äldre","Yrket utgör en",
+      "vanligaste utbildningsbakgrunderna","kompetenser som oftast efterfrågas",
+      "förmågor som oftast efterfrågas","Yrken med liknande kompetenskrav",
+      "Medianlönen är","utbildning som matchar yrket","i gruppen som"],
+    bransch:["Branschen syssels","Det motsvarar","Andelen kvinnor i branschen","Branschen rymmer",
+      "F\u00f6r\u00e4dlingsv\u00e4rdet \u00e4r","55 år eller äldre","Branschen utg\u00f6r en",
+      "st\u00f6rsta yrket i branschen","kompetens som oftast efterfr"],
+    komp:["Under","efterfrågades i","viktade medianlönen","efterfrågas oftast i yrkena",
+      "Efterfrågan finns till","efterfrågas tillsammans","vanligaste utbildningsbakgrunderna"]
+  };
+  /* Påhittad data, en uppsättning per byggare. Fälten är desamma som byggarna läser. */
+  function _provdata(){
+    var serie=[70,72,74,76,78], ar=["2020","2021","2022","2023","2024"];
+    return {
+      lanKom:{code:"07", name:"Provlän", ar:"2024",
+        kpis:{sysReg:80.1,sysRik:80.4,arbReg:5.9,arbRik:5.4,utbReg:26.9,utbRik:32.2,
+              medInkReg:380,medInkRik:398,privShareReg:67,privShareRik:72.4,ftgReg:9.3,ftgRik:10},
+        sysSeries:{region:serie,riket:serie}, sysYears:ar,
+        arbSeries:{region:[6,6.2,5.8,5.9,5.9],riket:serie}, arbYears:ar,
+        sys24Series:{region:[60,61,62,62,62],riket:[61,62,62,62,62]},
+        arb24Series:{region:[8,8,7.6,7.5,7.5],riket:[7,7,7,7,7]},
+        match:{ar:"2024", egen:{tot:{matchad:49.1}}, riket:{tot:{matchad:49.2}}},
+        lqYrke:[{name:"Maskinell tillverkning",lq:1.4},{name:"Bygg",lq:1.38},{name:"Chefsyrken",lq:0.9},
+                {name:"Kortare utbildning",lq:0.87},{name:"Fördjupad högskolekompetens",lq:0.86}],
+        lqBransch:[{name:"Jordbruk",lq:1.69},{name:"Tillverkning",lq:1.66},{name:"Vård",lq:1.06},
+                   {name:"Byggverksamhet",lq:0.86},{name:"Företagstjänster",lq:0.8},{name:"Finans",lq:0.42}],
+        avg:{perAr:2167, grupper:148},
+        ovg:{ar:"2019/2020", former:{hogskola:{namn:"Högskola",egen:54.6,riket:57.5},
+                                     yrkesh:{namn:"Yrkeshögskola",egen:6.2,riket:7.4}}},
+        demo:{ar0:"2024",arN:"2070",befTillv:8,aldreTillv:34.2,fk0:76.4,fkN:84.9,fkRikN:81.5,
+              forsSerie:[76.4,79,81,83,84.9]},
+        baro:[["Yrke A","brist"],["Yrke B","balans"],["Yrke C","overskott"]],
+        pendling:{inPend:12904,utPend:7754,netto:5150}},
+      yrke:{code:"532", name:"Provyrke", ar:"2024", region:"07", regionName:"Provlän",
+        antal:1277, years:ar, serie:[1300,1290,1280,1277,1277], kvinnor:59.5,
+        /* Rå form, samma som hämtningen ger. Kontrollen prövar därmed även alderMatt, som
+           räknar fram andelen 55 år och äldre ur åldersbanden. */
+        alder:{yrke:{tot:1000, ar:"2024",
+          band:[{lo:20,antal:180},{lo:25,antal:150},{lo:35,antal:250},{lo:45,antal:130},
+                {lo:55,antal:200},{lo:65,antal:90}]}},
+        lqRegions:[{code:"07",name:"Provlän",lq:0.97},{code:"01",name:"Stockholm",lq:1.2}],
+        edu:[{kod:"1",namn:"Utbildning A",andel:65},{kod:"2",namn:"Utbildning B",andel:5},
+             {kod:"3",namn:"Utbildning C",andel:3}],
+        kompetenser:[{namn:"Kompetens A"},{namn:"Kompetens B"},{namn:"Kompetens C"}],
+        lon:44200, lonSprid:{ref:{median:38300}},
+        match5:{yrke:{tot:{helt:79.8}}}, ybProg:"oka",
+        baroGrupp:{antal:3, rakning:{brist:2,paradox:0,balans:1,overskott:0}, dominerande:"brist"}},
+      bransch:{code:"C", name:"Provbransch", ar:"2024", region:"07", regionName:"Provlän",
+        antal:18590, andel:17.8, years:ar, serie:[18000,18200,18400,18590,18590], kvinnov:null,
+        kvinnor:24.5, foretag:1200, solo:900, foradling:52000, bnp:4.2,
+        alder:{tot:20000, ar:"2024",
+          band:[{lo:20,antal:3600},{lo:25,antal:3000},{lo:35,antal:5000},{lo:45,antal:3200},
+                {lo:55,antal:4000},{lo:65,antal:1200}]},
+        lqRegions:[{name:"Provlän",lq:1.66},{name:"Riket",lq:1}],
+        yrken:[{namn:"Yrke A",antal:900},{namn:"Yrke B",antal:700}],
+        kompetenser:[{namn:"Kompetens A"},{namn:"Kompetens B"}]},
+      komp:{code:"Svetsning", name:"Svetsning", ar:"2025", region:"07", regionName:"Provlän",
+        andel:4.9, annonser:1931, lon:43395,
+        yrken:["Yrke A","Yrke B","Yrke C"],
+        related:["Kompetens A","Kompetens B","Kompetens C"],
+        utbildningar:["Utbildning A","Utbildning B","Utbildning C"]}
+    };
+  }
+  /* Pilarna prövas mot markupen. Sex kort pekade på figurrubriker som ingen figur bär, och
+     knapparna gjorde då ingenting alls när man tryckte på dem. Rubriker byts under arbetets
+     gång, så kontrollen måste vara maskinell: varje figurargument slås upp bland de rubriker
+     som faktiskt står i dokumentet. Den som anger vy och rubrik som objekt hoppas över, den
+     formen slår upp sig själv. */
+  window.__kontrollPilar=function(tyst){
+    /* Rubriken räcker inte: tjugosex rubriker förekommer i mer än en vy, och uppslaget tar
+       första träffen i vyordningen. Kontrollen prövar därför rubrik och vy tillsammans, mot
+       de figurer som faktiskt står i respektive vy. */
+    var rub={}, iVy={};
+    try{
+      ["region","kommun","yrke","bransch","kompetens","utbstat"].forEach(function(v){
+        var el=document.getElementById("view-"+v); if(!el)return;
+        iVy[v]={};
+        [].slice.call(el.querySelectorAll(".r-fig-title")).forEach(function(t){
+          var r=(t.textContent||"").replace(/\s+/g," ").trim();
+          iVy[v][r]=1; rub[r]=1;
+        });
+      });
+      [].slice.call(document.querySelectorAll(".r-fig-title")).forEach(function(t){
+        rub[(t.textContent||"").replace(/\s+/g," ").trim()]=1;
+      });
+    }catch(e){}
+    var pd=_provdata(), fel=[];
+    var korn={lanKom:function(d){ return lanKom(d,"Provlän","region"); },
+              yrke:yrke, bransch:bransch, komp:komp};
+    Object.keys(korn).forEach(function(namn){
+      var ut=[];
+      try{ ut=korn[namn](pd[namn])||[]; }catch(e){ return; }
+      ut.forEach(function(x){
+        var f=x&&x.figur; if(!f)return;
+        var r=(typeof f==="object")?f.rubrik:f, v=(typeof f==="object")?f.vy:null;
+        if(!rub[r]){ fel.push(namn+': pilen pekar på "'+r+'", som ingen figur bär'); return; }
+        if(v&&iVy[v]&&!iVy[v][r])
+          fel.push(namn+': pilen pekar på "'+r+'" i vyn '+v+', där ingen figur bär den rubriken');
+        if(!v)fel.push(namn+': pilen mot "'+r+'" saknar vy och kan landa i en annan vy');
+      });
+    });
+    if(!tyst){
+      try{
+        console.log("KONTROLL pilar: "+(fel.length?fel.length+" fel":"alla pilar har en figur"));
+        fel.forEach(function(f){ console.warn("   "+f); });
+      }catch(e){}
+    }
+    return {ok:!fel.length, fel:fel};
+  };
+  window.__kontrollSum=function(tyst){
+    var pd=_provdata(), fel=[], rader=[];
+    var korn={lanKom:function(d){ return lanKom(d,"Provlän","region"); },
+              yrke:yrke, bransch:bransch, komp:komp};
+    Object.keys(KORTKONTRAKT).forEach(function(namn){
+      var ut=[];
+      try{ ut=korn[namn](pd[namn])||[]; }catch(e){ fel.push(namn+": byggaren kastade "+e); }
+      var texter=ut.map(function(x){ return String((x&&x.text)||""); });
+      KORTKONTRAKT[namn].forEach(function(frag){
+        var traff=texter.some(function(t){ return t.indexOf(frag)>=0; });
+        if(!traff)fel.push(namn+": kortet \""+frag+"\" skrevs inte");
+        rader.push([namn, frag, traff?"ja":"NEJ"]);
+      });
+      rader.push([namn, "(antal kort)", ut.length+" av "+KORTKONTRAKT[namn].length+" i kontraktet"]);
+    });
+    if(!tyst){
+      try{
+        console.log("KONTROLL sammanfattningskort: "+(fel.length?fel.length+" fel":"alla kort skrivs"));
+        rader.forEach(function(r){ if(r[2]!=="ja")console.log("   "+r[0]+"  "+r[1]+"  "+r[2]); });
+        fel.forEach(function(f){ console.warn("   "+f); });
+      }catch(e){}
+    }
+    return {ok:!fel.length, fel:fel, rader:rader};
+  };
 
   var VYER={
     sumLan:{dim:"region", get:function(){ return lanKom((window.regionState||{}).data,
@@ -34234,7 +34945,17 @@ var UNDERLAG = [
         +'<p class="vy-analys-h sum-h">Sammanfattning</p></div>'
         +'<ul class="sum-kortlista">';
       punkter.forEach(function(pt){
-        html+='<li class="sum-kort"><span class="sum-text">'+pt.text+'</span>'+pil(pt,"sum-pil sum-pil-fylld")+'</li>';
+        /* Etiketten står som liten överskrift, talet stort under den och meningen sist. Pilen
+           ligger i övre högra hörnet, i höjd med etiketten, så att den inte lämnar en lucka
+           vid sidan av texten. Saknas talet skrivs ingen talrad: kortet blir etikett och text.
+           Saknas etiketten skrivs bara texten, som förut. */
+        var huvud=(pt.etikett||pt.tal)
+          ? ('<span class="sum-huvud">'
+             +(pt.etikett?('<span class="sum-etikett">'+pt.etikett+'</span>'):"")
+             +(pt.tal?('<span class="sum-tal'+(/^[\d+\u2212-]/.test(String(pt.tal))?"":" sum-tal-ord")+'">'+pt.tal+'</span>'):"")+'</span>')
+          : "";
+        html+='<li class="sum-kort'+(huvud?" har-huvud":"")+'">'+huvud
+          +'<span class="sum-text">'+pt.text+'</span>'+pil(pt,"sum-pil sum-pil-fylld")+'</li>';
       });
       html+="</ul></div>";
     } else if(form==="rutnat"){
