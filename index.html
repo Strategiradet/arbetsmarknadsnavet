@@ -2343,7 +2343,19 @@ main.view>aside .us-stat>.block>/* Rubriken som ligger först i ett block fick f
      stapelfälten hamnar då på olika plats i olika rader. Det syntes tydligast längst ned i
      listan, där namnen är kortast och stapeln började längre till vänster än i raderna över.
      Med fast bredd börjar alla stapelfält på samma ställe. */
-  #hogEtabList .peer-row{grid-template-columns:280px minmax(50px,1fr) 52px}
+  /* Regeln måste ligga i en mediefråga. En väljare med id väger tyngre än klassregeln i
+     mediefrågan ovanför, oavsett skärmbredd, så den fasta namnkolumnen på 280 punkter slog
+     igenom även på mobil. Tillsammans med stapel, värde och mellanrum kräver raden då drygt
+     400 punkter, mer än en telefon är bred, och värdekolumnen hamnade utanför vyn. */
+  @media (min-width:861px){
+    #hogEtabList .peer-row{grid-template-columns:280px minmax(50px,1fr) 52px}
+  }
+  /* På smal skärm bär namnkolumnen den bredd som blir över i stället för ett fast mått. Alla
+     rader är lika breda, så en andel ger samma kolumnbredd i varje rad och stapelfälten börjar
+     fortfarande på samma ställe. Namnen bryts över flera rader som förut. */
+  @media (max-width:860px){
+    #hogEtabList .peer-row{grid-template-columns:minmax(0,1fr) 64px 46px}
+  }
 #hogEtabList .peer-name{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25;overflow-wrap:break-word;hyphens:auto;min-width:0}
   .peer-fill{display:block;height:100%;width:0;background:#9bb6c0;border-radius:5px;transition:width .7s var(--ease-out)}
   .peer-row.sel .peer-name{font-weight:700;color:var(--accent)}
@@ -3463,15 +3475,19 @@ body>header .hdr-exp-primary,body>header .hdr-exp-more,body>header .hdr-exp-wrap
 
 /* Ingen rubrik innan man gjort ett val. Regeln måste väga lika tungt som regeln för
    titelraden längre ned, annars slår den inte igenom. Handlingarna ligger i titelraden och
-   döljs därför också, vilket är rätt: det finns inget att skapa rapport av ännu. */
-section.results > .r-head:not(.is-visible),
-#view-region > .results > .r-head:not(.is-visible),
-#view-kommun > .results > .r-head:not(.is-visible),
-#view-yrke > .results > .r-head:not(.is-visible),
-#view-bransch > .results > .r-head:not(.is-visible),
-#view-utbstat > .results > .r-head:not(.is-visible),
-#view-utbildning > .results > .r-head:not(.is-visible),
-#view-kompetens > .results > .r-head:not(.is-visible){display:none}
+   döljs därför också, vilket är rätt: det finns inget att skapa rapport av ännu.
+   Villkoret krävde tidigare att rubrikraden var direkt barn till resultatytan. Utbildnings-
+   vyns ligger i usStatHead och undkom därför regeln, så rubriken Utbildning stod kvar ovanför
+   uppmaningen att välja nivå medan övriga vyer var tomma. Samma inkapsling gjorde tidigare
+   att marginalregeln missade, se kommentaren vid titelraden. Villkoret gäller nu oavsett djup. */
+section.results .r-head:not(.is-visible),
+#view-region .results .r-head:not(.is-visible),
+#view-kommun .results .r-head:not(.is-visible),
+#view-yrke .results .r-head:not(.is-visible),
+#view-bransch .results .r-head:not(.is-visible),
+#view-utbstat .results .r-head:not(.is-visible),
+#view-utbildning .results .r-head:not(.is-visible),
+#view-kompetens .results .r-head:not(.is-visible){display:none}
 
 /* ===== Titelns andra rad: petrolfärgad nivå (alternativ C) =====
    Namnet bär titeln ensamt, medan den geografiska nivån trycks tillbaka till en mindre rad
@@ -6003,7 +6019,9 @@ section.results .vcmp .rapport-matrix-wrap{
         <button type="button" class="hdr-exp-item hdr-exp-mobil" id="btnLaddaNer" role="menuitem"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><polyline points="7.5 9.5 12 14 16.5 9.5"/><path d="M4.5 19.5h15"/></svg>Ladda ned</button>
       </div>
     </div>
-    <button type="button" class="hdr-exp-btn hdr-om" id="btnOmVerktyget" data-tip="Om verktyget: källor, metod och avgränsningar." aria-label="Om verktyget"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11.5" x2="12" y2="16.5"/><line x1="12" y1="7.5" x2="12" y2="7.6"/></svg></button>
+    <!-- Ingen data-tip här: knappen finns bara i mobilsidhuvudet, och där dök popupen
+         upp vid varje tryck eftersom fokus utlöser tipset. Beskrivningen bärs av aria-label. -->
+    <button type="button" class="hdr-exp-btn hdr-om" id="btnOmVerktyget" aria-label="Om verktyget"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11.5" x2="12" y2="16.5"/><line x1="12" y1="7.5" x2="12" y2="7.6"/></svg></button>
   </div>
 </header>
 <span id="huvudinnehall" tabindex="-1"></span>
@@ -7660,8 +7678,8 @@ section.results .vcmp .rapport-matrix-wrap{
   <div class="method-doc">
     <a class="method-back" id="laddaBack" href="#" role="button"><span aria-hidden="true">←</span> Tillbaka till verktyget</a>
     <h2 class="method-title" tabindex="-1">Ladda ned data</h2>
-    <p class="method-lead">Här kan du ladda ned de sammanställda tabeller som bygger på Arbetsförmedlingens jobbannonser. Uppgifterna är bearbetade och aggregerade av Strategirådet och finns inte att hämta i den här formen någon annanstans. Verktygets övriga underlag kommer från SCB, Skolverket, Myndigheten för yrkeshögskolan och UKÄ. Det hämtas enklast direkt från respektive källa. Varje tabell laddas ned som en egen fil.</p>
-    <p class="dl-note">Filerna är i CSV-format med semikolon som avgränsare, tecknen kodas i UTF-8 och decimaltal skrivs med komma. De öppnas direkt i Excel. Några tabeller är stora och tar längre tid att skapa.</p>
+    <p class="method-lead">Här kan du ladda ned de sammanställda tabeller som bygger på Arbetsförmedlingens jobbannonser. Uppgifterna är bearbetade och aggregerade av Strategirådet och finns inte att hämta i den här formen någon annanstans. Verktygets övriga underlag hämtas enklast direkt från respektive myndighet. Varje tabell laddas ned som en egen fil.</p>
+    <p class="dl-note">Filerna är i CSV-format med semikolon som avgränsare, tecknen kodas i UTF-8 och decimaltal skrivs med komma. De öppnas direkt i Excel. Koder med inledande nolla skrivs i formen ="01" så att nollan behålls i Excel. I andra program följer skalet med som text och kan tas bort vid inläsningen. I årsvisa tabeller ingår det pågående året med de uppgifter som hunnit publiceras och har värdet 0 i kolumnen helar. Några tabeller är stora och tar längre tid att skapa.</p>
         <!-- Samma förbehåll som står i kompetensvyn. Den som laddar ned tabellerna och räknar
              vidare på egen hand behöver det minst lika mycket som den som läser en figur. -->
         <div class="fakta-ruta komp-forbehall"><b>Om kompetensuppgifterna</b>Kompetenserna är sammanställda med Arbetsförmedlingens tjänst JobAd Enrichments. I Arbetsmarknadsnavet redovisas underlaget i stort sett utan egna omtolkningar. Vissa avgränsningar har gjorts avseende urvalet av kompetenser som ingår i och redovisas i Arbetsmarknadsnavet.</div>
@@ -10919,7 +10937,23 @@ moveNavIndicator();
 (function setupLaddaView(){
   var list=document.getElementById("dlList"); if(!list)return;
   function ks(o){ return Object.keys(o||{}).sort(); }
+  /* Perioden för filer som saknar egen tidskolumn: annonsarkivets första år och senaste
+     kvartal, samma två uppgifter som arbetsgivarfilerna använder. */
+  function dlPeriod(){
+    var fran=(ks(window.NAT_ANN||{})[0])||"2020";
+    var till=(window.KOMP_META&&window.KOMP_META.kvartal_aktuellt)||"";
+    return fran+(till?("\u2013"+till):" och fram\u00e5t");
+  }
+  /* Hela år bär värdet 1 och det pågående året värdet 0. Årtalet hämtas ur
+     annonsunderlagets metadata, samma uppgift som styr urvalsberäkningen. */
+  function dlHelar(ar){
+    var p=(window.ANN_META&&window.ANN_META.prelim_ar)||null;
+    return (p!=null && String(ar)===String(p))?0:1;
+  }
   var AVD_NAMN={A:"Jordbruk och skogsbruk","B+C":"Utvinning och tillverkning","D+E":"Energi, vatten och avfall",F:"Byggverksamhet",G:"Handel",H:"Transport",I:"Hotell och restaurang",J:"Information och kommunikation",K:"Finans och försäkring",L:"Fastighetsverksamhet","M+N":"Företagstjänster",O:"Offentlig förvaltning och försvar",P:"Utbildning",Q:"Vård och omsorg","R+S+T+U":"Kultur, nöje och andra tjänster"};
+  /* Enskilda avdelningar som ingår i en sammanslagen grupp redovisas inte för sig i
+     branschfilen, så B och C utgår när B+C finns. Raderna dubbelräknade annars varandra. */
+  var INGAR={}; Object.keys(AVD_NAMN).forEach(function(k){ if(k.indexOf("+")>=0) k.split("+").forEach(function(d){ INGAR[d]=1; }); });
   /* Arbetsgivarlistorna låg i en enda fil med en kolumn som bar den råa nyckeln, alltså
      "kompetens:Barn|lan:04". Den var svår att läsa och gick inte att filtrera på. Nyckeln är
      nu uppdelad i kod, namn och geografi, och materialet ligger i en fil per grupptyp så att
@@ -10943,18 +10977,34 @@ moveNavIndicator();
     }catch(e){}
     return "";
   }
+  /* En juridisk person har en siffra över 1 i tredje positionen. Ett personnummer bär där
+     månadens första siffra, alltså 0 eller 1. Testet är källans eget sätt att skilja dem. */
+  function _enskild(orgnr){
+    var n=String(orgnr==null?"":orgnr).replace(/\D/g,"");
+    if(n.length===12) n=n.slice(2);
+    if(n.length!==10) return true;
+    return n.charAt(2)==="0" || n.charAt(2)==="1";
+  }
   function agRader(vilken){
     var d=(window.__agData&&window.__agData())||null;
+    /* Perioden hämtas ur datafilens periodfält och annonsarkivets senaste kvartal, samma
+       källa som analystexten, så att filen bär sin egen periodangivelse. */
+    var _fran=(function(){ try{ var m=String((d&&d.period)||"").match(/^(\d{4})/); return m?m[1]:"2023"; }catch(e){ return "2023"; } })();
+    var _till=(function(){ try{ return (window.KOMP_META&&window.KOMP_META.kvartal_aktuellt)||""; }catch(e){ return ""; } })();
+    var _period=_fran+(_till?("\u2013"+_till):" och fram\u00e5t");
     /* Nivåkolumnen finns för yrkena, vars koder är en till fyra siffror. Namnen för de två
        grövsta nivåerna hämtas från SCB vid behov och finns inte i verktygets egen data, så där
        står koden ensam och nivån säger vad den betyder. */
     /* Uttaget bär både den rättade femsiffernivån och den huvudgrupp figuren visar, så att
        den som räknar vidare ser vilken nivå ett tal kommer ur. Rättningarna och regionregeln
        ligger i arbetsgivarmodulen och nås via __agRattad och __agBransch. */
+    /* Organisationsnumret redovisas inte. För en enskild firma är numret innehavarens
+       personnummer, och det ska inte kunna nå en användare via en exportfil. Numret används
+       fortfarande internt för rättningar och för region- och kommunreglerna. */
     var rows=[["grupptyp","niva","kod","namn","geografi_typ","geografi_kod","geografi_namn",
-               "organisationsnummer","arbetsgivare","sni","sni_titel",
+               "arbetsgivare","sni","sni_titel",
                "sni_huvudgrupp","sni_huvudgrupp_titel",
-               "antal_annonser","antal_platser"]];
+               "antal_annonser","antal_platser","period"]];
     if(!d||!d.grupper)return rows;
     var reg=d.arbetsgivare||[];
     ks(d.grupper).forEach(function(k){
@@ -10973,6 +11023,7 @@ moveNavIndicator();
       /* Ett fåtal nycklar bär en kod som inte går att tolka, som bransch:- och bransch:ko.
            De kommer från arbetsgivare vars SNI inte är numerisk och hör inte hemma i filen. */
         if(typ==="bransch" && !/^[A-Z]/.test(kod))return;
+        if(typ==="bransch" && kod.indexOf("+")<0 && INGAR[kod])return;
         var niva="";
         if(typ==="yrke"){
           niva=({1:"yrkesomr\u00e5de",2:"huvudgrupp",3:"yrkesgrupp",4:"yrke"})[kod.length]||"";
@@ -10980,22 +11031,26 @@ moveNavIndicator();
         (g.topp||[]).forEach(function(r){
           var o=reg[r[0]]||[];
           var _ratt=null; try{ _ratt=window.__agRattad?window.__agRattad(o[0]):null; }catch(e){}
-          var _sni=_ratt?_ratt[0]:(o[2]||""), _snit=_ratt?_ratt[1]:(o[3]||"");
+          var _sni=_ratt?_ratt[0]:(o[2]||""), _snit=_ratt?_ratt[1]:(window.__agSniTitel?window.__agSniTitel(o[2],o[3]):(o[3]||""));
           /* Samma regel som listan använder, hämtad ur arbetsgivarmodulen i stället för
              upprepad här. Tidigare stod regionregeln som en egen rad, och kommunregeln hade
              behövt läggas till på två ställen. */
+          var _ren=window.__agRent||function(x){return x;};
           var _hg="", _hgt="";
           try{ _hg=window.__agHuvudgrupp?window.__agHuvudgrupp(o[0],_sni):String(_sni).replace(/\D/g,"").slice(0,2); }catch(e){}
           try{ _hgt=window.__agBransch?window.__agBransch(o[0],_sni):""; }catch(e){}
+          /* Enskilda firmor har personnummer som organisationsnummer. De känns igen på att
+             tredje siffran är en månadssiffra, och de utelämnas helt ur filen. */
+          if(_enskild(o[0])) return;
           rows.push([typ,niva,kod,agNamn(typ,kod),geoTyp,geoKod,geoNamn,
-                     o[0]||"",o[1]||"",_sni,_snit,_hg,_hgt,r[1],r[2]]);
+                     _ren(o[1]||""),_sni,_ren(_snit),_hg,_hgt,r[1],r[2],_period]);
         });
     });
     return rows;
   }
   var AG_TYPER=[
     ["yrke","yrken","per yrke, p\u00e5 samtliga fyra SSYK-niv\u00e5er"],
-    ["bransch","branscher","per bransch, p\u00e5 SNI:s avdelningsniv\u00e5"],
+    ["bransch","branscher","per bransch, p\u00e5 SNI:s avdelningsniv\u00e5 i samma gruppering som verktyget anv\u00e4nder"],
     ["lan","l\u00e4n","per l\u00e4n"],
     ["kommun","kommuner","per kommun"],
     ["kompetens","kompetenser","per kompetens, samt per kompetens och l\u00e4n respektive kommun"]
@@ -11011,24 +11066,24 @@ moveNavIndicator();
   });
   var DL_SETS=[
     {group:"Kompetenser i jobbannonser", items:[
-      {id:"kompetenser_riket", namn:"Efterfrågade kompetenser i riket över tid", desc:"Antal jobbannonser per kompetens och år för hela landet. Endast kompetenser med minst 30 annonser ingår.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
-        build:function(){ var M=window.NAT_KOMP||{}; var rows=[["kompetens","ar","antal_annonser"]]; ks(M).forEach(function(k){ var y=M[k]; ks(y).forEach(function(yr){ rows.push([k,yr,y[yr]]); }); }); return rows; }},
-      {id:"kompetenser_lan", namn:"Efterfrågade kompetenser per län över tid", desc:"Antal jobbannonser per kompetens, län och år. Det är den största tabellen och tar längre tid att skapa.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
-        build:function(){ var M=window.KOMP_LAN||{}, LAN=(window.SVE_LAN&&window.SVE_LAN.names)||{}; var rows=[["kompetens","lanskod","lan","ar","antal_annonser"]]; ks(M).forEach(function(k){ var lm=M[k]; ks(lm).forEach(function(lan){ var ym=lm[lan]; ks(ym).forEach(function(yr){ rows.push([k,lan,LAN[lan]||"",yr,ym[yr]]); }); }); }); return rows; }},
-      {id:"kompetenser_yrke", namn:"Kompetenser per yrke", desc:"För varje kompetens de yrken som oftast efterfrågar den, med antal annonser.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
-        build:function(){ var M=window.KOMP_YRKE||{}, YRK=window.YRKE_NAMN3||{}; var rows=[["kompetens","ssyk_kod","yrke","antal_annonser"]]; ks(M).forEach(function(k){ var top=(M[k]&&M[k].top)||[]; top.forEach(function(t){ rows.push([k,t[0],YRK[t[0]]||"",t[1]]); }); }); return rows; }},
-      {id:"kompetenser_samvariation", namn:"Kompetenser som efterfrågas tillsammans", desc:"För varje kompetens de kompetenser som oftast förekommer i samma annonser, med antal gemensamma annonser.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
-        build:function(){ var M=window.SAMVAR||{}; var rows=[["kompetens","samvarierande_kompetens","antal_gemensamma_annonser"]]; ks(M).forEach(function(k){ var rel=(M[k]&&M[k].rel)||[]; rel.forEach(function(r){ rows.push([k,r[0],r[1]]); }); }); return rows; }},
+      {id:"kompetenser_riket", namn:"Efterfrågade kompetenser i riket över tid", desc:"Antal jobbannonser per kompetens och år för hela landet, från 2020. Endast kompetenser med minst 30 annonser ingår. Svenska och engelska ingår inte.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+        build:function(){ var M=window.NAT_KOMP||{}; var rows=[["kompetens","ar","helar","antal_annonser"]]; ks(M).forEach(function(k){ var y=M[k]; ks(y).forEach(function(yr){ rows.push([k,yr,dlHelar(yr),y[yr]]); }); }); return rows; }},
+      {id:"kompetenser_lan", namn:"Efterfrågade kompetenser per län över tid", desc:"Antal jobbannonser per kompetens, län och år, från 2020. Svenska och engelska ingår inte. Det är den största tabellen och tar längre tid att skapa.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+        build:function(){ var M=window.KOMP_LAN||{}, LAN=(window.SVE_LAN&&window.SVE_LAN.names)||{}; var rows=[["kompetens","lanskod","lan","ar","helar","antal_annonser"]]; ks(M).forEach(function(k){ var lm=M[k]; ks(lm).forEach(function(lan){ var ym=lm[lan]; ks(ym).forEach(function(yr){ rows.push([k,lan,LAN[lan]||"",yr,dlHelar(yr),ym[yr]]); }); }); }); return rows; }},
+      {id:"kompetenser_yrke", namn:"Kompetenser per yrke", desc:"För varje kompetens de upp till femton yrken som oftast efterfrågar den, med antal annonser.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+        build:function(){ var M=window.KOMP_YRKE||{}, YRK=window.YRKE_NAMN3||{}; var per=dlPeriod(); var rows=[["kompetens","ssyk3","yrkesgrupp","antal_annonser","period"]]; ks(M).forEach(function(k){ var top=(M[k]&&M[k].top)||[]; top.forEach(function(t){ rows.push([k,t[0],YRK[t[0]]||"",t[1],per]); }); }); return rows; }},
+      {id:"kompetenser_samvariation", namn:"Kompetenser som efterfrågas tillsammans", desc:"För varje kompetens de upp till femton kompetenser som oftast förekommer i samma annonser, med antal gemensamma annonser.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+        build:function(){ var M=window.SAMVAR||{}; var per=dlPeriod(); var rows=[["kompetens","samvarierande_kompetens","antal_gemensamma_annonser","period"]]; ks(M).forEach(function(k){ var rel=(M[k]&&M[k].rel)||[]; rel.forEach(function(r){ rows.push([k,r[0],r[1],per]); }); }); return rows; }},
         ]},
     /* Kompetenser per kommun erbjuds inte. Verktyget har ingen sådan uppdelning: kommunvyns
        kompetenslista visar kommunens län, eftersom annonsunderlaget blir för tunt per kommun.
        En post för det gav en tom fil och togs bort. */
     {group:"Annonsvolym och efterfrågan", items:[
-      {id:"annonser_lan_ar", namn:"Jobbannonser per län och år", desc:"Antal publicerade jobbannonser per län och år. Underlaget till figuren Antal jobbannonser över tid.", kalla:"Arbetsförmedlingen, Historiska platsannonser", build:function(){ var M=window.LAN_ANN||{}, LAN=(window.SVE_LAN&&window.SVE_LAN.names)||{}; var rows=[["lanskod","lan","ar","antal_annonser"]]; ks(M).forEach(function(lan){ var ym=M[lan]; ks(ym).forEach(function(yr){ rows.push([lan,LAN[lan]||"",yr,ym[yr]]); }); }); return rows; }},
+      {id:"annonser_lan_ar", namn:"Jobbannonser per län och år", desc:"Antal publicerade jobbannonser per län och år, från 2020. Underlaget till figuren Antal jobbannonser över tid.", kalla:"Arbetsförmedlingen, Historiska platsannonser", build:function(){ var M=window.LAN_ANN||{}, LAN=(window.SVE_LAN&&window.SVE_LAN.names)||{}; var rows=[["lanskod","lan","ar","helar","antal_annonser"]]; ks(M).forEach(function(lan){ var ym=M[lan]; ks(ym).forEach(function(yr){ rows.push([lan,LAN[lan]||"",yr,dlHelar(yr),ym[yr]]); }); }); return rows; }},
       {id:"annonser_yrke_kvartal", namn:"Jobbannonser per yrkesgrupp och kvartal", desc:"Antal jobbannonser per yrkesgrupp (SSYK, tresiffernivå) och kvartal från 2020. Ger möjlighet att räkna vidare på annonsvolymens utveckling.", kalla:"Arbetsförmedlingen, Historiska platsannonser", build:function(){ var M=window.YRKE_ANN||{}, N=window.YRKE_NAMN3||{}; var rows=[["ssyk3","yrkesgrupp","kvartal","antal_annonser"]]; ks(M).forEach(function(y){ var qm=M[y]; ks(qm).forEach(function(q){ rows.push([y,N[y]||"",q,qm[q]]); }); }); return rows; }},
       {id:"annonser_yrke_lan", namn:"Jobbannonser per yrkesgrupp, län och kvartal", desc:"Samma serie nedbruten på län. Det är den största tabellen i den här gruppen.", kalla:"Arbetsförmedlingen, Historiska platsannonser", build:function(){ var M=window.YRKE_ANN_LAN||{}, N=window.YRKE_NAMN3||{}, LAN=(window.SVE_LAN&&window.SVE_LAN.names)||{}; var rows=[["ssyk3","yrkesgrupp","lanskod","lan","kvartal","antal_annonser"]]; ks(M).forEach(function(y){ var lm=M[y]; ks(lm).forEach(function(lan){ var qm=lm[lan]; ks(qm).forEach(function(q){ rows.push([y,N[y]||"",lan,LAN[lan]||"",q,qm[q]]); }); }); }); return rows; }},
-      {id:"annonser_yrke_kommun", namn:"Jobbannonser per yrkesgrupp, kommun och år", desc:"Antal jobbannonser per yrkesgrupp och kommun, per år.", kalla:"Arbetsförmedlingen, Historiska platsannonser", build:function(){ var M=window.YRKE_KOM||{}, N=window.YRKE_NAMN3||{}, KN=(window.SVE_KOMMUN&&window.SVE_KOMMUN.names)||{}; var rows=[["ssyk3","yrkesgrupp","kommunkod","kommun","ar","antal_annonser"]]; ks(M).forEach(function(y){ var km=M[y]; ks(km).forEach(function(kod){ var ym=km[kod]; ks(ym).forEach(function(yr){ rows.push([y,N[y]||"",kod,KN[kod]||"",yr,ym[yr]]); }); }); }); return rows; }},
-      {id:"formagor_yrke", namn:"Efterfrågade förmågor per yrkesgrupp", desc:"Personliga egenskaper som anges i annonstexten, per yrkesgrupp och år. Avser riket.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments", build:function(){ var M=window.YRKE_TRAIT||{}, N=window.YRKE_NAMN3||{}; var rows=[["ssyk3","yrkesgrupp","formaga","ar","antal_annonser"]]; ks(M).forEach(function(y){ var fm=M[y]; ks(fm).forEach(function(f){ var ym=fm[f]; ks(ym).forEach(function(yr){ rows.push([y,N[y]||"",f,yr,ym[yr]]); }); }); }); return rows; }},
+      {id:"annonser_yrke_kommun", namn:"Jobbannonser per yrkesgrupp, kommun och år", desc:"Antal jobbannonser per yrkesgrupp och kommun, per år från 2020.", kalla:"Arbetsförmedlingen, Historiska platsannonser", build:function(){ var M=window.YRKE_KOM||{}, N=window.YRKE_NAMN3||{}, KN=(window.SVE_KOMMUN&&window.SVE_KOMMUN.names)||{}; var rows=[["ssyk3","yrkesgrupp","kommunkod","kommun","ar","helar","antal_annonser"]]; ks(M).forEach(function(y){ var km=M[y]; ks(km).forEach(function(kod){ var ym=km[kod]; ks(ym).forEach(function(yr){ rows.push([y,N[y]||"",kod,KN[kod]||"",yr,dlHelar(yr),ym[yr]]); }); }); }); return rows; }},
+      {id:"formagor_yrke", namn:"Efterfrågade förmågor per yrkesgrupp", desc:"Personliga egenskaper som anges i annonstexten, per yrkesgrupp och år. Avser riket.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments", build:function(){ var M=window.YRKE_TRAIT||{}, N=window.YRKE_NAMN3||{}; var rows=[["ssyk3","yrkesgrupp","formaga","ar","helar","antal_annonser"]]; ks(M).forEach(function(y){ var fm=M[y]; ks(fm).forEach(function(f){ var ym=fm[f]; ks(ym).forEach(function(yr){ rows.push([y,N[y]||"",f,yr,dlHelar(yr),ym[yr]]); }); }); }); return rows; }},
     ]},
     {group:"Arbetsgivare i jobbannonserna", items:AG_POSTER}
   ];
@@ -11039,10 +11094,11 @@ moveNavIndicator();
   DL_SETS.forEach(function(g){ html+='<h3 class="method-h">'+esc(g.group)+'</h3>'; g.items.forEach(function(it){ byId[it.id]=it; html+='<div class="dl-card"><div class="dl-card-main"><p class="dl-card-name">'+esc(it.namn)+'</p><p class="dl-card-desc">'+esc(it.desc)+'</p><p class="dl-card-src">'+esc(it.kalla)+'</p></div><button class="dl-btn" type="button" data-dl="'+it.id+'">Ladda ned CSV</button></div>'; }); });
   list.innerHTML=html;
   list.querySelectorAll(".dl-btn").forEach(function(btn){ btn.addEventListener("click",function(){ var it=byId[btn.getAttribute("data-dl")]; if(!it)return; var old=btn.textContent;
-    /* Kompetenstabellerna bygger pa datan som hamtas i bakgrunden. Ar den inte pa
-       plats an vantas den in, sa att nedladdningen aldrig ger en tom fil. */
-    var kor=function(){ btn.textContent="Genererar\u2026"; btn.disabled=true; setTimeout(function(){ try{ if(window.__kompFel&&/^kompetenser_/.test(it.id)){ alert("Kompetensuppgifterna kunde inte l\u00e4sas in, s\u00e5 tabellen kan inte skapas. Kontrollera att filen verktyg_kompetensdata.js ligger i samma mapp som verktygsfilen."); } else { dlSave("arbetsmarknadsnavet_"+it.id+".csv", dlToCSV(it.build())); } }catch(e){ alert("Kunde inte skapa filen."); } btn.textContent=old; btn.disabled=false; },30); };
-    if(window.__kompKlar&&!window.__kompKlar.klar()){ if(window.__kompStarta)window.__kompStarta(); btn.textContent="H\u00e4mtar underlag\u2026"; btn.disabled=true; window.__kompKlar.then(kor); } else kor();
+    /* Kompetens- och arbetsgivartabellerna bygger pa data som hamtas i bakgrunden. Ar den
+       inte pa plats an vantas den in, sa att nedladdningen aldrig ger en tom fil. */
+    var kor=function(){ btn.textContent="Genererar\u2026"; btn.disabled=true; setTimeout(function(){ try{ if(window.__kompFel&&/^kompetenser_/.test(it.id)){ alert("Kompetensuppgifterna kunde inte l\u00e4sas in, s\u00e5 tabellen kan inte skapas. Kontrollera att filen verktyg_kompetensdata.js ligger i samma mapp som verktygsfilen."); } else if(/^arbetsgivare_/.test(it.id)&&!(window.__agData&&window.__agData())){ alert("Arbetsgivaruppgifterna kunde inte l\u00e4sas in, s\u00e5 tabellen kan inte skapas. Kontrollera att filen verktyg_arbetsgivardata.js ligger i samma mapp som verktygsfilen."); } else { dlSave("arbetsmarknadsnavet_"+it.id+".csv", dlToCSV(it.build())); } }catch(e){ alert("Kunde inte skapa filen."); } btn.textContent=old; btn.disabled=false; },30); };
+    if(/^arbetsgivare_/.test(it.id)&&window.__agNarKlar&&!(window.__agData&&window.__agData())){ btn.textContent="H\u00e4mtar underlag\u2026"; btn.disabled=true; window.__agNarKlar(kor); }
+    else if(window.__kompKlar&&!window.__kompKlar.klar()){ if(window.__kompStarta)window.__kompStarta(); btn.textContent="H\u00e4mtar underlag\u2026"; btn.disabled=true; window.__kompKlar.then(kor); } else kor();
   }); });
   var back=document.getElementById("laddaBack"); if(back)back.addEventListener("click",function(e){ e.preventDefault(); var n=document.querySelector('.viewnav-btn[data-vw="region"]'); if(n)n.click(); });
 })();
@@ -33841,6 +33897,9 @@ try{ window.__ritaGymSok=window.__ritaGymSok; }catch(e){ __fel("okänd", e); }
    lärosäte: etablerad, osäker ställning, svag ställning och utanför arbetsmarknaden. Sex av
    fyrtiosex lärosäten har för få examinerade för att redovisas och saknar därför andelar.
    Formatet är [namn, examinerade, etablerad, osäker, svag, utanför]. */
+  /* Läsåret står i kommentaren ovanför och behövs även i sammanfattningens text. Det bärs
+     därför av en egen konstant intill datan, så att båda byts på samma ställe. */
+  var ETAB3A_AR = "2022/23";
   var ETAB3A = [["Akademi för Ledarskap och Teologi",21,52,19,29,0],["Beckmans Designhögskola",36,44,25,31,0],["Blekinge tekniska högskola",457,84,7,8,2],["Chalmers tekniska högskola",1501,89,6,4,2],["Enskilda Högskolan Stockholm",40,65,18,18,0],["Försvarshögskolan",364,90,2,3,4],["Gammelkroppa skogsskola",7,null,null,null,null],["Gymnastik- och idrottshögskolan",157,82,11,null,null],["Göteborgs universitet",5246,83,8,7,2],["Handelshögskolan i Stockholm",458,89,5,3,3],["Högskolan Dalarna",1098,85,8,5,2],["Högskolan Kristianstad",1214,87,7,6,1],["Högskolan Väst",1084,87,6,6,2],["Högskolan i Borås",1283,88,6,5,1],["Högskolan i Gävle",1152,84,8,7,1],["Högskolan i Halmstad",920,84,8,7,1],["Högskolan i Skövde",682,81,7,8,4],["Johannelunds teologiska högskola",15,null,null,null,null],["Karlstads universitet",1715,87,8,4,1],["Karolinska institutet",1716,90,5,4,1],["Konstfack",169,49,29,18,4],["Kungl. Konsthögskolan",23,26,52,22,0],["Kungl. Musikhögskolan i Stockholm",112,50,34,null,null],["Kungl. Tekniska högskolan",1821,88,5,4,3],["Linköpings universitet",3477,89,6,4,1],["Linnéuniversitetet",2947,86,7,5,2],["Luleå tekniska universitet",1209,88,6,5,1],["Lunds universitet",4450,81,8,8,4],["Malmö universitet",2297,84,7,7,3],["Marie Cederschiöld högskola",295,92,4,null,null],["Mittuniversitetet",1149,80,9,8,3],["Mälardalens universitet",1517,87,5,5,2],["Newmaninstitutet",null,null,null,null,null],["Röda Korsets Högskola",197,89,7,null,null],["Sophiahemmet Högskola",298,93,null,4,null],["Stiftelsen Högskolan i Jönköping",1436,87,6,6,2],["Stockholms Musikpedagogiska Institut",null,null,null,null,null],["Stockholms konstnärliga högskola",76,36,36,null,null],["Stockholms universitet",4442,82,7,8,3],["Svenska institutet för kognitiv psykoterapi",16,null,null,null,null],["Sveriges lantbruksuniversitet",795,81,9,8,2],["Södertörns högskola",1306,82,8,8,2],["Umeå universitet",3308,86,7,6,2],["Uppsala universitet",3976,84,7,7,3],["Världssjöfartsuniversitetet",null,null,null,null,null],["Örebro universitet",2067,89,6,5,1]];
   /* Riksvärdet vägs på antalet examinerade, inte som medelvärde av lärosätenas andelar:
      ett litet lärosäte ska inte väga lika tungt som ett stort. */
@@ -33957,7 +34016,7 @@ try{ window.__ritaGymSok=window.__ritaGymSok; }catch(e){ __fel("okänd", e); }
     var span=Math.max(1,maxV-minV);
     var plats=egen?(rader.findIndex(function(r){ return r[0]===egen[0]; })+1):0;
     if(window.__usSumSatt)window.__usSumSatt("hog",window.__usSumNyckel(),{
-      etab:(egen&&egen[2]!=null)?egen[2]:null, etabRiket:_etabRiket,
+      etab:(egen&&egen[2]!=null)?egen[2]:null, etabRiket:_etabRiket, etabAr:ETAB3A_AR,
       etabPlats:(egen&&egen[2]!=null)?plats:null, etabAntal:rader.length});
 
     if(kpi){
@@ -34040,7 +34099,7 @@ try{ window.__ritaGymSok=window.__ritaGymSok; }catch(e){ __fel("okänd", e); }
     var s0=document.getElementById("hogTidSub"); if(s0)s0.textContent="Antal helårsstudenter per läsår, uppdelat på kvinnor och män. Avser "+nm+".";
     var s0s=document.getElementById("hogTidSrc"); if(s0s)s0s.textContent="UKÄ, Högskolan i siffror.";
     /* Underrubriken (hogOmrSub) sätts i renderOmr så att den följer pillervalet ämnesområde/ämnesdelområde. */
-    var s1s=document.getElementById("hogOmrSrc"); if(s1s)s1s.textContent="UKÄ, Högskolan i siffror, läsåret "+_latestYear+".";
+    var s1s=document.getElementById("hogOmrSrc"); if(s1s)s1s.textContent="UKÄ, Högskolan i siffror.";
   };
   /* Lärosätesväljaren måste kopplas in även innan ett resultat visas, annars går den inte att
      öppna i det förvalda Välj-läget (usRenderHogskola körs först när ett lärosäte valts). */
@@ -37711,11 +37770,14 @@ try{ window._sumOm=_sumOm; }catch(e){}
   function usHog(){
     var d=(window.__usSum||{}).hog||{}, ut=[], namn=d.namn||"samtliga lärosäten";
     var _h=(d.hst>0)?num(d.hst):null;
-    if(_h) ut.push(p(namn.charAt(0).toUpperCase()+namn.slice(1)+" hade <b>"+_h
-      +" helårsstudenter</b> läsåret "+d.hstAr+"."+utveckling(d.forFran,d.forPct,"volymen"),
+    /* Utan valt lärosäte avser talet landet som helhet, och då skrivs "svenska lärosäten"
+       hellre än "samtliga lärosäten", som annars läses som en avgränsad grupp. */
+    var vid=(namn==="samtliga lärosäten")?"svenska lärosäten":namn;
+    if(_h) ut.push(p("Läsåret "+d.hstAr+" uppgick antalet helårsstudenter vid "+vid
+      +" till <b>"+_h+"</b>."+utveckling(d.forFran,d.forPct,"volymen"),
       fig("Helårsstudenter över tid"),"Helårsstudenter", _h, d.hstAr));
     var _k=num(d.andelK,0);
-    if(_k) ut.push(p("Andelen kvinnor är <b>"+_k+" procent</b>.",fig("Helårsstudenter över tid"),
+    if(_k) ut.push(p("Andelen kvinnor av samtliga helårsstudenter är <b>"+_k+"\u00a0%</b>.",fig("Helårsstudenter över tid"),
       "Andel kvinnor", _k+"\u00a0%", d.hstAr));
     var _oa=num(d.omrAndel,1);
     if(_oa&&d.omrNamn) ut.push(p("Störst ämnesområde är <b>"+d.omrNamn+"</b> med <b>"+_oa
@@ -37723,13 +37785,15 @@ try{ window._sumOm=_sumOm; }catch(e){}
       +" procent</b> av helårsstudenterna."+jmfSkillnad(d.omrDiff,1).replace("än i riket","än hos samtliga lärosäten"),
       fig("Fördelning per ämnesområde"),"Största ämnesområdet", d.omrNamn));
     var _e=num(d.etab,1), _er=num(d.etabRiket,1);
-    if(_e) ut.push(p("<b>"+_e+" procent</b> av de examinerade var etablerade på arbetsmarknaden ett till "
-      +"ett och ett halvt år efter examen"
+    /* Årtalet skrivs bara ut när det finns, annars skulle meningen få ett tomt läsår. */
+    var _eAr=d.etabAr?(" läsåret "+d.etabAr):"";
+    if(_e) ut.push(p("<b>"+_e+" procent</b> av de examinerade"+_eAr+" var etablerade på "
+      +"arbetsmarknaden 1\u20131,5 år efter examen"
       +(d.etabPlats?(", vilket är plats <b>"+d.etabPlats+" av "+d.etabAntal+"</b> bland lärosätena"):"")+"."
       +(_er?(' <span class="sum-jmf">Hos samtliga lärosäten är andelen <b>'+_er+" procent</b>.</span>"):""),
       fig("Etablering 1–1,5 år efter examen"),"Etablerade efter examen", _e+"\u00a0%"));
-    else if(_er) ut.push(p("<b>"+_er+" procent</b> av de examinerade var etablerade på arbetsmarknaden ett till "
-      +"ett och ett halvt år efter examen, räknat över samtliga lärosäten.",
+    else if(_er) ut.push(p("<b>"+_er+" procent</b> av de examinerade"+_eAr+" var etablerade på "
+      +"arbetsmarknaden 1\u20131,5 år efter examen.",
       fig("Etablering 1–1,5 år efter examen"),"Etablerade efter examen", _er+"\u00a0%"));
     return ut.filter(Boolean);
   }
@@ -38270,6 +38334,77 @@ try{ window._sumOm=_sumOm; }catch(e){}
       }
     }, 150);
   }
+  /* Nedladdningsvyn väntar in filen med samma väntare som figurerna. */
+  window.__agNarKlar=narKlar;
+
+  /* Namnen kommer ur källan med tecken undanflydda: "PersonalUthyrning\\, Logistik & Service
+     Anderstorp AB". Snedstrecket är källans sätt att skydda kommatecknet i sin egen fil och
+     hör inte hemma i ett namn. Det tas bort vid utskriften, inte i datafilen, så att en ny
+     leverans inte kan föra tillbaka det. Ett inledande citattecken i SNI-titlarna är samma
+     slags källrest och tas bort på samma vis. */
+  function agRent(s){ return String(s==null?"":s).replace(/^"+/,"").replace(/\\(?=[,.;:&"'\/-])/g,""); }
+  /* ===== Branschtillhörighet ==========================================================
+     Branschen kommer ur arbetsgivarens SNI-kod på femsiffernivå, och den nivån bär mer
+     precision än underlaget tål. Koden sätts på arbetsgivaren som helhet, inte på det som
+     annonsen gäller, så en region kan stå under den verksamhet som råkade registreras först:
+     Västra Götalandsregionen stod som Litterärt skapande och musikkomposition, Region Uppsala
+     som Offentlig förvaltning av näringslivsprogram, Region Norrbotten som Museiverksamhet
+     och Region Östergötland som Uthyrning av egna fastigheter. Fyra av tjugo regioner alltså,
+     och för läsaren ser det ut som ett fel i statistiken.
+
+     Två åtgärder:
+     1. Branschen redovisas på tvåsiffernivå, SNI 2025 huvudgrupp. Nivån räcker för att säga
+        vad arbetsgivaren gör och slipper spreta.
+     2. Regionerna klassificeras alltid som 86 Hälso- och sjukvård och kommunerna som 84
+        Offentlig förvaltning och försvar. Alla har den koden bland sina verksamheter, men
+        vilken som blivit den officiella varierar. Av 290 kommuner i underlaget stod 120 under
+        något annat: Stockholm som förskoleutbildning, Kalmar som uthyrning av fastigheter,
+        Skellefteå som anläggning av vägar, Ljusnarsberg som datordrifttjänster. En kommun
+        bedriver alltihop, och vilken gren som råkat bli den registrerade säger inget om var
+        arbetet finns. Båda känns igen på organisationsnumret: 2321 inleder samtliga regioner
+        utom Gotland, som är både region och kommun och därför bär ett kommunnummer, och 2120
+        inleder kommunerna. Kommunala bolag har egna organisationsnummer och rörs inte —
+        ett kommunalt bostadsbolag är verkligen fastighetsverksamhet.
+     Enskilda felkodningar rättas i RATTAD, med koden i sin helhet så att den blir rätt även
+     där femsiffernivån används, till exempel i csv-uttaget. */
+  var SNI2 = {"01":"Jordbruk och jakt samt stödverksamhet i anslutning härtill","02":"Skogsbruk","03":"Fiske och vattenbruk","05":"Kolutvinning","06":"Utvinning av råpetroleum och naturgas","07":"Utvinning av metallmalmer","08":"Annan utvinning av mineral","09":"Stödverksamhet avseende utvinning","10":"Livsmedelsframställning","11":"Framställning av drycker","12":"Tobaksvarutillverkning","13":"Textilvarutillverkning","14":"Tillverkning av kläder","15":"Tillverkning av läder- och skinnvaror och liknande varor av andra material","16":"Tillverkning av trä och varor av trä och kork, utom möbler: tillverkning av varor av halm, rotting o.d.","17":"Pappers- och pappersvarutillverkning","18":"Grafisk produktion och reproduktion av inspelningar","19":"Tillverkning av stenkolsprodukter och raffinerade petroleumprodukter","20":"Tillverkning av kemikalier och kemiska produkter","21":"Tillverkning av farmaceutiska basprodukter och läkemedel","22":"Tillverkning av gummi- och plastvaror","23":"Tillverkning av andra icke-metalliska mineraliska produkter","24":"Stål- och metallframställning","25":"Tillverkning av metallvaror utom maskiner och apparater","26":"Tillverkning av datorer, elektronikvaror och optik","27":"Tillverkning av elapparatur","28":"Tillverkning av övriga maskiner","29":"Tillverkning av motorfordon, släpfordon och påhängsvagnar","30":"Tillverkning av andra transportmedel","31":"Tillverkning av möbler","32":"Annan tillverkning","33":"Reparation, underhåll och installation av maskiner och utrustning","35":"El-, gas- och ångförsörjning samt luftkonditionering","36":"Vattenförsörjning","37":"Avloppsrening","38":"Insamling av avfall, återvinning och bortskaffande","39":"Sanering, efterbehandling av jord och vatten samt annan verksamhet för föroreningsbekämpning","41":"Byggande av bostadshus och andra byggnader","42":"Anläggningsarbeten","43":"Specialiserad bygg- och anläggningsverksamhet","46":"Parti- och provisionshandel","47":"Detaljhandel","49":"Landtransport; transport i rörsystem","50":"Sjötransport","51":"Lufttransport","52":"Magasinering, varulagring och stödverksamhet avseende transport","53":"Post- och kurirverksamhet","55":"Hotell- och logiverksamhet","56":"Restaurang-, catering- och barverksamhet","58":"Förlagsverksamhet","59":"Film-, video- och tv-programverksamhet, ljudinspelning och musikutgivning","60":"Planering, radio- och tv-sändning, nyhetsbyråer och annan distribution av medieinnehåll","61":"Telekommunikation","62":"Dataprogrammering, datakonsultverksamhet o.d.","63":"Datainfrastruktur, databehandling, hosting och annan informationsverksamhet","64":"Finansiell verksamhet utom försäkrings- och pensionsfondsverksamhet","65":"Försäkrings-, återförsäkrings- och pensionsfondsverksamhet utom obligatorisk socialförsäkring","66":"Stödverksamhet avseende finansiella tjänster och försäkringsverksamhet","68":"Fastighetsverksamhet","69":"Juridisk och ekonomisk konsultverksamhet","70":"Verksamheter som utövas av huvudkontor samt konsultverksamhet avseende företag","71":"Arkitekt- och teknisk konsultverksamhet; teknisk provning och analys","72":"Vetenskaplig forskning och utveckling","73":"Reklamverksamhet, marknadsundersökningar och PR","74":"Annan verksamhet inom juridik, ekonomi, vetenskap och teknik","75":"Veterinärverksamhet","77":"Uthyrning och leasing","78":"Arbetsförmedling, bemanning och annan personalrelaterad verksamhet","79":"Resebyrå- och researrangörsverksamhet samt annan boknings- och reserelaterad verksamhet","80":"Säkerhets- och bevakningsverksamhet","81":"Fastighetsrelaterad stödverksamhet samt skötsel och underhåll av grönytor","82":"Kontorstjänster och annan stödverksamhet till företag","84":"Offentlig förvaltning och försvar; obligatorisk socialförsäkring","85":"Utbildning","86":"Hälso- och sjukvård","87":"Vård och omsorg med boende","88":"Öppna sociala insatser","90":"Konstnärligt skapande och scenkonst","91":"Biblioteks-, arkiv- och museiverksamhet m.m.","92":"Spel- och vadhållningsverksamhet","93":"Sport-, fritids- och nöjesverksamhet","94":"Intressebevakning; religiös verksamhet","95":"Reparation och underhåll av datorer, hushållsartiklar och varor för personligt bruk samt motorfordon och motorcyklar","96":"Konsumenttjänster","97":"Förvärvsarbete i hushåll","98":"Hushållens produktion av diverse varor och tjänster för eget bruk","99":"Verksamhet vid internationella organisationer, utländska ambassader o.d."};
+  var RATTAD = {
+    /* Rätt kod enligt uppgift från Strategirådet 2026-08-16. */
+    "2321000131": ["86221","Specialistläkarverksamhet inom öppenvård, på sjukhus"]
+  };
+  var REGION_ORGNR = { "2120000803":1 };   /* Region Gotland, som bär kommunnummer */
+  function arRegion(orgnr){
+    var o=String(orgnr||"");
+    return o.slice(0,4)==="2321" || !!REGION_ORGNR[o];
+  }
+  /* Gotland är både region och kommun. Regionprövningen går först, så ön räknas som region. */
+  function arKommun(orgnr){
+    return !arRegion(orgnr) && String(orgnr||"").slice(0,4)==="2120";
+  }
+  function sniHuvudgrupp(orgnr, kod){
+    if(arRegion(orgnr)) return "86";
+    if(arKommun(orgnr)) return "84";
+    var k=String(kod||"").replace(/\D/g,"");
+    return k.length>=2 ? k.slice(0,2) : "";
+  }
+  function agBransch(orgnr, kod){
+    var h=sniHuvudgrupp(orgnr, kod);
+    return h && SNI2[h] ? SNI2[h] : "";
+  }
+  /* Titeln för en tvåsiffrig kod hämtas ur SNI2, eftersom datafilens egna tvåsiffertitlar är
+     avklippta vid semikolonet i de officiella namnen. Övriga titlar städas från kanttecken. */
+  function sniTitel(kod, ratitel){
+    var k=String(kod==null?"":kod).replace(/\D/g,"");
+    if(k.length===2 && SNI2[k]) return SNI2[k];
+    return agRent(ratitel);
+  }
+  /* Exporterade på modulnivå så att csv-uttaget får rättningar och städning även innan
+     någon figur ritats. */
+  try{ window.__agBransch=function(orgnr,kod){ return agBransch(orgnr,kod); };
+       window.__agHuvudgrupp=function(orgnr,kod){ return sniHuvudgrupp(orgnr,kod); };
+       window.__agRattad=function(orgnr){ return RATTAD[String(orgnr)]||null; };
+       window.__agSniTitel=function(kod,titel){ return sniTitel(kod,titel); };
+       window.__agRent=agRent; }catch(e){}
 
   function nf(n){ try{ return Number(n).toLocaleString("sv-SE"); }catch(e){ return String(n); } }
 
@@ -38279,71 +38414,18 @@ try{ window._sumOm=_sumOm; }catch(e){}
     var d=data();
     var g=(d&&d.grupper)?d.grupper[nyckel]:null;
     var lista=(d&&d.arbetsgivare)?d.arbetsgivare:[];
-    /* Namnen kommer ur källan med tecken undanflydda: "PersonalUthyrning\\, Logistik & Service
-       Anderstorp AB". Snedstrecket är källans sätt att skydda kommatecknet i sin egen fil och
-       hör inte hemma i ett namn. Det tas bort vid utskriften, inte i datafilen, så att en ny
-       leverans inte kan föra tillbaka det. */
-    function agRent(s){ return String(s==null?"":s).replace(/\\(?=[,.;:&"'\/-])/g,""); }
-    /* ===== Branschtillhörighet ==========================================================
-       Branschen kommer ur arbetsgivarens SNI-kod på femsiffernivå, och den nivån bär mer
-       precision än underlaget tål. Koden sätts på arbetsgivaren som helhet, inte på det som
-       annonsen gäller, så en region kan stå under den verksamhet som råkade registreras först:
-       Västra Götalandsregionen stod som Litterärt skapande och musikkomposition, Region Uppsala
-       som Offentlig förvaltning av näringslivsprogram, Region Norrbotten som Museiverksamhet
-       och Region Östergötland som Uthyrning av egna fastigheter. Fyra av tjugo regioner alltså,
-       och för läsaren ser det ut som ett fel i statistiken.
-
-       Två åtgärder:
-       1. Branschen redovisas på tvåsiffernivå, SNI 2025 huvudgrupp. Nivån räcker för att säga
-          vad arbetsgivaren gör och slipper spreta.
-       2. Regionerna klassificeras alltid som 86 Hälso- och sjukvård och kommunerna som 84
-          Offentlig förvaltning och försvar. Alla har den koden bland sina verksamheter, men
-          vilken som blivit den officiella varierar. Av 290 kommuner i underlaget stod 120 under
-          något annat: Stockholm som förskoleutbildning, Kalmar som uthyrning av fastigheter,
-          Skellefteå som anläggning av vägar, Ljusnarsberg som datordrifttjänster. En kommun
-          bedriver alltihop, och vilken gren som råkat bli den registrerade säger inget om var
-          arbetet finns. Båda känns igen på organisationsnumret: 2321 inleder samtliga regioner
-          utom Gotland, som är både region och kommun och därför bär ett kommunnummer, och 2120
-          inleder kommunerna. Kommunala bolag har egna organisationsnummer och rörs inte —
-          ett kommunalt bostadsbolag är verkligen fastighetsverksamhet.
-       Enskilda felkodningar rättas i RATTAD, med koden i sin helhet så att den blir rätt även
-       där femsiffernivån används, till exempel i csv-uttaget. */
-    var SNI2 = {"01":"Jordbruk och jakt samt stödverksamhet i anslutning härtill","02":"Skogsbruk","03":"Fiske och vattenbruk","05":"Kolutvinning","06":"Utvinning av råpetroleum och naturgas","07":"Utvinning av metallmalmer","08":"Annan utvinning av mineral","09":"Stödverksamhet avseende utvinning","10":"Livsmedelsframställning","11":"Framställning av drycker","12":"Tobaksvarutillverkning","13":"Textilvarutillverkning","14":"Tillverkning av kläder","15":"Tillverkning av läder- och skinnvaror och liknande varor av andra material","16":"Tillverkning av trä och varor av trä och kork, utom möbler: tillverkning av varor av halm, rotting o.d.","17":"Pappers- och pappersvarutillverkning","18":"Grafisk produktion och reproduktion av inspelningar","19":"Tillverkning av stenkolsprodukter och raffinerade petroleumprodukter","20":"Tillverkning av kemikalier och kemiska produkter","21":"Tillverkning av farmaceutiska basprodukter och läkemedel","22":"Tillverkning av gummi- och plastvaror","23":"Tillverkning av andra icke-metalliska mineraliska produkter","24":"Stål- och metallframställning","25":"Tillverkning av metallvaror utom maskiner och apparater","26":"Tillverkning av datorer, elektronikvaror och optik","27":"Tillverkning av elapparatur","28":"Tillverkning av övriga maskiner","29":"Tillverkning av motorfordon, släpfordon och påhängsvagnar","30":"Tillverkning av andra transportmedel","31":"Tillverkning av möbler","32":"Annan tillverkning","33":"Reparation, underhåll och installation av maskiner och utrustning","35":"El-, gas- och ångförsörjning samt luftkonditionering","36":"Vattenförsörjning","37":"Avloppsrening","38":"Insamling av avfall, återvinning och bortskaffande","39":"Sanering, efterbehandling av jord och vatten samt annan verksamhet för föroreningsbekämpning","41":"Byggande av bostadshus och andra byggnader","42":"Anläggningsarbeten","43":"Specialiserad bygg- och anläggningsverksamhet","46":"Parti- och provisionshandel","47":"Detaljhandel","49":"Landtransport; transport i rörsystem","50":"Sjötransport","51":"Lufttransport","52":"Magasinering, varulagring och stödverksamhet avseende transport","53":"Post- och kurirverksamhet","55":"Hotell- och logiverksamhet","56":"Restaurang-, catering- och barverksamhet","58":"Förlagsverksamhet","59":"Film-, video- och tv-programverksamhet, ljudinspelning och musikutgivning","60":"Planering, radio- och tv-sändning, nyhetsbyråer och annan distribution av medieinnehåll","61":"Telekommunikation","62":"Dataprogrammering, datakonsultverksamhet o.d.","63":"Datainfrastruktur, databehandling, hosting och annan informationsverksamhet","64":"Finansiell verksamhet utom försäkrings- och pensionsfondsverksamhet","65":"Försäkrings-, återförsäkrings- och pensionsfondsverksamhet utom obligatorisk socialförsäkring","66":"Stödverksamhet avseende finansiella tjänster och försäkringsverksamhet","68":"Fastighetsverksamhet","69":"Juridisk och ekonomisk konsultverksamhet","70":"Verksamheter som utövas av huvudkontor samt konsultverksamhet avseende företag","71":"Arkitekt- och teknisk konsultverksamhet; teknisk provning och analys","72":"Vetenskaplig forskning och utveckling","73":"Reklamverksamhet, marknadsundersökningar och PR","74":"Annan verksamhet inom juridik, ekonomi, vetenskap och teknik","75":"Veterinärverksamhet","77":"Uthyrning och leasing","78":"Arbetsförmedling, bemanning och annan personalrelaterad verksamhet","79":"Resebyrå- och researrangörsverksamhet samt annan boknings- och reserelaterad verksamhet","80":"Säkerhets- och bevakningsverksamhet","81":"Fastighetsrelaterad stödverksamhet samt skötsel och underhåll av grönytor","82":"Kontorstjänster och annan stödverksamhet till företag","84":"Offentlig förvaltning och försvar; obligatorisk socialförsäkring","85":"Utbildning","86":"Hälso- och sjukvård","87":"Vård och omsorg med boende","88":"Öppna sociala insatser","90":"Konstnärligt skapande och scenkonst","91":"Biblioteks-, arkiv- och museiverksamhet m.m.","92":"Spel- och vadhållningsverksamhet","93":"Sport-, fritids- och nöjesverksamhet","94":"Intressebevakning; religiös verksamhet","95":"Reparation och underhåll av datorer, hushållsartiklar och varor för personligt bruk samt motorfordon och motorcyklar","96":"Konsumenttjänster","97":"Förvärvsarbete i hushåll","98":"Hushållens produktion av diverse varor och tjänster för eget bruk","99":"Verksamhet vid internationella organisationer, utländska ambassader o.d."};
-    var RATTAD = {
-      /* Rätt kod enligt uppgift från Strategirådet 2026-08-16. */
-      "2321000131": ["86221","Specialistläkarverksamhet inom öppenvård, på sjukhus"]
-    };
-    var REGION_ORGNR = { "2120000803":1 };   /* Region Gotland, som bär kommunnummer */
-    function arRegion(orgnr){
-      var o=String(orgnr||"");
-      return o.slice(0,4)==="2321" || !!REGION_ORGNR[o];
-    }
-    /* Gotland är både region och kommun. Regionprövningen går först, så ön räknas som region. */
-    function arKommun(orgnr){
-      return !arRegion(orgnr) && String(orgnr||"").slice(0,4)==="2120";
-    }
-    function sniHuvudgrupp(orgnr, kod){
-      if(arRegion(orgnr)) return "86";
-      if(arKommun(orgnr)) return "84";
-      var k=String(kod||"").replace(/\D/g,"");
-      return k.length>=2 ? k.slice(0,2) : "";
-    }
-    function agBransch(orgnr, kod){
-      var h=sniHuvudgrupp(orgnr, kod);
-      return h && SNI2[h] ? SNI2[h] : "";
-    }
+    /* agRent ligger nu på modulnivå. */
+    /* Branschtillhörigheten, SNI2 och RATTAD ligger nu på modulnivå. */
     function reg(ix){
       var r=lista[ix];
       if(!r) return null;
       var ratt=RATTAD[r[0]];
-      var kod=ratt?ratt[0]:r[2], titel=ratt?ratt[1]:agRent(r[3]);
+      var kod=ratt?ratt[0]:r[2], titel=ratt?ratt[1]:sniTitel(r[2], r[3]);
       return {orgnr:r[0],namn:agRent(r[1]),sni:kod,snititel:titel,
               huvudgrupp:sniHuvudgrupp(r[0],kod),bransch:agBransch(r[0],kod),
               bemanning:!!r[4]};
     }
-    try{ window.__agBransch=function(orgnr,kod){ return agBransch(orgnr,kod); };
-         window.__agHuvudgrupp=function(orgnr,kod){ return sniHuvudgrupp(orgnr,kod); };
-         window.__agRattad=function(orgnr){ return RATTAD[String(orgnr)]||null; }; }catch(e){}
+    /* Exporterna ligger nu på modulnivå, se ovan. */
     /* Två skilda fall som tidigare fick samma besked. Saknas datafilen är det inte uppgiften
        som fattas utan filen, och då ska det stå så, annars letar man efter ett fel i statistiken
        när felet ligger i installationen. */
