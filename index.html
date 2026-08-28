@@ -7259,7 +7259,7 @@ section.results .vcmp .rapport-matrix-wrap{
            sidospalt, samma uppdelning som högskolenivåns helårsstudenter använder. -->
       <div class="r-fig" id="figYhStud">
         <p class="r-fig-title">Antal studerande över tid</p>
-        <p class="r-fig-sub">Antal studerande på yrkeshögskoleprogram per år, med antalet examinerade som streckad jämförelselinje. Korta kurser ingår inte. En yrkeshögskoleutbildning pågår i ett till två år, så varje årskull ingår bland de studerande under flera år men examineras en gång. Serierna slutar det år uppgiften slutar, och de två måtten redovisas inte alltid till samma år.</p>
+        <p class="r-fig-sub">Antal studerande på yrkeshögskoleprogram per år. Korta kurser ingår inte.</p>
         <div class="r-splitfig">
           <div class="r-splitfig-main">
             <div class="r-chart" id="yhStudWrap" style="height:260px"><div class="msg" style="height:100%"><div class="spinner"></div>Hämtar data…</div></div>
@@ -7641,7 +7641,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <li>Regionala matchningsindikatorer</li>
         <li>Lediga jobb och rekryteringsbehov</li>
         <li>Befolkningens utbildning</li>
-        <li>Övergång från gymnasieskolan till eftergymnasial utbildning</li>
+        <li>Övergång gymnasieskola – eftergymnasiala utbildningar</li>
         <li>Examinerade från gymnasieskolan</li>
         <li>Examinerade från yrkeshögskolan och deras etablering</li>
         <li>Trender och prognoser</li>
@@ -8593,7 +8593,9 @@ const TRANS_FORMS={
      ett komma som annars krockar med kommatecknen i en uppräkning. */
   hogskola:{label:"Högskola",kort:"högskola",path:"/START/UF/UF0542/UF0542B/UF0542T2AN",c5:"000007NQ"},
   yrkesh:{label:"Yrkeshögskola",kort:"yrkeshögskola",path:"/START/UF/UF0542/UF0542C/UF0542T3AN",c5:"00000826"},
-  folkhogskola:{label:"Folkhögskola, särskild kurs",kort:"folkhögskola",path:"/START/UF/UF0542/UF0542D/UF0542T4AN",c5:null},
+  /* Parentesen h\u00e5ller precisieringen kvar i l\u00f6ptext utan att kommat i det fulla namnet
+     krockar med kommatecknen i en uppr\u00e4kning. */
+  folkhogskola:{label:"Folkhögskola, särskild kurs",kort:"folkhögskola (särskild kurs)",path:"/START/UF/UF0542/UF0542D/UF0542T4AN",c5:null},
   konstkultur:{label:"Konst- och kulturutbildningar",kort:"konst- och kulturutbildningar",path:"/START/UF/UF0542/UF0542E/UF0542T5AN",c5:null}
 };
 /* Ordningen som formerna visas i: störst volym först, så figuren läses uppifrån. */
@@ -8978,8 +8980,10 @@ function _ovgRenderInto(listId,subId,srcId,data,keyDefs,formList){
   try{ var _k0=(keyDefs&&keyDefs[0])?String(keyDefs[0][0]):""; if(_k0==="lan")_niva="boendel\u00e4n"; else if(_k0==="riket")_niva="boendekommun"; }catch(e){}
   var sub=document.getElementById(subId); if(sub)sub.textContent=(year?("Avg\u00e5ngs\u00e5r "+year+". "):"")
     +"Andel som p\u00e5b\u00f6rjat en eftergymnasial utbildning inom fem \u00e5r. "
-    +"Statistiken avser "+_niva+", allts\u00e5 var de examinerade \u00e4r folkbokf\u00f6rda, oavsett var i landet gymnasieskolan ligger.";
-  var SR=document.getElementById(srcId); if(SR)SR.textContent="SCB, Statistikdatabasen (Befolkningens utbildning).";
+    +"Statistiken avser "+_niva+", allts\u00e5 var de examinerade \u00e4r folkbokf\u00f6rda oavsett var i landet gymnasieskolan ligger.";
+  /* Figurerna bygger p\u00e5 UF0542, allts\u00e5 \u00f6verg\u00e5ngsunders\u00f6kningen, inte p\u00e5 Befolkningens
+     utbildning som k\u00e4llraden tidigare angav. */
+  var SR=document.getElementById(srcId); if(SR)SR.textContent="SCB, Statistikdatabasen (unders\u00f6kningen \u00d6verg\u00e5ng gymnasieskola \u2013 eftergymnasiala utbildningar).";
 }
 async function renderKommunOvergang(){
   var d=kommunState.data; if(!d)return; var L=document.getElementById("ovgListKom");
@@ -10254,6 +10258,9 @@ function buildKommunData(code,live){
     if(!Object.keys(peerArb).length)peerArb=null;
   }
   var medInkReg=null,medInkRik=null;
+  /* Årtalet följde med i regionvyns data men inte här, så kommunens inkomstkort stod utan
+     årtal medan övriga kort bar sitt. Det hämtas ur samma årslista som värdet. */
+  var medInkAr=null;
   var inkSeries={region:[],riket:[]},inkYears=[];
   /* Uppdelningen på kön ligger under nyckeln __kon och är inget årtal. Den sorteras bort ur
      årslistan och går vidare som egen post, för figuren Inkomstnivåer. */
@@ -10261,14 +10268,14 @@ function buildKommunData(code,live){
   var _mkRK=(live&&live.medink&&live.medink["00"])?live.medink["00"].__kon:null;
   var medInk=(_mkEK||_mkRK)?{ar:(live&&live.medink&&live.medink.__ar)||null,
     egen:_mkEK||null, riket:_mkRK||null}:null;
-  if(live&&live.medink&&live.medink[code]){var _mk=Object.keys(live.medink[code]).filter(function(x){return /^\d{4}$/.test(x);}).sort();if(_mk.length)medInkReg=live.medink[code][_mk[_mk.length-1]];
+  if(live&&live.medink&&live.medink[code]){var _mk=Object.keys(live.medink[code]).filter(function(x){return /^\d{4}$/.test(x);}).sort();if(_mk.length){medInkReg=live.medink[code][_mk[_mk.length-1]]; medInkAr=_mk[_mk.length-1];}
     inkYears=_mk; inkSeries={region:_mk.map(function(y){return live.medink[code][y];}),riket:_mk.map(function(y){return (live.medink["00"]?live.medink["00"][y]:null);})};}
   if(live&&live.medink&&live.medink["00"]){var _mkr=Object.keys(live.medink["00"]).sort();if(_mkr.length)medInkRik=live.medink["00"][_mkr[_mkr.length-1]];}
   var baro=(typeof ybLanBaro==="function")?ybLanBaro(lan):[];
   return {code:code,name:name,lanCode:lan,lanName:lanName,utbFord:(live.utbFord||null),
     saknasData:!(sysReal||arbReal||utbReal||brReal||yrkeLanReal||komYrkeReal),
     _sysReal:sysReal,_arbReal:arbReal,_utbReal:utbReal,_brReal:brReal,_yrkeLanReal:yrkeLanReal,_komYrkeReal:komYrkeReal,
-    kpis:{sysReg:sysReg,sysRik:sysRik,arbReg:arbReg,arbRik:arbRik,utbReg:utbReg,utbRik:utbRik,sysReg2024:sysReg2024,sysRik2024:sysRik2024,arbReg2024:arbReg2024,arbRik2024:arbRik2024,medInkReg:medInkReg,medInkRik:medInkRik,
+    kpis:{sysReg:sysReg,sysRik:sysRik,arbReg:arbReg,arbRik:arbRik,utbReg:utbReg,utbRik:utbRik,sysReg2024:sysReg2024,sysRik2024:sysRik2024,arbReg2024:arbReg2024,arbRik2024:arbRik2024,medInkReg:medInkReg,medInkRik:medInkRik,medInkAr:medInkAr,
       /* Andelen sysselsatta i tjänstesektorn. Underlaget finns redan i branschsvaret, som
          kommunvyn hämtar för specialiseringen, och behöver alltså ingen egen hämtning.
          Talet avser arbetsställets läge och inte de boende, till skillnad från vyns
@@ -19918,6 +19925,7 @@ window.gotoKommunByCode=gotoKommunByCode;
              kostar en bildruta och räddar de fall där figuren annars stannar dold. */
           if(kropp&&r.sec!=null&&(kropp.getAttribute("data-secsel")||"snabb")!==String(r.sec)){
             kropp.setAttribute("data-secsel",String(r.sec));
+            kropp.removeAttribute("data-secauto");
             if(window.__applySecNav)window.__applySecNav(kropp);
           }
           /* Pekar posten på en rubrik inuti ett kort markeras kortet, eftersom ramen hör
@@ -28007,6 +28015,12 @@ window.setupSecNav=function(bodyId){
       var bar=document.getElementById(barId);
       if(!bar){ bar=document.createElement("div"); bar.id=barId; bar.className="sec-bar"; body.parentNode.insertBefore(bar, body); }
       var cur=body.getAttribute("data-secsel")||"snabb";
+      /* Föll valet på det första avsnittet för att sammanfattningen ännu var tom, ska det
+         prövas om nästa gång navet byggs. Gymnasiets tal kommer från SCB och är inte framme
+         när nivån ritas, så sammanfattningen räknades som tom och läsaren hamnade i Översikt
+         och blev kvar där även sedan talen kommit. Ett eget val bär inget data-secauto och
+         står därför fast. */
+      if(body.getAttribute("data-secauto")==="1" && cur!=="snabb") cur="snabb";
       /* Det valda avsnittet ska alltid finnas i navet, även om innehållsprövningen bedömer
          det som tomt. Annars stryks pillret, kontrollen längre ned ställer läget till snabb,
          och raden därefter gör snabb till det första avsnittet. Den som just hoppat till en
@@ -28051,7 +28065,8 @@ window.setupSecNav=function(bodyId){
         if(!(isKpi||s==="pre"||s===null))return false;
         return !!((k.textContent||"").trim()||k.querySelector("img,canvas,svg,table"));
       });
-      if(!harOversikt&&cur==="snabb"){ cur=String(headings[0].idx); body.setAttribute("data-secsel",cur); }
+      if(!harOversikt&&cur==="snabb"){ cur=String(headings[0].idx);
+        body.setAttribute("data-secsel",cur); body.setAttribute("data-secauto","1"); }
       var html='<div class="sec-pills"><span class="sec-indicator" aria-hidden="true"></span>'
         /* Översiktsavsnittet heter Översikt om inget annat sägs. En behållare kan ge det
            ett eget namn med data-oversikt, vilket behövs där avsnittet inte är en översikt
@@ -28151,6 +28166,7 @@ window.setupSecNav=function(bodyId){
             if(p){ p.click(); return; }
             try{
               body.setAttribute("data-secsel", sek);
+              body.removeAttribute("data-secauto");
               if(window.__syncSecBars)window.__syncSecBars();
               toc.querySelectorAll(".sec-toc-btn").forEach(function(x){
                 var pa=(x.getAttribute("data-sec")===sek);
@@ -28237,6 +28253,7 @@ window.setupSecNav=function(bodyId){
           })();
           if(window.__moveSecInd)window.__moveSecInd(bar,false);
           body.setAttribute("data-secsel",p.getAttribute("data-sec"));
+          body.removeAttribute("data-secauto");
           window.__applySecNav(body);
           if(!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)){ body.style.animation="none"; void body.offsetWidth; body.style.animation="secSwap .16s var(--ease-out) both"; }
           /* Vid avsnittsbyte ska läsaren börja överst i det nya avsnittet, inte
@@ -28852,24 +28869,16 @@ window.YH_ETAB={"ar":[2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,202
     if(!window.__usAnalys||!med.length) return;
     var st=[];
     if(tot&&tot.arb[j]!=null){
-      st.push("Diagrammet visar hur stor andel av de examinerade fr\u00e5n yrkesh\u00f6gskolan som hade arbete \u00e5ret efter examen, per utbildningsomr\u00e5de. "
-              +"\u00c5ret efter examen hade "+p0e(tot.arb[j])+" procent av samtliga examinerade arbete, allts\u00e5 uppf\u00f6ljnings\u00e5ret "+ar+
-              ". Det omfattar b\u00e5de anst\u00e4llda och egenf\u00f6retagare.");
+      /* B\u00e5da \u00e5ren skrivs ut, s\u00e5 att uppf\u00f6ljnings\u00e5ret inte kan l\u00e4sas som examens\u00e5r. */
+      st.push("Diagrammet visar hur stor andel av examinerade fr\u00e5n yrkesh\u00f6gskolan som hade ett arbete \u00e5ret efter examen. "
+              +"Uppgifterna avser uppf\u00f6ljnings\u00e5ret "+ar+" f\u00f6r examinerade "+(ar-1)+". "
+              +"\u00c5ret efter examen hade "+p0e(tot.arb[j])+" procent av samtliga examinerade arbete.");
     }
     var hg=med[0], lg=med[med.length-1];
     if(med.length>1){
-      st.push("H\u00f6gst var andelen inom "+lag(hg.n)+" med "+p0e(hg.v)+" procent och l\u00e4gst inom "+
-              lag(lg.n)+" med "+p0e(lg.v)+" procent, en skillnad p\u00e5 "+p0e(hg.v-lg.v)+" "+pe(hg.v-lg.v)+".");
-    }
-    /* Hur många områden skiljer sig från genomsnittet med mer än sin egen felmarginal?
-       Det säger hur mycket av spridningen som går att belägga. */
-    if(tot&&tot.arb[j]!=null){
-      var medF=med.filter(function(r){ return r.f!=null; });
-      var utanf=medF.filter(function(r){ return Math.abs(r.v-tot.arb[j])>r.f; });
-      if(medF.length){
-        st.push(utanf.length+" av "+medF.length+" omr\u00e5den avviker fr\u00e5n genomsnittet med mer \u00e4n sin felmarginal. "+
-                "F\u00f6r \u00f6vriga ligger skillnaden inom felmarginalen.");
-      }
+      st.push("H\u00f6gst andel i arbete hade examinerade inom omr\u00e5det "+lag(hg.n)+" ("+p0e(hg.v)+" procent) "+
+              "och l\u00e4gst andel i arbete hade examinerade inom "+lag(lg.n)+" ("+p0e(lg.v)+" procent), "+
+              "en skillnad p\u00e5 "+p0e(hg.v-lg.v)+" "+pe(hg.v-lg.v)+".");
     }
     window.__usAnalys("figYhArb","Var examen leder till jobb",ettStycke(st));
   }
@@ -28940,10 +28949,9 @@ window.YH_ETAB={"ar":[2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,202
        tog examen och som det år deras sysselsättning mättes. Serien är indexerad på
        uppföljningsåret, vilket källraden till figuren över tid redan säger. Båda åren
        skrivs nu ut, så att ingen behöver räkna själv. */
-    if(sub) sub.textContent="Andel av de examinerade som hade arbete året efter examen. Uppgiften avser uppföljningsåret "+ar+
-      ", alltså de som tog examen "+(ar-1)+
-      ". Konfidensintervallen anger den statistiska osäkerheten på 95 procents nivå."+
-      (tot&&tot.arb[j]!=null?" Genomsnittet för samtliga områden var "+tot.arb[j]+" procent.":"");
+    /* Examens\u00e5ret och genomsnittet st\u00e5r i analystexten ovanf\u00f6r figuren och upprepas inte h\u00e4r. */
+    if(sub) sub.textContent="Andel av examinerade från yrkeshögskolan i arbete året efter examen. Uppgiften avser uppföljningsåret "+ar+
+      ". Konfidensintervallen anger den statistiska osäkerheten på 95 procents nivå.";
     if(src) src.textContent="SCB, Statistikdatabasen."+
       (utan.length?" Uppgift saknas för "+utan.map(function(r){return r.n;}).join(", ")+".":"");
     var ctx=canvas("yhArbWrap", Math.max(300, med.length*30+60)); if(!ctx) return;
@@ -28983,7 +28991,7 @@ window.YH_ETAB={"ar":[2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,202
     if(!rader.length){ if(sub) sub.textContent+=" Uppgiften saknas f\u00f6r "+ar+"."; msg("yhStatusWrap","Uppgiften saknas f\u00f6r "+ar+"."); return; }
     if(!chartOk("yhStatusWrap")) return;
     if(sub) sub.textContent="Fördelning av de examinerades sysselsättning året efter examen. Uppgiften avser uppföljningsåret "+ar+
-      ", alltså de som tog examen "+(ar-1)+". Andelarna summerar till omkring hundra procent; avvikelser beror på avrundning."+
+      " för examinerade "+(ar-1)+"."+
       (utan.length?" Uppgift saknas för "+utan.map(function(o){return o.n;}).join(", ")+".":"");
     if(src) src.textContent="SCB, Statistikdatabasen.";
     rader.sort(function(a,b){ return d.t[b.k].arb[j]-d.t[a.k].arb[j]; });
@@ -29144,7 +29152,7 @@ window.MYH_OMRADE = {
     {namn:"Data/it",                                      sok:2.4, exam:66,   full:6,    etab:null, avhopp:28, bev:null},
     {namn:"Teknik och tillverkning",                      sok:2.2, exam:59,   full:11,   etab:null, avhopp:30, bev:null},
     {namn:"\u00d6vrigt",                                   sok:2.0, exam:null, full:null, etab:null, bev:null, rest:true},
-    {namn:"Lantbruk, djurv\u00e5rd, tr\u00e4dg\u00e5rd, skog och fiske", sok:1.9, exam:73, full:12, etab:null, avhopp:null, avhopp:16, bev:null},
+    {namn:"Lantbruk, djurv\u00e5rd, tr\u00e4dg\u00e5rd, skog och fiske", sok:1.9, exam:73, full:12, etab:null, avhopp:16, bev:null},
     {namn:"Pedagogik och undervisning",                   sok:1.8, exam:62,   full:7,    etab:null, avhopp:32, bev:null}
   ]
 };
@@ -29195,7 +29203,10 @@ window.__ritaYhDim = function(){
      och texten ska inte kunna bli fel av det. */
   var alla=rows.map(function(r){return r.sok;});
   var lagst=Math.min.apply(null,alla), hogst=Math.max.apply(null,alla);
-  var txt='S\u00f6ktrycket varierar fr\u00e5n '+p1(lagst)+' till '+p1(hogst)+' beh\u00f6riga s\u00f6kande per plats mellan omr\u00e5dena, mot '+p1(M.totalt.sok)+' f\u00f6r yrkesh\u00f6gskolan totalt ('+esc(M.arSok)+'). Examensgraden var '+p0(M.totalt.exam)+'\u00a0procent '+esc(M.arExam)+'.';
+  var st1='S\u00f6ktrycket till olika \u00e4mnesinriktningar varierar fr\u00e5n '+p1(lagst)+' till '+p1(hogst)
+    +' beh\u00f6riga s\u00f6kande per plats. Inom hela yrkesh\u00f6gskolan uppgick antalet beh\u00f6riga s\u00f6kande till '
+    +p1(M.totalt.sok)+' per plats ('+esc(M.arSok)+').';
+  var st2='Examensgraden f\u00f6r hela yrkesh\u00f6gskolan var '+p0(M.totalt.exam)+'\u00a0procent '+esc(M.arExam)+'.';
   /* Fullföljarna är den del av bortfallet som ändå gick utbildningen i mål. Skillnaden mellan
      de två andelarna säger hur mycket av avståndet till hundra som är avhopp och hur mycket
      som är uteblivna examensbevis. */
@@ -29204,19 +29215,14 @@ window.__ritaYhDim = function(){
     /* Avhopparandelen hämtas som publicerad och räknas inte fram som hundra minus summan.
        Andelarna är avrundade var för sig i källan, så 100 - 76 ger 24 medan rapporten
        redovisar 25. En härledd siffra skulle alltså motsäga källan. */
-    txt+=' R\u00e4knas de '+p0(M.totalt.full)+'\u00a0procent som var med till utbildningens slut utan att ta ut examen till de examinerade, har '+p0(fgTot)+'\u00a0procent fullgjort utbildningen'
-      +(M.totalt.avhopp!=null?(', medan '+p0(M.totalt.avhopp)+'\u00a0procent hoppade av innan slutet'):'')+'.';
-    /* Vilket område har störst avstånd mellan examen och fullgjord utbildning? Där finns flest
-       som gick i mål utan bevis, och det är en annan sorts problem än avhopp. */
-    var storst=null;
-    rows.forEach(function(r){ if(r.full!=null && (storst==null || r.full>storst.full)) storst={n:r.namn, full:r.full}; });
-    if(storst) txt+=' St\u00f6rst andel fullf\u00f6ljare hade '+esc(String(storst.n).toLowerCase())+' med '+p0(storst.full)+'\u00a0procent.';
+    st2+=' Examinerade och fullf\u00f6ljare uppgick totalt till '+p0(fgTot)+'\u00a0procent.';
+
   }
   /* Sammanfattningen låg tidigare inuti wrap, alltså inne i figurens diagramruta. Den hör
      till figurens analystext och skrivs nu som ett block ovanför figuren, på samma sätt som
      övriga figurer i vyn. Då följer den också med i rapporten och lyder under
      avsnittsnavigeringen. */
-  if(window.__usAnalys) window.__usAnalys("figYhDim","S\u00f6ktryck och examensgrad",[txt]);
+  if(window.__usAnalys) window.__usAnalys("figYhDim","S\u00f6ktryck och examensgrad",[st1,st2]);
   /* De två talkolumnerna går att sortera på. Rubrikerna får verktygets rd-th-stil, som
      ritar pilen, och samma tangentbordshantering som jämförelsetabellerna: Enter eller
      blanksteg sorterar. Första klicket sorterar högsta först, eftersom det är den
@@ -31464,7 +31470,7 @@ function _gruppText(c, matt){
       if(typeof window.__etabHitta==="function")d=window.__etabHitta(namn);
       tab=window.__etabTabell||null; riket=window.__etabRiket;
     }catch(e){}
-    var st=["Etableringsgraden är andelen av de examinerade som 1–1,5 år efter examen hade en arbetsinkomst över en fastställd gräns och inte studerade. Övriga delas in i osäker ställning, svag ställning och utanför arbetsmarknaden. Måttet avser examinerade läsåret 2022/23."];
+    var st=["Etableringsgraden som beskrivs nedan avser andelen av de examinerade som 1–1,5 år efter examen hade en arbetsinkomst över en fastställd gräns och inte var studerande. Övriga delas in i osäker ställning, svag ställning och utanför arbetsmarknaden. Måttet avser examinerade läsåret 2022/23."];
     if(d&&d[2]!=null){
       /* Uppräkningen byggdes med verbet inbakat i första posten och band ihop leden med
          komma. Saknas den posten, vilket den gör så snart en kategori inte redovisas, blev
@@ -31492,8 +31498,7 @@ function _gruppText(c, matt){
         var hog=lista[0], lag=lista[lista.length-1];
         var p3="Etableringsgraden varierar mellan lärosätena. Högst ligger "+hog[0]+" med "+pct(hog[2])
           +" procent och lägst "+lag[0]+" med "+pct(lag[2])+" procent, alltså "
-          +pct(hog[2]-lag[2])+" procentenheters skillnad."
-          +((riket!=null)?(" Vägt på antal examinerade ligger samtliga lärosäten på "+pct(riket)+" procent."):"");
+          +pct(hog[2]-lag[2])+" procentenheters skillnad.";
         if(d&&d[2]!=null){
           var plats=0;
           for(var q=0;q<lista.length;q++){ if(lista[q][0]===d[0]){ plats=q+1; break; } }
@@ -31706,8 +31711,9 @@ function _gruppText(c, matt){
       progAntal:rader.length});
     var tre=ix.slice(0,3).reduce(function(a,i){return a+rader[i].v;},0)/lTot*100;
     var visaTre=(rader.length>3);
-    var p1="Av de "+tal(lTot)+" examinerade i "+namn+(ar?(" "+ar):"")+" kom flest från "
-      +st.namn+": "+pct(stAndel)+" procent, motsvarande "+ental(st.v,"person","personer")+"."
+    var p1="Det största programmet bland de "+tal(lTot)+" examinerade i "+namn+(ar?(" "+ar):"")
+      +" var "+st.namn+". Från detta program examinerades "+ental(st.v,"person","personer")
+      +", motsvarande "+pct(stAndel)+" procent."
       +(visaTre?(" De tre största programmen samlar "+pct(tre)+" procent av årskullen"
                  +(tre>50?", vilket innebär att en majoritet av eleverna finns i ett fåtal program.":".")):"");
     var p2="";
@@ -31717,7 +31723,7 @@ function _gruppText(c, matt){
       var upp=diff[0], ned=diff[diff.length-1];
       if(upp&&ned&&upp.namn!==ned.namn&&(Math.abs(upp.d)>=0.5||Math.abs(ned.d)>=0.5)){
         p2="Jämfört med riket har "+upp.namn+" en "+pe(upp.d)+" procentenheter större andel, medan "
-          +ned.namn+" ligger "+pe(ned.d)+" procentenheter lägre. Skillnaderna beror både på vilka program som erbjuds i området och på hur eleverna väljer.";
+          +ned.namn+" ligger "+pe(ned.d)+" procentenheter lägre.";
       } else {
         p2="Fördelningen ligger nära rikets fördelning. Inget program avviker med mer än en halv procentenhet.";
       }
@@ -31754,21 +31760,14 @@ function _gruppText(c, matt){
       examDel=(iE===i) ? (" och "+tal(exam[iE])+" examinerades")
                        : (". Antalet examinerade redovisas till och med "+ar[iE]+", d\u00e5 "+tal(exam[iE])+" examinerades");
     }
-    var p1="Diagrammet visar antalet studerande på yrkeshögskoleprogram per år, med antalet examinerade som jämförelse. "
+    var p1="I diagrammet visas antalet studerande samt examinerade vid yrkeshögskoleprogram per år. "
       +"Senaste året i serien ("+ar[i]+") fanns "+tal(stud[i])+" studerande inom yrkeshögskolan i "+namn
       +examDel+".";
     if(j<i&&stud[j]>0){
       var f=(stud[i]-stud[j])/stud[j]*100;
       p1+=" Under perioden "+ar[j]+"\u2013"+ar[i]+" har antalet studerande "+(f>1.5?("ökat med "+pct(f)+" procent"):(f<-1.5?("minskat med "+pe(f)+" procent"):"varit i stort sett oförändrat"))+".";
     }
-    /* Förklaringen av varför andelen examinerade är låg beskriver måttet och inte det
-       figuren visar. Den står i undertexten. */
-    var p2="";
-    if(iE>=0&&exam[iE]&&stud[iE]){
-      var kv=exam[iE]/stud[iE]*100;
-      p2="Antalet examinerade motsvarar "+pct(kv)+" procent av antalet studerande samma år.";
-    }
-    window.__usAnalys("figYhStud","Volym och utveckling",[p1,p2]);
+    window.__usAnalys("figYhStud","Volym och utveckling",[p1]);
   };
   window.__usAnalysYhOmr=function(o){
     var rows=o.rows||[], lokalV=o.lokalV||[], riketV=o.riketV||[], mot=!!o.motRiket, namn=o.namn||"riket";
@@ -31780,7 +31779,7 @@ function _gruppText(c, matt){
     var tre=ix.slice(0,3).reduce(function(a,i){return a+lokalV[i];},0);
     /* Tillägget "vilket gör utbudet tydligt koncentrerat" var en bedömning vid en satt
        gräns på sextio procent. Andelen står kvar och läsaren avgör själv. */
-    var p1="Diagrammet visar hur de studerande inom yrkeshögskolan fördelar sig på utbildningsområden. "
+    var p1="Diagrammet visar hur studerande inom yrkeshögskolan fördelar sig per utbildningsområde. "
       +"Störst utbildningsområde i "+namn+" är "+rows[ix[0]].o+" med "+pct(lokalV[ix[0]])+" procent av de studerande. "
       +(rows.length>3?("De tre största områdena står tillsammans för "+pct(tre)+" procent."):"");
     p1=p1.replace(/\s+$/,"");
@@ -31794,11 +31793,10 @@ function _gruppText(c, matt){
         p2="Jämfört med riket har "+upp.o+" en "+pe(upp.d)+" procentenheter större andel, medan "+ned.o+" ligger "+pe(ned.d)
           +" procentenheter lägre.";
       } else { p2="Fördelningen ligger nära rikets. Inget utbildningsområde avviker med mer än en halv procentenhet."; }
-    } else {
-      /* Uppmaningen att välja ett län är en anvisning och inte en analys. Den står i undertexten. */
-      p2="Fördelningen avser hela riket.";
     }
-    window.__usAnalys("figYhOmr","Inriktning",[p1,p2]);
+    /* Utan valt län sa stycket bara att fördelningen avser riket, vilket redan står i
+       meningen om största utbildningsområdet. Analysen är då ett stycke. */
+    window.__usAnalys("figYhOmr","Inriktning",[p1,p2].filter(Boolean));
   };
   window.__usAnalysYhAnord=function(o){
     var rows=o.rows||[], tot=o.tot||0, cnt=o.cnt||0, namn=o.namn||"riket", omr=o.omr||null;
@@ -31810,7 +31808,7 @@ function _gruppText(c, matt){
     if(window.__usSumSatt&&!omr)window.__usSumSatt("yh",window.__usSumNyckel(),{
       platser:tot, anordnare:cnt, anordNamn:st[0], anordAndel:stA});
     var fem=sort.slice(0,5).reduce(function(a,r){return a+r[1];},0)/tot*100;
-    var p1="Diagrammet visar antalet beviljade utbildningsplatser per anordnare. "
+    var p1="I diagrammet visas antalet beviljade utbildningsplatser per anordnare. "
       +"I "+namn+" är "+tal(tot)+" platser beviljade hos "+cnt+" anordnare"
       +(omr?(" inom "+omr):"")+". Flest platser har "+st[0]+" med "+tal(st[1])+" platser, "+pct(stA)+" procent av utbudet."
       /* Är de fördelade platserna med i talen ska det framgå i texten, eftersom en dryg
@@ -31818,8 +31816,10 @@ function _gruppText(c, matt){
       +((o.est>0)?(" Av platserna är "+tal(Math.round(o.est))+" fördelade från utbildningar som är beviljade i flera kommuner, vilket är en uppskattning och inte ett känt utbud."):"");
     /* Slutsatsen om vad en koncentration innebär, och beskrivningen av vad talen avser,
        är flyttade: den första var ett resonemang, den andra hör till undertexten. */
-    var p2="De fem största anordnarna står tillsammans för "+pct(fem)+" procent av platserna.";
-    window.__usAnalys("figYhAnord","Anordnare och koncentration",[p1,p2]);
+    /* Med färre än nio anordnare är de fem största nästan hela utbudet, och andelen säger
+       då inget om koncentrationen. Meningen utgår i de fallen. */
+    var p2=(cnt>=9)?("De fem största anordnarna står tillsammans för "+pct(fem)+" procent av platserna."):"";
+    window.__usAnalys("figYhAnord","Anordnare och koncentration",[p1,p2].filter(Boolean));
   };
 
   /* --- Högskola ----------------------------------------------------------------- */
@@ -31861,8 +31861,11 @@ function _gruppText(c, matt){
     if(window.__usSumSatt&&!del)window.__usSumSatt("hog",window.__usSumNyckel(),{
       omrNamn:rows[ix[0]], omrAndel:lokalV[ix[0]],
       omrDiff:mot?(lokalV[ix[0]]-riketV[ix[0]]):null, omrEnhet:enhet});
-    var p1="Diagrammet visar hur helårsstudenterna fördelar sig på "+enhet+"n. "
-      +"Störst "+enhet+" hos "+namn+" är "+rows[ix[0]]+" med "+pct(lokalV[ix[0]])+" procent av helårsstudenterna"
+    /* Vilka helårsstudenter figuren gäller står nu i den första meningen, i stället för i
+       ett eget stycke sist. Utan valt lärosäte avser figuren riket. */
+    var _vem=mot?("vid "+namn):"i riket";
+    var p1="Diagrammet visar hur helårsstudenter "+_vem+" fördelar sig per "+enhet+". "
+      +"Störst "+enhet+" är "+rows[ix[0]]+" med "+pct(lokalV[ix[0]])+" procent av helårsstudenterna"
       +(rows.length>=3?(", följt av "+rows[ix[1]]+" och "+rows[ix[2]]+"."):".");
     var p2="";
     if(mot&&rows.length===1){
@@ -31879,10 +31882,8 @@ function _gruppText(c, matt){
         p2="Jämfört med samtliga lärosäten har "+upp.o+" en "+pe(upp.d)+" procentenheter större andel, medan "+ned.o+" ligger "+pe(ned.d)
           +" procentenheter lägre.";
       } else { p2="Fördelningen ligger nära den för samtliga lärosäten. Inget "+enhet+" avviker med mer än en halv procentenhet."; }
-    } else {
-      p2="Fördelningen avser samtliga lärosäten.";
     }
-    window.__usAnalys("figHogOmr","Ämnesprofil",[p1,p2]);
+    window.__usAnalys("figHogOmr","Ämnesprofil",[p1,p2].filter(Boolean));
   };
 
   /* ==== Analyser för region-, kommun-, yrkes-, bransch- och kompetensvyn ====
@@ -32950,11 +32951,15 @@ window.__ritaSkolverketTabell = function(cfg){
     var upprakProg = dl.length>1 ? (dl.slice(0,-1).join(", ")+" och "+dl[dl.length-1]) : (dl[0]||"");
     var p1;
     if(riksniva){
-      p1="Skolverkets bed\u00f6mningar inneb\u00e4r i de flesta l\u00e4n att platser f\u00f6rskjuts fr\u00e5n h\u00f6gskolef\u00f6rberedande program till yrkesprogram. Av de "+ORDER.length+" nationella programmen \u00e4r den vanligaste bed\u00f6mningen att "+upprak+". Bed\u00f6mningen g\u00e4ller andel av platsutbudet och \u00e4r en rekommendation, inte ett krav.";
+      /* Riksvarianten r\u00e4knar den vanligaste bed\u00f6mningen per program \u00f6ver l\u00e4nen, inte ett
+         enskilt l\u00e4ns underlag, och beh\u00e5ller d\u00e4rf\u00f6r sin egen inledning om vad talen avser. */
+      p1="I Skolverkets planeringsunderlag \u00e4r den vanligaste bed\u00f6mningen f\u00f6r de "+ORDER.length+" nationella programmen att "+upprak+". Bed\u00f6mningarna inneb\u00e4r i de flesta l\u00e4n att platser f\u00f6rskjuts fr\u00e5n h\u00f6gskolef\u00f6rberedande program till yrkesprogram.";
     } else if(kommunlage){
-      p1="Skolverket g\u00f6r sin bed\u00f6mning per l\u00e4n, inte per kommun, s\u00e5 bilden avser hela "+lanNamn+", som "+kommunNamn+" ing\u00e5r i. F\u00f6r l\u00e4net bed\u00f6mer Skolverket att andelen platser b\u00f6r "+upprakProg+". Bed\u00f6mningen \u00e4r en rekommendation, inte ett krav.";
+      /* Att bed\u00f6mningen g\u00f6rs per l\u00e4n \u00e4r inte ett f\u00f6rbeh\u00e5ll utan svaret p\u00e5 vad kommunvyn visar,
+         och st\u00e5r kvar f\u00f6re sj\u00e4lva bed\u00f6mningen. */
+      p1="Skolverket g\u00f6r sin bed\u00f6mning per l\u00e4n, inte per kommun, s\u00e5 bilden avser hela "+lanNamn+", som "+kommunNamn+" ing\u00e5r i. I planeringsunderlaget bed\u00f6mer myndigheten att andelen platser b\u00f6r "+upprakProg+" i l\u00e4net.";
     } else {
-      p1="F\u00f6r "+lanNamn+" bed\u00f6mer Skolverket att andelen platser b\u00f6r "+upprakProg+". Bed\u00f6mningen \u00e4r en rekommendation och inte ett krav. Den avser antalet platser och inte hur m\u00e5nga som till slut examineras.";
+      p1="I Skolverkets planeringsunderlag bed\u00f6mer myndigheten att andelen platser b\u00f6r "+upprakProg+" i "+lanNamn+".";
     }
 
     var p2="";
@@ -33004,7 +33009,7 @@ window.__ritaSkolverketTabell = function(cfg){
              samma stycke. */
           function bart(x){ var t=proc(x); return t==null ? "under 1 procent" : (t+" procent"); }
           p2+=" St\u00f6rst bland utbildningsomr\u00e5dena som b\u00f6r \u00f6ka \u00e4r "+namnFor(stOka.k)+" med "+bart(stOka.a)
-            +", och bland omr\u00e5dena som b\u00f6r minska "+namnFor(stMin.k)+" med "+bart(stMin.a)+".";
+            +", och bland omr\u00e5dena som b\u00f6r minska utg\u00f6r "+namnFor(stMin.k)+" "+bart(stMin.a)+".";
         }
         p2+=" Andelarna avser examinerade och inte platser, s\u00e5 j\u00e4mf\u00f6relsen med Skolverkets platsbed\u00f6mning \u00e4r ungef\u00e4rlig.";
       }
@@ -33220,13 +33225,16 @@ window.__ritaGymOvg = async function(){
         var d=res[k]&&res[k].byKey; if(!d)return null;
         var v=lan?d.omrade:d.riket; if(v==null)return null;
         var p1b=function(x){ return (typeof fmt1==="function")?fmt1(x):String(Math.round(x*10)/10).replace(".",","); };
-        return (TRANS_FORMS[k].kort||TRANS_FORMS[k].label||k)+" "+p1b(v)+"\u00a0procent";
+        return {namn:(TRANS_FORMS[k].kort||TRANS_FORMS[k].label||k), tal:p1b(v)+"\u00a0procent"};
       }).filter(Boolean);
       if(ovr.length){
         /* Meningen lydde "andelarna som p\u00e5b\u00f6rjat folkh\u00f6gskola 3,2 procent, ...", d\u00e4r
            utbildningsformen och talet st\u00f6tte ihop utan verb. Nu st\u00e5r andelen f\u00f6r sig. */
-        var sista=ovr.pop();
-        st.push("Motsvarande andel var "+(ovr.length?(ovr.join(", ")+" och "):"")+sista+".");
+        /* Verbet st\u00e5r efter den f\u00f6rsta formen och underf\u00f6rst\u00e5s i de f\u00f6ljande, s\u00e5 att
+           uppr\u00e4kningen blir en mening. */
+        var delar=ovr.map(function(o,i){ return o.namn+(i===0?" var ":" ")+o.tal; });
+        var sista=delar.pop();
+        st.push("\u00d6verg\u00e5ngarna till "+(delar.length?(delar.join(", ")+" och "):"")+sista+".");
       }
       if(st.length) window.__usAnalys("figGymOvg","\u00d6verg\u00e5ng till eftergymnasial utbildning",[st.join(" ")]);
     }
@@ -34012,15 +34020,21 @@ try{ window.__ritaGymSok=window.__ritaGymSok; }catch(e){ __fel("okänd", e); }
     var rader=ETAB3A.filter(function(r){ return r[2]!=null; })
                     .sort(function(a,b){ return b[2]-a[2]; });
     if(!rader.length){ lista.innerHTML='<div class="msg">Uppgiften ingår inte i underlaget.</div>'; return; }
-    var maxV=rader[0][2], minV=rader[rader.length-1][2];
-    var span=Math.max(1,maxV-minV);
+    /* Staplarna gick tidigare från det lägsta till det högsta värdet i listan, vilket
+       förstorade skillnaderna och gav det sista lärosätet en tom stapel trots 26 procent.
+       Nu mäter de andelen mot hela skalan 0 till 100, så längden går att läsa som ett tal. */
     var plats=egen?(rader.findIndex(function(r){ return r[0]===egen[0]; })+1):0;
     if(window.__usSumSatt)window.__usSumSatt("hog",window.__usSumNyckel(),{
       etab:(egen&&egen[2]!=null)?egen[2]:null, etabRiket:_etabRiket, etabAr:ETAB3A_AR,
       etabPlats:(egen&&egen[2]!=null)?plats:null, etabAntal:rader.length});
 
+    /* Med Totalt (alla lärosäten) valt finns inget eget lärosäte att jämföra, och kortet
+       sa bara att uppgiften saknas. Listan nedanför visar ändå samtliga, så kortet utgår. */
+    var _totalt=(((window.usState&&window.usState.larosate)||"")==="00");
     if(kpi){
-      if(egen&&egen[2]!=null){
+      kpi.style.display=_totalt?"none":"";
+      if(_totalt){ kpi.innerHTML=""; }
+      else if(egen&&egen[2]!=null){
         kpi.innerHTML=
           '<div class="kpi accent"><span class="v">'+fmt1(egen[2])+'<span class="u">%</span></span>'
           +'<span class="l">Etablerade av de examinerade</span>'
@@ -34055,7 +34069,7 @@ try{ window.__ritaGymSok=window.__ritaGymSok; }catch(e){ __fel("okänd", e); }
       if(o.i-forra>1)html+='<div class="lq-break"><span>'+(o.i-forra-1)+' lärosäten visas inte</span></div>';
       forra=o.i;
       var sel=!!(egen&&o.r[0]===egen[0]);
-      var w=(((o.r[2]-minV+3)/(span+3))*100).toFixed(1);
+      var w=Math.max(0,Math.min(100,o.r[2])).toFixed(1);
       html+='<div class="peer-row'+(sel?" sel":"")+'"><div class="peer-top">'
         +'<span class="peer-name">'+(sel?"\u25B8 ":"")+(o.i+1)+'. '+esc(o.r[0])+'</span>'
         +'<span class="peer-val">'+fmt1(o.r[2])+' %</span></div>'
@@ -37060,6 +37074,9 @@ try{ window._sumOm=_sumOm; }catch(e){}
        bland unga är lägre än totalt gäller överallt, och det intressanta är avvikelsen. */
     var _ungRik=num(sista(d.sys24Series&&d.sys24Series.riket),1);
     var _ungARik=num(sista(d.arb24Series&&d.arb24Series.riket),1);
+    /* Korten nedan talar om området i bestämd form i stället för med namn. Riket är
+       varken kommun eller län och nämns vid namn. */
+    var _omr=_arRiket?"riket":((vy==="kommun")?"kommunen":"länet");
     var _sys=num(k.sysReg,1);
     if(_sys) ut.push(p("Sysselsättningsgraden i "+enhet+" är <b>"+_sys+" procent</b>"+ar(k.sysAr||d.ar)+"."
       +(k.sysRik!=null?jmfNiva(k.sysReg,k.sysRik,"grad"):"")
@@ -37099,7 +37116,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
     function _manKr(v){ return (v==null||isNaN(v))?null:Math.round(v*1000/12/100)*100; }
     var _inkM=_manKr(k.medInkReg);
     var _ink=(_inkM!=null)?tal(_inkM):null;
-    if(_ink) ut.push(p("Medianinkomsten är <b>"+_ink+" kronor</b> i månaden"+ar(k.medInkAr||d.ar)+"."
+    if(_ink) ut.push(p("Medianinkomsten i "+_omr+" är <b>"+_ink+" kronor</b> i månaden."
       +((k.medInkRik!=null)?jmfMening(pro(100*(k.medInkReg-k.medInkRik)/k.medInkRik)):""),
       /* Kortet står utan pil, och det är avsiktligt. Medianinkomsten har ingen egen figur.
          Den pekade först på "Medianinkomst över tid", som ingen figur bär, och sedan på
@@ -37110,7 +37127,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
     var _tj=num(k.privShareReg,1);
     /* Omkastningen gav "Tjänstesektorn sysselsätter 71,2 procent av de sysselsatta", alltså
        samma ord två gånger i samma mening. Den ursprungliga formen står kvar här. */
-    if(_tj) ut.push(p("<b>"+_tj+" procent</b> av de sysselsatta arbetar i tjänstesektorn."
+    if(_tj) ut.push(p("<b>"+_tj+" procent</b> av de sysselsatta i "+_omr+" arbetar i tjänstesektorn."
       +((k.privShareRik!=null)?jmfSkillnad(k.privShareReg-k.privShareRik,1):""),
       /* Hette "Sysselsatta per bransch". Figuren heter Näringslivets bredd. */
       "Näringslivets bredd","Tjänstesektorn", _tj+"\u00a0%", d.branschAr||null));
@@ -37723,15 +37740,17 @@ try{ window._sumOm=_sumOm; }catch(e){}
       +d.tidAr+"."+utveckling(d.tidFran,d.tidPct,"antalet examinerade"),fig("Examinerade över tid"),
       "Examinerade", _tot, d.tidAr));
     var _hf=num(d.hfAndel,0);
-    if(_hf) ut.push(p("<b>"+_hf+" procent</b> av dem gick ett högskoleförberedande program och <b>"
+    if(_hf) ut.push(p("<b>"+_hf+" procent</b> av examinerade gick ett högskoleförberedande program och <b>"
       +tal(100-Math.round(d.hfAndel),0)+" procent</b> ett yrkesprogram.",fig("Examinerade över tid"),
       "Högskoleförberedande", _hf+"\u00a0%", d.tidAr));
     var _pa=num(d.progAndel,1);
-    if(_pa&&d.progNamn) ut.push(p("Störst program är <b>"+d.progNamn+"</b> med <b>"+_pa
-      +" procent</b> av årskullen."+jmfSkillnad(d.progDiff,1),fig("Examinerade per program"),
+    /* Avgångsåret skrivs bara ut när det finns, annars skulle meningen sluta i ett tomt årtal. */
+    var _pAr=d.progAr?(" avgångsår "+d.progAr):"";
+    if(_pa&&d.progNamn) ut.push(p("Det största programmet sett till antal examinerade är <b>"+d.progNamn
+      +"</b> med <b>"+_pa+" procent</b> av årskullen"+_pAr+"."+jmfSkillnad(d.progDiff,1),fig("Examinerade per program"),
       "Största programmet", d.progNamn));
     var _ovg=num(d.ovg,1);
-    if(_ovg) ut.push(p("<b>"+_ovg+" procent</b> av de examinerade hade påbörjat en högskoleutbildning inom fem år"
+    if(_ovg) ut.push(p("<b>"+_ovg+" procent</b> av examinerade hade påbörjat en högskoleutbildning inom fem år"
       +(d.ovgAr?(" (avgångsår "+d.ovgAr+")"):"")+"."
       +(d.ovgMot?jmfSkillnad(d.ovg-d.ovgRiket,1):""),fig("Andel som påbörjat studier inom fem år"),
       "Övergång till högskola", _ovg+"\u00a0%", d.ovgAr||null));
@@ -37746,10 +37765,11 @@ try{ window._sumOm=_sumOm; }catch(e){}
       "Studerande", _st, d.studAr));
     var _ex=(d.exam>0)?num(d.exam):null;
     /* Serierna slutar olika år: uppgiften om examinerade saknas ofta för studerandeseriens
-       sista år. Årtalet skrivs därför ut när det skiljer sig, så att talen inte ser ut att
-       gälla samma år. */
-    if(_ex) ut.push(p("Antalet examinerade var <b>"+_ex+"</b> "
-      +((d.examAr===d.studAr)?"samma år.":("år "+d.examAr+", det sista året med uppgift.")),
+       sista år. Årtalet står därför först i meningen och skrivs alltid ut, så att talen inte
+       kan se ut att gälla samma år. */
+    if(_ex) ut.push(p(d.examAr
+      ? ("År "+d.examAr+" uppgick antalet examinerade från en yrkeshögskoleutbildning i "+namn+" till <b>"+_ex+"</b>.")
+      : ("Antalet examinerade från en yrkeshögskoleutbildning i "+namn+" uppgick till <b>"+_ex+"</b>."),
       fig("Antal studerande över tid"),"Examinerade", _ex, d.examAr));
     var _oa=num(d.omrAndel,1);
     if(_oa&&d.omrNamn) ut.push(p("Störst utbildningsområde är <b>"+d.omrNamn+"</b> med <b>"+_oa
