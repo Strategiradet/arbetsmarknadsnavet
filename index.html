@@ -5387,7 +5387,11 @@ section.results .rd-pin-forkl{color:var(--ink-soft)}
   }
   body #navRail .viewnav-btn.active::before{opacity:1}
   /* Den valda knappen har mörk botten, så där behåller texten sin ljusa ton. */
-body #navRail .viewnav-btn.active .mob-vdesc{color:rgba(255,255,255,.85)}
+/* Ljus text på mörk botten ser tunnare ut än mörk text på ljus botten vid samma vikt, och
+   sidans antialiasing tunnar ut den ytterligare. Beskrivningen på den valda knappen fick
+   dessutom bara 85 procents vitt. Den står nu i helvitt med något högre vikt, så att den
+   väger lika tungt som på de omarkerade korten. */
+body #navRail .viewnav-btn.active .mob-vdesc{color:#fff;font-weight:500;-webkit-font-smoothing:auto}
 /* Knappens eget namn ligger som textnod och ärver knappens färg. Selektorn måste möta
    samma specificitet som regeln för indicator-ready ovanför, annars vinner den och namnet
    blir kvar i sin bruna ton. */
@@ -5404,7 +5408,9 @@ body #navRail .viewnav-btn:not(.active){color:#2e2e2e}
   }
   /* Även textens, ikonens och stapelns färger måste återställas i kortläget, annars ärver de
      den aktiva knappens vita toner och blir oläsliga mot den ljusa bottnen. */
-  body[data-mobstart="1"] #navRail .viewnav-btn.active .mob-vdesc{color:#2e2e2e}
+  /* I kortläget är inget valt, så den markerade knappen ska se ut som de övriga. Även
+     vikten återställs, inte bara färgen. */
+  body[data-mobstart="1"] #navRail .viewnav-btn.active .mob-vdesc{color:#2e2e2e;font-weight:400}
   body[data-mobstart="1"] #navRail .viewnav-btn.active .vn-ico,
   body[data-mobstart="1"] #navRail .viewnav-btn.active svg.vn-ico{color:#000}
   body[data-mobstart="1"] #navRail .viewnav-btn.active::before,
