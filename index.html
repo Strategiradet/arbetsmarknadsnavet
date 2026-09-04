@@ -909,7 +909,9 @@ window.__kompSammanslagning = function(){
   /* Källorna stod som ett enda stycke där tolv register i följd blev omöjliga att överblicka.
      De står nu grupperade efter avsändare, med en rad per källa. */
   .method-kallor{margin-top:6px}
-  .kallgrupp-h{font:600 var(--ts-text)/1.35 var(--font-ui);color:var(--ink);margin:14px 0 4px}
+  /* Rubriken hör ihop med listan under sig, inte med listan ovanför. Luften över den är
+   därför större än luften under, så att varje myndighet läser sig som ett block. */
+.kallgrupp-h{font:600 var(--ts-text)/1.35 var(--font-ui);color:var(--ink);margin:22px 0 2px}
   .kallgrupp-h:first-child{margin-top:0}
   .kallista{margin:0 0 2px;padding-left:18px;list-style:disc}
   /* Arbetsgivarlistan. Samma radform som kompetenslistorna, med plats för bransch och en
@@ -6045,7 +6047,12 @@ section.results .vcmp .rapport-matrix-wrap{
 <div id="railRow">
   <aside id="navRail" aria-label="Vynavigering">
     <div class="viewnav-wrap" id="viewnavWrap">
-    <nav class="viewnav" id="viewnav" role="tablist" aria-label="Analysvyer">
+    <!-- Klassen indicator-ready styr hur den valda vyknappen ritas. Skriptet satte den
+             först när navmarkören mätts in, alltid efter första målningen, och knappen hann
+             därför visas i ett annat utseende en kort stund vid inladdning. Klassen står
+             nu i markupen, så första målningen är densamma som den slutliga. Markörens
+             läge sätts av skriptet som förut och är noll bred tills det mätt in den. -->
+        <nav class="viewnav indicator-ready" id="viewnav" role="tablist" aria-label="Analysvyer">
     <span class="viewnav-indicator" aria-hidden="true"></span>
 
     <div class="viewnav-group" role="presentation">Välj perspektiv</div>
@@ -6948,7 +6955,7 @@ section.results .vcmp .rapport-matrix-wrap{
         </div>
         <div class="r-fig">
           <p class="r-fig-title">Närliggande yrken</p>
-          <p class="r-fig-sub" data-amn="Yrken som kr\u00e4ver liknande kompetenser som {S}, enligt Arbetsf\u00f6rmedlingens datam\u00e4ngd N\u00e4rliggande yrken. Avser riket.">Yrken som kr\u00e4ver liknande kompetenser enligt Arbetsf\u00f6rmedlingens datam\u00e4ngd N\u00e4rliggande yrken. Avser riket.</p>
+          <p class="r-fig-sub" data-amn="Yrken som kräver liknande kompetenser som {S}, enligt Arbetsförmedlingens datamängd Närliggande yrken. Avser riket.">Yrken som kräver liknande kompetenser enligt Arbetsförmedlingens datamängd Närliggande yrken. Avser riket.</p>
           <div id="narlListY"></div>
           <p class="r-src" id="srcYNarl"></p>
         </div>
@@ -7588,7 +7595,7 @@ section.results .vcmp .rapport-matrix-wrap{
       <h3 class="r-sec">Utbildning och vägar in</h3>
       <div class="r-fig" style="margin-top:18px">
         <p class="r-fig-title">Vanliga vägar in</p>
-        <p class="r-fig-sub" data-amn="Utbildningsbakgrund bland dem som arbetar i de yrken där {S} oftast efterfrågas, räknat på förvärvsarbetande år 2023. Utbildningsgrupperna vägs efter hur stor andel av yrket de utgör och efter hur ofta kompetensen efterfrågas i yrket. Fördelningen är inget behörighetskrav. Uppgifterna avser riket, även när ett län är valt.">Utbildningsbakgrund bland dem som arbetar i de yrken där kompetensen oftast efterfrågas, räknat på förvärvsarbetande år 2023. Utbildningsgrupperna vägs efter hur stor andel av yrket de utgör och efter hur ofta kompetensen efterfrågas i yrket. Fördelningen är inget behörighetskrav. Uppgifterna avser riket, även när ett län är valt.</p>
+        <p class="r-fig-sub" data-amn="Utbildningsbakgrund bland dem som arbetar i de yrken där {S} oftast efterfrågas, räknat på förvärvsarbetande år 2023. Yrkesgrupperna är rangordnade efter antalet jobbannonser där kompetensen nämns, och utbildningsgrupper som är vanliga i yrkesgrupperna högst upp hamnar högst i listan. Uppgifterna avser riket, även när ett län är valt.">Utbildningsbakgrund bland dem som arbetar i de yrken där kompetensen oftast efterfrågas, räknat på förvärvsarbetande år 2023. Yrkesgrupperna är rangordnade efter antalet jobbannonser där kompetensen nämns, och utbildningsgrupper som är vanliga i yrkesgrupperna högst upp hamnar högst i listan. Uppgifterna avser riket, även när ett län är valt.</p>
         <div class="brist-list" id="eduListK"></div>
         <p class="r-src" id="srcKEdu"></p>
       </div>
@@ -7631,7 +7638,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <p>Ersättningsbehovet från åldersavgångar är antalet anställda som är 60 till 64 år och därmed väntas gå i pension inom fem år. Beräkningen antar pension vid 65 år. Yrkesgrupper och branscher rangordnas efter detta antal.</p>
         <p>Näringslivets bredd mäts som de tre respektive fem största näringsgrenarnas andel av de sysselsatta. En hög andel betyder att sysselsättningen är koncentrerad till få näringsgrenar.</p>
         <p>Matchad förvärvsgrad är andelen av alla med en viss utbildning som arbetar i ett yrke som helt motsvarar utbildningen. Den vanliga förvärvsgraden räknar även dem vars yrke delvis motsvarar utbildningen eller avviker från den. Lönespannet visar lönernas spridning inom ett yrke. Linjen går från den lön som en tiondel tjänar mindre än till den lön som en tiondel tjänar mer än. Den tjockare delen visar den mittersta hälften av lönerna, och punkten är medianen. Lönerna är månadslöner omräknade till heltid.</p>
-        <p>Kvalifikationsnivån följer SSYK 2012, där yrkesområdets första siffra anger vilken utbildningsnivå yrket normalt förutsätter. Måttet beskriver yrkenas krav.</p>
+        <p>Kvalifikationsnivån följer SSYK 2012, där yrkesområdets första siffra anger vilken utbildningsnivå yrket normalt förutsätter. Måttet beskriver yrkenas krav. Branschindelningen följer SNI 2007, den version som SCB:s statistik använder för de år som redovisas. SNI 2025 gäller för statistik från och med 2026 och flyttar bland annat telekommunikation och it från avdelning J till K.</p>
         <p>Kompetensvyn utgår från en nationell lista över kompetenser och förmågor. Kompetenser är sakkunskaper och verktyg. Förmågor är personliga egenskaper som efterfrågas i annonsen. Underlaget omfattar alla kompetenser och förmågor som förekommer i minst 30 annonser från och med 2020, drygt 21 000. Knappt 1 200 av dem går att välja i menyn. Urvalet av valbara kompetenser bygger på det senaste hela året, och de står tillsammans för tre fjärdedelar av alla omnämnanden. Samförekomster och yrkeskopplingar beräknas på hela underlaget.</p>
         <p>Vyn har tre lägen. Enskild kompetens visar en kompetens i taget. Jämför ställer flera kompetenser bredvid varandra. Kombinera visar den samlade efterfrågan på de valda kompetenserna, det vill säga de annonser där minst en av dem nämns. Varje annons räknas en gång, och överlappet mellan kompetenserna redovisas separat. Kombinationen beräknas för hela riket. Underlaget för kombinationer läses in när läget öppnas.</p>
         <p>Branschuppgifterna i kompetensvyn beräknas i två steg. Varje yrkes fördelning över näringsgrenar viktas med antalet annonser för yrket, och de största näringsgrenarna behålls. En branschs annonsvolym skattas på samma sätt: yrkenas annonser fördelas enligt respektive yrkes branschfördelning i riket, och fördelningen antas vara densamma i alla län. Talet är en skattning och anger en storleksordning. I varselfiguren är kvoten annonser per varslad det centrala måttet. Ett högt värde betyder att branschen annonserar många tjänster samtidigt som den varslar, ett lågt värde att den varslar utan att annonsera i motsvarande grad.</p>
@@ -10009,7 +10016,13 @@ const $=s=>document.querySelector(s);
 
 const nf=new Intl.NumberFormat("sv-SE");
 const fmt1=v=>(v==null||isNaN(v))?"–":v.toLocaleString("sv-SE",{minimumFractionDigits:1,maximumFractionDigits:1});
-const fmt2=v=>(v==null||isNaN(v))?"–":v.toLocaleString("sv-SE",{minimumFractionDigits:2,maximumFractionDigits:2});
+/* Andra decimalen b\u00e4r ingen information n\u00e4r den \u00e4r noll, s\u00e5 den tas bort: 0,20 skrivs
+   0,2 och 1,00 skrivs 1,0. \u00c4r andra decimalen n\u00e5got annat st\u00e5r talet kvar som det \u00e4r.
+   Regeln ligger i formateraren och g\u00e4ller d\u00e4rf\u00f6r \u00f6verallt d\u00e4r tv\u00e5 decimaler skrivs ut:
+   axlar, rutan vid muspekaren, listor, tabeller och analystexter. */
+const axTrim=s=>String(s).replace(/(,\d)0(?!\d)/,"$1");
+const fmt2=v=>(v==null||isNaN(v))?"–":axTrim(v.toLocaleString("sv-SE",{minimumFractionDigits:2,maximumFractionDigits:2}));
+window.__axTrim=axTrim;
 function capFirst(s){ s=(s==null)?"":String(s); return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
 /* ===== Numerus i genererad text ======================================================
    Analystexterna sätter ihop meningar av tal och substantiv. Skrivs substantivet alltid
@@ -16952,7 +16965,7 @@ function exportCsvYrke(){
 
 /* ===== Branschvyn ===== */
 const SNI_PATH="/START/AM/AM0210/AM0210F/ArRegArbStDoN";   /* BAS: sysselsatta efter region, näringsgren SNI 2007, kön */
-const BRANSCH_NAMN={ "Q": { "namn": "Vård och omsorg, sociala tjänster", "tok": "vård och omsorg" }, "M+N": { "namn": "Företagstjänster", "tok": "företagstjänster" }, "G": { "namn": "Handel", "tok": "handel" }, "B+C": { "namn": "Tillverkning, utvinning", "tok": "tillverkning" }, "P": { "namn": "Utbildning", "tok": "utbildning" }, "F": { "namn": "Byggverksamhet", "tok": "byggverksamhet" }, "O": { "namn": "Offentlig förvaltning och försvar", "tok": "offentlig förvaltning" }, "H": { "namn": "Transport och magasinering", "tok": "transport och magasin" }, "R+S+T+U": { "namn": "Kulturella och personliga tjänster", "tok": "kultur" }, "I": { "namn": "Hotell- och restaurangverksamhet", "tok": "hotell" }, "J": { "namn": "Information och kommunikation", "tok": "information och kommunikation" }, "K": { "namn": "Finans- och försäkringsverksamhet", "tok": "finans" }, "L": { "namn": "Fastighetsverksamhet", "tok": "fastighet" }, "A": { "namn": "Jordbruk, skogsbruk, jakt och fiske", "tok": "jordbruk" }, "D+E": { "namn": "Energiförsörjning, miljöverksamhet", "tok": "energi" } };
+const BRANSCH_NAMN={ "Q": { "namn": "Vård och omsorg; sociala tjänster", "tok": "vård och omsorg" }, "M+N": { "namn": "Företagstjänster", "tok": "företagstjänster" }, "G": { "namn": "Handel", "tok": "handel" }, "B+C": { "namn": "Tillverkning och utvinning av mineral", "tok": "tillverkning" }, "P": { "namn": "Utbildning", "tok": "utbildning" }, "F": { "namn": "Byggverksamhet", "tok": "byggverksamhet" }, "O": { "namn": "Offentlig förvaltning och försvar", "tok": "offentlig förvaltning" }, "H": { "namn": "Transport och magasinering", "tok": "transport och magasin" }, "R+S+T+U": { "namn": "Kulturella och personliga tjänster", "tok": "kultur" }, "I": { "namn": "Hotell- och restaurangverksamhet", "tok": "hotell" }, "J": { "namn": "Information och kommunikation", "tok": "information och kommunikation" }, "K": { "namn": "Finans- och försäkringsverksamhet", "tok": "finans" }, "L": { "namn": "Fastighetsverksamhet", "tok": "fastighet" }, "A": { "namn": "Jordbruk, skogsbruk och fiske", "tok": "jordbruk" }, "D+E": { "namn": "Energi- och vattenförsörjning, avfallshantering", "tok": "energi" } };
 
 let branschState={code:null,region:"",regionVald:false,saknasData:false,loaded:false,data:null,niva:"avdelning",baseList:null}; window.branschState=branschState;
 /* ===== Aggregeringsnivåer (SSYK för yrke, SNI för bransch, geografi för region) ===== */
@@ -17581,6 +17594,19 @@ async function initBransch(){
        branschState.code=null; }
   catch(err){ list=Object.keys(BRANSCH_NAMN).map(c=>({code:c,name:BRANSCH_NAMN[c].namn})); branschState.code=null; }
   list=(list||[]).filter(o=>!/^total(t)?$/i.test(String((o&&(o.name||o.namn))||"").trim()));
+  /* Namnen i menyn kom fr\u00e5n SCB:s API och f\u00f6ljde tabellens egen etikettupps\u00e4ttning:
+     Byggindustri f\u00f6r avdelning F, Tillverkningsindustri; gruvor och mineralutvinnings-
+     industri f\u00f6r B+C. Knappen och rubrikerna anv\u00e4nder verktygets lista, som f\u00f6ljer
+     SNI 2007: Byggverksamhet respektive Tillverkning, utvinning. Menyn visade d\u00e4rf\u00f6r
+     ett annat namn \u00e4n knappen f\u00f6r samma bransch. Namnet h\u00e4mtas nu ur samma lista som
+     resten av vyn n\u00e4r koden finns d\u00e4r; \u00f6vriga beh\u00e5ller API:ets etikett. */
+  /* Kontrollen m\u00e5ste se API:ets egna etiketter, s\u00e5 den k\u00f6rs f\u00f6re \u00f6verskrivningen.
+     Etiketten sparas dessutom p\u00e5 posten, f\u00f6r det fall listan kontrolleras igen. */
+  try{ if(window.__sniVersionsKoll)window.__sniVersionsKoll(list); }catch(e){}
+  list=(list||[]).map(function(o){
+    var b=o&&BRANSCH_NAMN[o.code];
+    return b?{code:o.code,name:b.namn,apiNamn:o.name}:o;
+  });
   if(window.__pendingBransch){ branschState.code=window.__pendingBransch; window.__pendingBransch=null; }
   const cur=list.find(o=>o.code===branschState.code)||list[0];
   document.getElementById("ddBranschText").textContent=branschState.code?branschName(branschState.code):"V\u00e4lj";
@@ -22663,7 +22689,9 @@ window.__KOMMUN_MAP={
      numera bär sina ändpunkter som rgb direkt, se rdHeatColor nedan. */
   
   function rdHeatColor(t){ t=Math.max(0,Math.min(1,t||0)); var lo={r:234,g:243,b:242}, hi={r:44,g:98,b:118}; return "rgb("+Math.round(lo.r+(hi.r-lo.r)*t)+","+Math.round(lo.g+(hi.g-lo.g)*t)+","+Math.round(lo.b+(hi.b-lo.b)*t)+")"; }
-  function rdF2(v){ return (v==null||isNaN(v))?"–":(Math.round(v*100)/100).toLocaleString("sv-SE",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function rdF2(v){ if(v==null||isNaN(v))return "\u2013";
+    var _s=(Math.round(v*100)/100).toLocaleString("sv-SE",{minimumFractionDigits:2,maximumFractionDigits:2});
+    return (window.__axTrim?window.__axTrim(_s):_s); }
   window.rdHeatColor=rdHeatColor;
 
   
@@ -23106,8 +23134,8 @@ window.__KOMMUN_MAP={
     var headline="";
     /* Inledningen stod ensam som ett eget block f\u00f6re f\u00f6rsta rubriken, vilket gav en
        kort sida med bara n\u00e5gra rader innan avsnittet b\u00f6rjade. I rapporten inleder den
-       nu dokumentet, och i kompetensvyn \u00e4r den f\u00f6rsta meningen i analystexten under
-       rubriken Omfattning och utveckling. */
+       nu dokumentet, och i kompetensvyn \u00e4r den f\u00f6rsta meningen i analystexten \u00f6ver
+       trendfiguren. */
     var __ingress=(vy?"Jämförelsen omfattar ":"Den här rapporten jämför ")+rdNamnLista(dim,names)+" med avseende på "+RD_ASPECTS[dim]+"."+headline;
     // jämförelsetabell
     var refRows=[];
@@ -23161,11 +23189,10 @@ window.__KOMMUN_MAP={
       /* Meningen sa att nivån inte är jämförbar mellan kurvorna. Kurvorna ritas i samma
          skala, så nivåerna är just det som går att jämföra. Påståendet är rättat. */
       /* Ingressen stod som en egen text h\u00f6gst upp i vyn och upprepade i praktiken vad
-       avsnittet handlar om. Den \u00e4r nu f\u00f6rsta meningen i analystexten, under en egen
-       rubrik, s\u00e5 att stycket g\u00e5r att l\u00e4sa fristående. I rapporten st\u00e5r ingressen kvar
-       f\u00f6rst, d\u00e4r den inleder hela dokumentet. */
+       avsnittet handlar om. Den \u00e4r nu f\u00f6rsta meningen i analystexten, s\u00e5 att stycket
+       g\u00e5r att l\u00e4sa frist\u00e5ende. I rapporten st\u00e5r ingressen kvar f\u00f6rst, d\u00e4r den
+       inleder hela dokumentet. */
     if(!__brVy){
-      if(vy&&dim==="kompetens")blocks.push(["h2","Omfattning och utveckling"]);
       blocks.push(["p",((vy&&dim==="kompetens")?(__ingress+" "):"")
         +"Figuren visar utvecklingen f\u00f6r "+rdValda(dim)+" \u00f6ver perioden. Kurvorna \u00e4r ritade i samma skala, s\u00e5 b\u00e5de niv\u00e5erna och f\u00f6r\u00e4ndringarna g\u00e5r att j\u00e4mf\u00f6ra mellan dem."]);
     }
@@ -23209,7 +23236,7 @@ window.__KOMMUN_MAP={
       /* Rubriken heter olika i vyn och i rapporten. I vyn hamnar den \u00f6ver profilfigurerna,
          som byggs av kombinationsunderlaget och bara finns d\u00e4r. I rapporten st\u00e5r den \u00f6ver
          nyckeltalstabellen, som saknar egen rubrik. */
-      __tolkV.push(["h2", vy?"Yrkes- och l\u00e4nsprofiler":"\u00d6versikt"]);
+      if(!vy)__tolkV.push(["h2","\u00d6versikt"]);
       /* Läns- och kommunjämförelsen gick igenom varje nyckeltal för sig i löpande text, med
          en mening per mått och en sammanfattande dom per område. Med nio mått och flera valda
          områden blev det en vägg av siffror som upprepade tabellen strax under. Ingressen
@@ -28185,7 +28212,7 @@ window.utbListFor = function(niva){
        dagbefolkning avgör om ett tal handlar om var man bor eller var man arbetar, och
        helårsstudent är inte samma sak som en student. */
     "sni":{ rubrik:"SNI, näringsgrensindelning",
-      text:"Svensk näringsgrensindelning, SCB:s indelning av arbetsställen efter vad de producerar, till exempel bygg, vård eller handel. Indelningen avgör vilken bransch ett arbetsställe räknas till." },
+      text:"Svensk n\u00e4ringsgrensindelning, SCB:s indelning av arbetsst\u00e4llen efter vad de producerar, till exempel bygg, v\u00e5rd eller handel. Indelningen avg\u00f6r vilken bransch ett arbetsst\u00e4lle r\u00e4knas till. Branscherna i verktyget f\u00f6ljer SNI 2007, den version som SCB:s statistik anv\u00e4nder f\u00f6r de \u00e5r som redovisas. SNI 2025 g\u00e4ller f\u00f6r statistik fr\u00e5n och med 2026." },
     "ssyk":{ rubrik:"SSYK, yrkesklassificering",
       text:"Standard för svensk yrkesklassificering, SCB:s indelning av yrken efter arbetsuppgifternas innehåll och krav. Indelningen avgör vilken yrkesgrupp ett arbete räknas till och används i den officiella statistiken." },
     "dagbefolkning":{ rubrik:"Dagbefolkning och nattbefolkning",
@@ -32087,19 +32114,31 @@ function _gruppText(c, matt){
        egen k\u00e4llrad, s\u00e5 att den st\u00e4mmer med det som faktiskt visas. */
     var _kalla=(function(){ try{ var e=c.fig&&c.fig.querySelector(".r-src"); return e?(e.textContent||""):""; }catch(e){ return ""; } })();
     var _reg=/Regionala trender/.test(_kalla);
-    var _underlag=_komp
-      ? (_reg
-        ? ("Underlaget v\u00e4ger samman tv\u00e5 k\u00e4llor. Vilka yrken som efterfr\u00e5gar "+c.subj.no+" l\u00e4ses ur jobbannonserna med JobAd Enrichments, och utbildningsf\u00f6rdelningen inom dessa yrken kommer fr\u00e5n SCB:s Regionala trender och prognoser, som avser f\u00f6rv\u00e4rvsarbetande 2023. ")
-        : ("Underlaget kommer fr\u00e5n Arbetsf\u00f6rmedlingens tj\u00e4nst JobEd Connect och listar vanliga utbildningsv\u00e4gar in, utan andelar. "))
-      : (_reg
-        ? "Underlaget kommer fr\u00e5n SCB:s Regionala trender och prognoser och visar vilken utbildning de f\u00f6rv\u00e4rvsarbetande hade 2023, f\u00f6rdelad p\u00e5 utbildningsgrupper. "
-        : "Underlaget \u00e4r en sammanst\u00e4llning fr\u00e5n Arbetsf\u00f6rmedlingen och SCB \u00f6ver vanliga utbildningsv\u00e4gar in. ");
-    var _vem=_komp
-      ? ((_harTal?"Andelarna":"Rangordningen")+" r\u00e4knas p\u00e5 dem som arbetar i de yrken d\u00e4r "+c.subj.no+" oftast efterfr\u00e5gas, d\u00e4r varje yrke v\u00e4ger tyngre ju st\u00f6rre det \u00e4r och ju oftare kompetensen n\u00e4mns i dess annonser. F\u00f6rdelningen \u00e4r allts\u00e5 h\u00e4rledd via yrkena och blir grovare ju bredare kompetensen \u00e4r spridd \u00f6ver arbetsmarknaden. ")
-      : ((_harTal?"Andelarna":"Rangordningen")+" r\u00e4knas p\u00e5 dem som redan arbetar i "+c.subj.no+", allts\u00e5 p\u00e5 best\u00e5ndet och inte p\u00e5 dem som nyanst\u00e4llts. ");
-    var _tolk=_komp
-      ? ((_harTal?"Siffrorna":"Listan")+" beskriver hur de som arbetar i dessa yrken i dag \u00e4r utbildade. Den s\u00e4ger inte att utbildningen l\u00e4r ut kompetensen, och \u00e4r inget beh\u00f6righetskrav. Uppgifterna avser riket, \u00e4ven n\u00e4r ett l\u00e4n \u00e4r valt. ")
-      : "Siffrorna beskriver hur de som arbetar d\u00e4r i dag faktiskt \u00e4r utbildade och \u00e4r inget beh\u00f6righetskrav: en utbildning som saknas i listan kan \u00e4nd\u00e5 ge tilltr\u00e4de, och en vanlig utbildning \u00e4r inte n\u00f6dv\u00e4ndigtvis den snabbaste v\u00e4gen in. Uppgifterna avser riket, \u00e4ven n\u00e4r ett l\u00e4n \u00e4r valt. ";
+      /* Texten inleds med vad figuren visar, beskriver sedan hur listan tas fram och
+         slutar med vad som st\u00e5r h\u00f6gst upp. Kompetensvyns lista \u00e4r h\u00e4rledd i tv\u00e5 steg:
+         yrkesgrupperna rangordnas efter antalet annonser d\u00e4r kompetensen n\u00e4mns, och varje
+         yrkesgrupps utbildningsf\u00f6rdelning viktas med sin plats i rangordningen. Det \u00e4r
+         arbetsgivare som efterfr\u00e5gar kompetenser, i sina annonser; yrken g\u00f6r det inte. */
+      var _underlag=_komp
+        ? (_reg
+            ? ("Figuren visar utbildningsbakgrunden hos dem som arbetar i de yrkesgrupper d\u00e4r arbetsgivare oftast efterfr\u00e5gar "+c.subj.no+". "
+              +"Listan tas fram i tv\u00e5 steg. F\u00f6rst rangordnas yrkesgrupperna efter antalet jobbannonser d\u00e4r kompetensen n\u00e4mns. "
+              +"Sedan h\u00e4mtas utbildningsf\u00f6rdelningen bland de f\u00f6rv\u00e4rvsarbetande i dessa yrkesgrupper fr\u00e5n SCB:s Regionala trender och prognoser, som avser \u00e5r 2023. ")
+            : ("Figuren visar vanliga utbildningsv\u00e4gar till de yrkesgrupper d\u00e4r arbetsgivare oftast efterfr\u00e5gar "+c.subj.no+" i sina jobbannonser. "
+              +"Uppgifterna kommer fr\u00e5n Arbetsf\u00f6rmedlingens tj\u00e4nst JobEd Connect och listas utan andelar. "))
+        : (_reg
+            ? ("Figuren visar utbildningsbakgrunden hos dem som arbetar i "+c.subj.no+". "
+              +"Uppgifterna kommer fr\u00e5n SCB:s Regionala trender och prognoser och avser f\u00f6rv\u00e4rvsarbetande \u00e5r 2023, f\u00f6rdelade p\u00e5 utbildningsgrupper. ")
+            : ("Figuren visar vanliga utbildningsv\u00e4gar in i "+c.subj.no+". "
+              +"Uppgifterna \u00e4r en sammanst\u00e4llning fr\u00e5n Arbetsf\u00f6rmedlingen och SCB. "));
+      var _vem=_komp
+        ? (_reg
+            ? "Utbildningsgrupper som \u00e4r vanliga i de yrkesgrupper som st\u00e5r h\u00f6gst i rangordningen hamnar h\u00f6gst i listan. "
+            : "")
+        : ((_harTal?"Andelarna":"Rangordningen")+" r\u00e4knas p\u00e5 alla som arbetar i yrket, oavsett n\u00e4r de anst\u00e4lldes. ");
+      var _tolk=_komp
+        ? "Uppgifterna avser riket, \u00e4ven n\u00e4r ett l\u00e4n \u00e4r valt. "
+        : "Uppgifterna avser riket, \u00e4ven n\u00e4r ett l\u00e4n \u00e4r valt. ";
     /* Utan tal namnges gruppernas ordning i st\u00e4llet, s\u00e5 att stycket slutar med n\u00e5got
        som st\u00e5r i figuren och inte bara med metod. */
     var _slut=_harTal
@@ -32127,7 +32166,9 @@ function _gruppText(c, matt){
         }
       }
     }catch(e){}
-    return {rubrik:"Utbildningsbakgrund och n\u00e4rliggande yrken",
+    /* Rubriken n\u00e4mner n\u00e4rliggande yrken bara n\u00e4r det stycket finns. I kompetensvyn
+       saknas figuren, och rubriken sade \u00e4nd\u00e5 att den beskrevs. */
+    return {rubrik:(_st.length>1)?"Utbildningsbakgrund och n\u00e4rliggande yrken":"Utbildningsbakgrund",
       stycken:_st};
   };
   /* Yrkesvyns motsvarighet till branschens sysselsättningsserie saknade prosa helt, i alla
@@ -36603,6 +36644,85 @@ try{ window.__ritaGymSok=window.__ritaGymSok; }catch(e){ __fel("okänd", e); }
 })();
 </script>
 <script>
+/* ===== Kontroll av näringsgrensversion =================================================
+   Branschvyns koder är SNI 2007:s avdelningar, och verktygets namn hör till den versionen.
+   SCB:s statistik övergår till SNI 2025, som använder samma bokstäver för andra
+   avdelningar: telekommunikation och it flyttar från J till K, finans från K till L,
+   utbildning från P till Q och vård och omsorg från Q till R. Byter tabellen version
+   levererar API:et alltså samma koder med nytt innehåll, medan verktyget fortsätter
+   sätta SNI 2007:s namn på dem. Bytet skulle passera obemärkt.
+
+   Kontrollen jämför API:ets etikett med ord som ska finnas i den under SNI 2007. Slår
+   flera koder fel samtidigt är det versionen som ändrats, inte en omformulering.       */
+(function(){
+  /* Ord som ska förekomma i etiketten under SNI 2007. Ett räcker, eftersom SCB skriver
+     samma avdelning olika i olika tabeller: Byggindustri i den ena, Byggverksamhet i
+     den andra. Orden är valda så att de saknas i SNI 2025:s avdelning med samma kod. */
+  var VANTAT={
+    "A":["jordbruk","skogsbruk","fiske"],
+    "B+C":["tillverkning","gruv","mineral","industri"],
+    "D+E":["energi","el","vatten","avfall","miljö"],
+    "F":["bygg"],
+    "G":["handel"],
+    "H":["transport","magasin"],
+    "I":["hotell","restaurang"],
+    "J":["information","kommunikation"],
+    "K":["finans","kredit","försäkring","bank"],
+    "L":["fastighet"],
+    "M+N":["juridik","ekonomi","vetenskap","teknik","företagstjänst","uthyrning"],
+    "O":["offentlig","myndighet","försvar"],
+    "P":["utbildning","skol"],
+    "Q":["vård","omsorg","hälso"],
+    "R+S+T+U":["kultur","personlig","service","nöje","fritid"]
+  };
+  /* En enstaka avvikelse kan vara en omdöpt etikett i tabellen. Tre samtidigt är ett
+     versionsbyte: SNI 2025 flyttar innehållet i tio av femton koder. */
+  var GRANS=3;
+
+  window.__sniVersionsKoll=function(list){
+    try{
+      if(!list||!list.length)return null;
+      var fel=[];
+      list.forEach(function(o){
+        if(!o||!o.code)return;
+        var ord=VANTAT[o.code]; if(!ord)return;
+        var etikett=String(o.apiNamn||o.name||"").toLowerCase();
+        if(!etikett)return;
+        var trafft=ord.some(function(w){ return etikett.indexOf(w)>=0; });
+        if(!trafft)fel.push({kod:o.code, etikett:(o.apiNamn||o.name)});
+      });
+      var avvik=(fel.length>=GRANS)?fel:null;
+      window.__sniAvvikelse=avvik;
+      if(avvik){
+        try{
+          console.warn("Arbetsmarknadsnavet: n\u00e4ringsgrensetiketterna fr\u00e5n SCB st\u00e4mmer inte med SNI 2007. "
+            +"Sannolikt har tabellen g\u00e5tt \u00f6ver till SNI 2025, som anv\u00e4nder samma bokst\u00e4ver f\u00f6r andra avdelningar. "
+            +"Branschnamnen i verktyget beh\u00f6ver d\u00e5 bytas.", avvik);
+        }catch(e){}
+        if(window.__sniNotisRita)window.__sniNotisRita();
+      }
+      return avvik;
+    }catch(e){ return null; }
+  };
+
+  /* Notisen hör hemma i versionslistan under Om verktyget, där underlagens datum står.
+     Den skrivs bara när kontrollen slagit larm, och bara en gång. */
+  window.__sniNotisRita=function(){
+    try{
+      if(!window.__sniAvvikelse)return;
+      var ul=document.getElementById("dataVersioner");
+      if(!ul||document.getElementById("sniVersionsNotis"))return;
+      var li=document.createElement("li");
+      li.id="sniVersionsNotis";
+      li.textContent="N\u00e4ringsgrensindelning \u2013 etiketterna fr\u00e5n SCB st\u00e4mmer inte med SNI 2007 f\u00f6r "
+        + window.__sniAvvikelse.map(function(f){ return f.kod; }).join(", ")
+        + ". Branschnamnen i verktyget beh\u00f6ver ses \u00f6ver.";
+      ul.appendChild(li);
+    }catch(e){}
+  };
+})();
+</script>
+<script>
 /* ===== Datumstämpling =====
    Verktyget har ingen enda hämtningstidpunkt. Några underlag är inbakade och
    dateras när pipelinen körs, andra är publikationer med egen utgåva, och SCB
@@ -36688,7 +36808,10 @@ var UNDERLAG = [
       ul.appendChild(li);
     });
   }
-  function start(){ skrivSidfot(); skrivLista(); }
+  /* Kontrollen av n\u00e4ringsgrensversionen kan sl\u00e5 larm f\u00f6re eller efter att listan skrivits,
+     beroende p\u00e5 n\u00e4r branschvyn h\u00e4mtar sin lista. Notisen ritas d\u00e4rf\u00f6r ocks\u00e5 h\u00e4r; funktionen
+     skriver bara n\u00e4r larmet finns och notisen saknas. */
+  function start(){ skrivSidfot(); skrivLista(); if(window.__sniNotisRita)window.__sniNotisRita(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 })();
