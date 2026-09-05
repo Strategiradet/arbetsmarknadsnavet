@@ -10775,6 +10775,9 @@ function svNeighbors(focus,k,mode){
   arr.sort(function(a,b){return b.strength-a.strength;});
   return {nA:nA,items:arr.slice(0,k)};
 }
+  /* Grannber\u00e4kningen exponeras: sammanfattningskortet ska rangordna likadant som figuren
+     N\u00e4rmaste kompetenser, och tv\u00e5 kopior av samma matematik glider is\u00e4r. */
+  window.__svNeighbors=svNeighbors;
 function svTipText(it,focus){
   /* Samma riktningsproblem som i listan: andelarna gick inte att l\u00e4sa utan att veta
      vilken kompetens de r\u00e4knades p\u00e5. Rutan s\u00e4ger nu samma sak som listans rader. */
@@ -38864,9 +38867,30 @@ try{ window._sumOm=_sumOm; }catch(e){}
           (_sort&&_sort[0])?_sort[0].name:null));
       }
     }catch(e){}
-    var _nara3=tre(d.related);
-    if(_nara3) ut.push(p("De kompetenser som oftast efterfrågas tillsammans med den här är "+_nara3+".",
-      "Kompetenser som samvarierar","Oftast tillsammans med", forst(d.related)));
+    /* Kortet r\u00e4knade tidigare upp de kompetenser som f\u00f6rekommer i flest gemensamma
+       annonser. Den rangordningen lyfter fram de vanligaste kompetenserna \u2014 K\u00f6rkort,
+       Ekonomi, Office \u2014 n\u00e4stan oavsett vilken kompetens som \u00e4r vald. Figuren N\u00e4rmaste
+       kompetenser rangordnar efter Jaccard-index, som v\u00e4ger de gemensamma annonserna mot
+       hur vanliga kompetenserna \u00e4r var f\u00f6r sig. Kortet f\u00f6ljer nu figuren. Saknas
+       samvariationsdatan, som h\u00e4mtas i bakgrunden, anv\u00e4nds den tidigare listan. */
+    var _naraLista=(function(){
+      try{
+        var _namn=d.name||d.code;
+        if(window.__svNeighbors&&window.SAMVAR&&_namn){
+          var _skip=window.KOMP_SKIP||{};
+          var _info=window.__svNeighbors(_namn,8,"jacc");
+          if(_info&&_info.items&&_info.items.length){
+            var _ut=_info.items.filter(function(it){ return it.name&&!_skip[it.name]; })
+                              .slice(0,3).map(function(it){ return it.name; });
+            if(_ut.length)return _ut;
+          }
+        }
+      }catch(e){}
+      return d.related;
+    })();
+    var _nara3=tre(_naraLista);
+    if(_nara3) ut.push(p("De kompetenser som ligger n\u00e4rmast den h\u00e4r \u00e4r "+_nara3+".",
+      "Kompetenser som samvarierar","Oftast tillsammans med", forst(_naraLista)));
     var _utb3=tre(d.utbildningar);
     if(_utb3) ut.push(p("De vanligaste utbildningsbakgrunderna i kompetensens yrken är "
       +_utb3+".","Vanliga vägar in","Vanligaste utbildningen", forst(d.utbildningar)));
