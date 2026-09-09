@@ -2006,6 +2006,11 @@ main.view>aside .us-stat>.block>/* Rubriken som ligger först i ett block fick f
   .vc-multi .tabledd-opt.selected .rd-box{background:#1a1a1a;border-color:#1a1a1a}
   .vc-multi .tabledd-opt.selected .rd-box::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
   .vc-multi .rd-opt-label{flex:1;min-width:0}
+/* Rubrik ovanför exempelraderna i kompetensväljaren. Den säger vad raderna är, så att de
+   inte läses som en topplista eller som ett urval att bocka av. */
+.kompex-rubrik{font:600 var(--ts-mikro)/1.5 var(--font-ui);letter-spacing:.03em;
+  text-transform:uppercase;color:var(--muted,#7c93a0);padding:9px 12px 3px}
+.tabledd-opt.tabledd-exempel .rd-box{visibility:hidden}
   .vcmp{margin-top:2px}
   .kreg-list{display:flex;flex-direction:column;gap:11px;margin-top:4px}
   .kreg-row:hover .kreg-name{color:var(--accent)}
@@ -27520,14 +27525,72 @@ window.__kompTotals=function(){ if(window.__kompTotCache&&Object.keys(window.__k
       utbildningar:(rich&&rich.utbildningar&&rich.utbildningar.length)?rich.utbildningar.slice():((typeof deriveKompUtbildningar==="function")?deriveKompUtbildningar(occ.top):null),
       regioner:_regioner,saknasData:false,region:_region,regionName:_regionName};
   };
-  window.__renderKompOpts=function(q){
+  /* Exempel i kompetensväljaren. Rutan visade tidigare de fyrtio vanligaste kompetenserna,
+   men den är en sökruta och inte en topplista: man kommer dit för att slå upp något
+   bestämt. Och toppen av listan är dess sämsta ansikte — Körkort, Arbetslivserfarenhet,
+   Barn, Datorvana — alltså just de ord som säger minst om vad verktyget kan.
+
+   I stället visas tre exempel ur tre olika sektorer, ett ur varje, och urvalet lottas om
+   vid varje öppning. Sektorsnamnet står framför ordet, för det är den delen som gör
+   pedagogiken: tre lösryckta ord säger inget om bredden, men "Vård · Palliativ vård"
+   bredvid "Industri och bygg · Ställverk" gör det.
+
+   Samtliga ord är prövade mot den valbara listan. Ändras KOMPETENS_GOLV eller
+   __KOMP_VALBARA kan ett ord falla ur; renderaren hoppar då tyst över det. */
+window.__KOMP_EXEMPEL = [
+  ["Teknik och it", ["Artificial Intelligence/Artificiell intelligens/AI","Python, programmeringsspr\u00e5k",
+                     "Machine learning/Maskininl\u00e4rning","Cybers\u00e4kerhet","Design"]],
+  ["Industri och bygg", ["Reglerteknik","Solceller","Armering","St\u00e4llverk","Svetsning","Ventilation"]],
+  ["V\u00e5rd och omsorg", ["Kognitiv beteendeterapi","Palliativ v\u00e5rd","L\u00e4kemedelshantering"]],
+  ["Skola och pedagogik", ["Teckenspr\u00e5k","Specialpedagogik"]],
+  ["Administration och juridik", ["Entreprenadjuridik","Upphandling","Bokf\u00f6ring","Arbetsr\u00e4tt"]],
+  ["Samh\u00e4llsbyggnad och milj\u00f6", ["Geografiskt informationssystem/GIS","H\u00e5llbarhet"]],
+  ["Livsmedel och restaurang", ["Livsmedelshygien","Matlagning"]],
+  ["Kommunikation", ["Sociala medier"]]
+];
+/* Fem grupper lottas, ett ord ur varje. Grupper vars ord alla fallit ur hoppas över.
+   Antalet står här och ingen annanstans; poolen har åtta grupper, så fem går att skilja åt
+   utan att någon grupp behöver bidra med två ord. */
+window.__KOMP_EXEMPEL_ANTAL = 5;
+window.__kompExempel = function(){
+  var pool = window.__KOMP_EXEMPEL || [], alla = window.__kompAll || [];
+  if(!pool.length || !alla.length) return [];
+  var finns = {}; alla.forEach(function(o){ finns[o.code] = true; });
+  var kvar = pool.map(function(g){ return [g[0], g[1].filter(function(n){ return finns[n]; })]; })
+                 .filter(function(g){ return g[1].length; });
+  var ut = [], n = window.__KOMP_EXEMPEL_ANTAL || 5;
+  for(var i=0; i<n && kvar.length; i++){
+    var gi = Math.floor(Math.random()*kvar.length), g = kvar.splice(gi,1)[0];
+    ut.push({ sektor:g[0], code:g[1][Math.floor(Math.random()*g[1].length)] });
+  }
+  return ut;
+};
+window.__renderKompOpts=function(q){
     var c=VC.kompetens, wrap=document.getElementById("kompOptWrap"), note=document.getElementById("kompOptNote"); if(!wrap)return;
     var all=window.__kompAll||[], ql=(q||"").trim().toLowerCase(), sel=c.sel.slice(), tot=window.__kompTotals();
     var matches= ql? all.filter(function(o){return o.name.toLowerCase().indexOf(ql)>=0;}) : all;
     var LIMIT=40;
     var selItems=all.filter(function(o){return sel.indexOf(o.code)>=0;});
+    /* Utan sökning visas exempel i stället för de fyrtio vanligaste, se __KOMP_EXEMPEL.
+       Med sökning, och när något redan är valt, gäller den vanliga listan. */
+    var exempel = (!ql && !sel.length && typeof window.__kompExempel==="function") ? window.__kompExempel() : [];
     var rest=matches.filter(function(o){return sel.indexOf(o.code)<0;}).slice(0,LIMIT);
-    var show=selItems.concat(rest);
+    var show=exempel.length ? [] : selItems.concat(rest);
+    if(exempel.length){
+      /* Sektorsrubrikerna är borttagna. De påstod en tillhörighet som inte stämmer — Design
+         efterfrågas i 131 yrkesgrupper och hör inte till it — och indelningen följde ingen
+         officiell nomenklatur, till skillnad från SSYK och SNI som verktyget använder i
+         övrigt. Grupperingen finns kvar i __KOMP_EXEMPEL, men bara för att sprida urvalet
+         så att tre ord ur samma hörn inte visas samtidigt. En rubrik säger i stället att
+         raderna är exempel, vilket den nedre noten inte gjorde tydligt nog. */
+      wrap.innerHTML='<div class="kompex-rubrik" aria-hidden="true">Exempel p\u00e5 kompetenser</div>'
+        +exempel.map(function(e){
+        return '<div class="tabledd-opt tabledd-exempel" role="option" aria-selected="false" tabindex="0" data-code="'+window.__esc(e.code)+'">'
+          +'<span class="rd-box" aria-hidden="true"></span>'
+          +'<span class="rd-opt-label">'+window.__esc(window.kompBrytNamn?window.kompBrytNamn(e.code):e.code)+'</span>'
+          +'<span class="rd-opt-meta">'+nf.format(tot[e.code]||0)+'</span></div>';
+      }).join("");
+    } else
     wrap.innerHTML=show.map(function(o){ var on=sel.indexOf(o.code)>=0;
       return '<div class="tabledd-opt'+(on?" selected":"")+'" role="option" aria-selected="'+(on?"true":"false")+'" tabindex="0" data-code="'+window.__esc(o.code)+'"><span class="rd-box" aria-hidden="true"></span><span class="rd-opt-label">'+window.__esc(window.kompBrytNamn?window.kompBrytNamn(o.name):o.name)+'</span><span class="rd-opt-meta">'+nf.format(tot[o.code]||0)+'</span></div>';
     }).join("");
@@ -27540,9 +27603,13 @@ window.__kompTotals=function(){ if(window.__kompTotCache&&Object.keys(window.__k
           : (matches.length<=LIMIT ? (matches.length+" tr\u00e4ff"+(matches.length===1?"":"ar")+_pa)
                                    : ("Visar "+LIMIT+" av "+matches.length+" tr\u00e4ffar"+_pa));
       } else {
-        note.textContent = Math.min(all.length,LIMIT)+" av "+all.length+" visas \u2013 s\u00f6k f\u00f6r fler";
+        /* I exempelläget står ingen not. Rubriken ovanför raderna säger vad de är, och
+           antalsuppgiften hörde till topplistan som inte längre visas. */
+        note.textContent = exempel.length ? ""
+          : (Math.min(all.length,LIMIT)+" av "+all.length+" visas \u2013 s\u00f6k f\u00f6r fler");
       }
     }
+    if(note)note.style.display = note.textContent ? "" : "none";
     wrap.querySelectorAll(".tabledd-opt").forEach(function(opt,ix){ opt.id="kompopt-"+ix;
       opt.addEventListener("click",function(e){ e.stopPropagation(); vcToggle("kompetens",opt.dataset.code); window.__renderKompOpts(q); if(window.__kompAfterPick)window.__kompAfterPick(); }); });
   };
