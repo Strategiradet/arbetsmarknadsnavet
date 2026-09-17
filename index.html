@@ -10752,6 +10752,9 @@ async function loadKommunData(){
                       window.__agUtanBemanning&&window.__agUtanBemanning());
       if(window.__agText)window.__agText(nyckel,"agTextKom","i kommunen");
     };
+    /* Registrera i stället för att skriva över: se __agRitaOmLista. */
+    (function(f){ var L=(window.__agRitaOmLista=window.__agRitaOmLista||[]);
+      if(L.indexOf(f)<0)L.push(f); })(window.__agRitaOm);
     window.__agRitaOm();
   });
   kor("företagande",function(){
@@ -11471,6 +11474,9 @@ async function loadRegionData(){
                       window.__agUtanBemanning&&window.__agUtanBemanning());
       if(window.__agText)window.__agText(nyckel,"agTextLan","i l\u00e4net");
     };
+    /* Registrera i stället för att skriva över: se __agRitaOmLista. */
+    (function(f){ var L=(window.__agRitaOmLista=window.__agRitaOmLista||[]);
+      if(L.indexOf(f)<0)L.push(f); })(window.__agRitaOm);
     window.__agRitaOm();
   });
   kor("arbetsställen",window.renderRegionAe);
@@ -12200,7 +12206,7 @@ function renderKompKval(){
                     /* Etiketterna skrevs p\u00e5 en rad. Fördjupad högskolekompetens \u00e4r 27 tecken och fick
          inte plats i etikettspalten p\u00e5 smal sk\u00e4rm, d\u00e4r b\u00f6rjan klipptes bort. De radbryts
          nu med samma hj\u00e4lpare som \u00f6vriga v\u00e5gr\u00e4ta diagram. */
-      y:{ticks:{callback:function(v){
+      y:{ticks:{autoSkip:false,callback:function(v){
             var t=this.getLabelForValue(v);
             if(!window.wrapChartLabel||!window.etikettTecken)return t;
             var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;
@@ -12295,7 +12301,7 @@ function renderKompLon(){
                   se etikettTvaRader. Namnen hamnade då på tre rader i en ruta avpassad för två,
                   och den lägre höjden gav ingen vinst. Budgeten räknas fram en gång och används
                   av båda. */
-               y:{ticks:{callback:function(v){var _p=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;
+               y:{ticks:{autoSkip:false,callback:function(v){var _p=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;
                      var _b=(_p&&_p.getAttribute&&parseInt(_p.getAttribute("data-etikettbudget"),10))||etikettTecken(_p);
                      return wrapChartLabel(this.getLabelForValue(v),_b,0);},font:{family:"Inter",size:11},color:"#1a1a1a",autoSkip:false},grid:{display:false},border:{display:false}}}}});
       }
@@ -13295,10 +13301,10 @@ function csvAndel(v){ if(v==null||v===""||isNaN(v))return ""; return (Math.round
   /* Formerna kommer ur den gemensamma uppräkningen, se __AMR_LISTFORMER. Reservvärdena
      används bara om den mot förmodan saknas, så att exporten inte tystnar helt. */
   var _LF=(window.__AMR_LISTFORMER||{});
-  var LISTOR=(_LF.behallare||".lq-list,.kreg-list,.brist-list").split(",");
-  var RADER=_LF.rader||".lq-top,.kreg-row,.brist-item";
-  var NAMN=_LF.namn||".lq-name,.kreg-name,.brist-name";
-  var VARDEN=_LF.varden||".lq-val,.kreg-val,.brist-val";
+  var LISTOR=(_LF.behallare||".lq-list,.kreg-list,.brist-list,#agListLan,#agListKom,#agListYrke,#agListBransch,#agListKomp").split(",");
+  var RADER=_LF.rader||".lq-top,.kreg-row,.brist-item,.ag-rad";
+  var NAMN=_LF.namn||".lq-name,.kreg-name,.brist-name,.ag-namn";
+  var VARDEN=_LF.varden||".lq-val,.kreg-val,.brist-val,.ag-tal,.ag-plats";
   /* Sådant som står i en lista utan att vara data: meddelanden när uppgiften saknas,
      knappar för att fälla ut fler rader, noter och källrader. Utan den här spärren hamnade
      texten "Uppgifterna kunde inte hämtas" i filen som om den vore ett värde, och en tom
@@ -13318,7 +13324,7 @@ function csvAndel(v){ if(v==null||v===""||isNaN(v))return ""; return (Math.round
       [].slice.call(fig.querySelectorAll(sel)).forEach(function(L){
         if(sedda.indexOf(L)>=0) return;
         sedda.push(L);
-        var huvud=L.querySelector(".lq-head, .kreg-head, .brist-head");
+        var huvud=L.querySelector(".lq-head, .kreg-head, .brist-head, .ag-huvud");
         if(huvud){
           var h=[].slice.call(huvud.children).map(txt).filter(Boolean);
           if(h.length){ h.__rubrik=true; ut.push(h); }
@@ -14182,7 +14188,7 @@ async function fetchRegionTotals(){
                 return "Företagare totalt: "+fmt1(s)+"\u00a0%";
               }}}},
             scales:{x:{stacked:true,min:0,ticks:{callback:function(v){return v+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
-              y:{stacked:true,ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
+              y:{stacked:true,ticks:{autoSkip:false,callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
         try{ if(window.charts) window.charts[cfg.chartKey]=c; }catch(e){}
       }
     }
@@ -15332,7 +15338,7 @@ try{ window.renderBranschAlder=renderBranschAlder; window.fetchBranschAlderAlla=
             return cc.dataset.label+": "+fmt1(cc.parsed.x)+"\u00a0% ("+nf.format(r.v.antal[cc.datasetIndex])+" arbetsställen)";
           }}}},
         scales:{x:{stacked:true,min:0,max:100,ticks:{callback:function(v){return v+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
-          y:{stacked:true,ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
+          y:{stacked:true,ticks:{autoSkip:false,callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
     try{ if(window.charts) window.charts[cfg.chartKey]=c; }catch(e){}
   }
   window.__aeRita=_aeRita;
@@ -16239,6 +16245,9 @@ async function loadYrkeData(){
         if(window.__agText)window.__agText(_harLan?_lansnyckel:nyckel,"agTextYrke","i yrkesgruppen",
           (_agNamnY?("<em>"+_agNamnY+"</em>"):""),"i "+_omr);
       };
+      /* Registrera i stället för att skriva över: se __agRitaOmLista. */
+      (function(f){ var L=(window.__agRitaOmLista=window.__agRitaOmLista||[]);
+        if(L.indexOf(f)<0)L.push(f); })(window.__agRitaOm);
       window.__agRitaOm();
     });
     kor("nyckeltal",renderYrkeKpis); kor("tidsserie",renderYrkeTrend); kor("ålder",renderYrkeAlder);
@@ -17188,7 +17197,7 @@ function renderYrkeAnnons(){
                 var _p=_pp?(" ("+_pp+")"):"";
       return (_enhet==="andel")
         ? (fmt1(c.parsed.y)+"\u00a0% av annonserna"+_p)
-        : (nf.format(c.parsed.y)+" annonser"+_p); }}}},scales:{y:{min:0,beginAtZero:true,ticks:{precision:(_enhet==="andel")?1:0,callback:function(v){ return (_enhet==="andel")?(fmt1(v)+"\u00a0%"):nf.format(v); },font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{autoSkip:!_kv,maxRotation:0,callback:function(val){var l=this.getLabelForValue(val); if(!_kv)return l; return /Q1$/.test(l)?l.slice(0,4):"";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
+        : (nf.format(c.parsed.y)+" annonser"+_p); }}}},scales:{y:{min:0,beginAtZero:true,ticks:{precision:(_enhet==="andel")?1:0,callback:function(v){ return (_enhet==="andel")?(fmt1(v)+"\u00a0%"):nf.format(v); },font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{autoSkip:!_kv,maxRotation:0,callback:function(val){var l=this.getLabelForValue(val); if(!_kv)return (typeof arEtikettDelar==="function")?arEtikettDelar(l,(window.kompPrelimAr?kompPrelimAr():null),false):l; return /Q1$/.test(l)?l.slice(0,4):"";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
 }
 window.__srcTillKarta=function(fromId,toId){var a=document.getElementById(fromId),b=document.getElementById(toId);if(a&&b)b.textContent=a.textContent;};
 function renderYrkeGeo(){
@@ -18204,6 +18213,9 @@ async function loadBranschData(){
                         window.__agUtanBemanning&&window.__agUtanBemanning(), _omr);
       if(window.__agText)window.__agText(_harLan?_lansnyckel:nyckel,"agTextBransch","i branschen");
       };
+      /* Registrera i stället för att skriva över: se __agRitaOmLista. */
+      (function(f){ var L=(window.__agRitaOmLista=window.__agRitaOmLista||[]);
+        if(L.indexOf(f)<0)L.push(f); })(window.__agRitaOm);
       window.__agRitaOm();
     });
     kor("nyckeltal",renderBranschKpis); kor("tidsserie",renderBranschTrend); kor("annonsintensitet",renderBranschAI);
@@ -18853,6 +18865,9 @@ function loadKompData(){
         sub.setAttribute("data-bas",sub.textContent);
       }
     };
+    /* Registrera i stället för att skriva över: se __agRitaOmLista. */
+    (function(f){ var L=(window.__agRitaOmLista=window.__agRitaOmLista||[]);
+      if(L.indexOf(f)<0)L.push(f); })(window.__agRitaOm);
     window.__agRitaOm();
   });
   /* Figurprosan körs av en bevakare som lyssnar efter element som läggs till eller tas bort.
@@ -18968,6 +18983,24 @@ function buildKompData(code){
 
 function kompPrelimAr(){ return (window.ANN_META&&window.ANN_META.prelim_ar)||null; }
 function kompPrelimKvartal(){ return (window.ANN_META&&window.ANN_META.prelim_fran)||null; }
+/* Axeletiketten för ett ofullständigt år. Kurvan faller i sin sista punkt så snart året
+   bara rymmer ett par kvartal, och nedgången läses lätt som en trend. Streckad linje och
+   romb märker punkten, men de betyder ingenting för den som inte vet vad de står för.
+   Årtalet får därför sin omfattning med sig, direkt under den punkt blicken hamnar på.
+
+   Etiketten gäller bara helårsläget. I kvartalsläget är varje punkt redan ett kvartal och
+   axeln visar årtal som gruppetikett, så tillägget hör inte hemma där. */
+function arEtikettDelar(etikett, prelimAr, kvartalslage){
+  var l=(etikett==null)?"":String(etikett);
+  if(kvartalslage)return l;
+  if(!prelimAr||l!==String(prelimAr))return l;
+  var kv=String((window.KOMP_META&&window.KOMP_META.kvartal_aktuellt)
+                ||(window.ANN_META&&window.ANN_META.prelim_fran)||"");
+  var m=kv.match(/^(\d{4})[KkQq]([1-4])$/);
+  if(!m||m[1]!==l)return l;
+  return l+((m[2]==="1")?" (kv 1)":(" (kv 1\u2013"+m[2]+")"));
+}
+try{ window.arEtikettDelar=arEtikettDelar; }catch(e){}
 /* Vilken period ett preliminärt värde faktiskt omfattar, för popuperna i tidsserierna.
    Ersätter ordet "preliminärt", som sade att talet var ofullständigt men inte hur.
 
@@ -19149,7 +19182,7 @@ function renderKompTrend(){
                 procent, och det tidigare taket på hundra tryckte ihop kurvan till ett streck
                 längs botten. Över hundra kan en andel inte bli, så autoskalningen behöver
                 inget tak, och yrkesvyns andelsläge skalar redan likadant. */
-             y:{min:0,ticks:{precision:(share?undefined:0),callback:function(v){return share?(axTal(fmt2(v))+"\u00a0%"):nf.format(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{autoSkip:!_kv,maxRotation:0,callback:function(val){var l=this.getLabelForValue(val); if(!_kv)return l; return /Q1$/.test(l)?l.slice(0,4):"";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}};
+             y:{min:0,ticks:{precision:(share?undefined:0),callback:function(v){return share?(axTal(fmt2(v))+"\u00a0%"):nf.format(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{autoSkip:!_kv,maxRotation:0,callback:function(val){var l=this.getLabelForValue(val); if(!_kv)return (typeof arEtikettDelar==="function")?arEtikettDelar(l,(window.kompPrelimAr?kompPrelimAr():null),false):l; return /Q1$/.test(l)?l.slice(0,4):"";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}};
   charts.kompTrend = new Chart(ctx,cfg);
   syncKompPeriodSeg();
   var stg=document.getElementById("kompShareToggle");
@@ -19835,7 +19868,13 @@ function _adTrendChart(canvasId,key,labels,values,seriesLabel,rawLabels,prelimFr
   charts[key]=new Chart(ctx,{type:"line",data:{labels:labels,datasets:[{label:seriesLabel,data:values,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.12)",borderWidth:2.5,fill:true,tension:.3,pointRadius:function(c){return _isP(c.dataIndex)?4:2;},pointStyle:function(c){return _isP(c.dataIndex)?"rectRot":"circle";},pointBackgroundColor:function(c){return _isP(c.dataIndex)?"#fff":PETROL;},pointBorderColor:PETROL,segment:{borderDash:function(c){return _isP(c.p1DataIndex)?[5,4]:undefined;}}}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){ var _pp=_isP(c.dataIndex)?(typeof kompPrelimPeriodTxt==="function"?kompPrelimPeriodTxt(rawLabels&&rawLabels[c.dataIndex]):""):""; return nf.format(c.parsed.y)+" annonser"+(_pp?(" ("+_pp+")"):"");}}}},scales:{y:{min:0,beginAtZero:true,ticks:{precision:0,callback:function(v){return nf.format(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
     /* Etiketternas hoppning och lutning lämnas åt Chart.js: kvartalsserien har tjugosex
        punkter och sköter sig själv, medan årsserien har sju. Bara rutnät och ramar sätts. */
-    x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
+    x:{ticks:{callback:function(val){ var l=this.getLabelForValue(val);
+          /* Årsserien får det ofullständiga årets omfattning i etiketten. Kvartalsserien
+             lämnas orörd: där är varje punkt redan ett kvartal. prelimFrom bär kvartalet
+             i kvartalsläget och året i årsläget, så formen avgör vilket som gäller. */
+          var _pa=(_pf&&/^\d{4}$/.test(String(_pf)))?String(_pf):null;
+          return (typeof arEtikettDelar==="function")?arEtikettDelar(l,_pa,false):l; },
+        font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
 }
 function renderRegionAdTrend(){
   var code=regionState.code, sub=document.getElementById("annTrendSubLan"), src=document.getElementById("srcAnnTrendLan");
@@ -19863,7 +19902,12 @@ function renderRegionAdTrend(){
      bygger på samma slags datamängd, nycklad på yrkesgrupp, område och tidsperiod. */
   if(sub)sub.textContent="Antal jobbannonser som avser arbete i "+nm+(_kv?" per kvartal.":" per hel\u00e5r.");
   if(!ser.labels.length){ var w=document.getElementById("cAnnTrendLan"); if(w){var ww=w.closest(".r-chart"); if(ww)ww.innerHTML='<div class="msg" style="height:100%">Uppgiften saknas f\u00f6r omr\u00e5det.</div>';} if(src)src.textContent=""; return; }
-  _adTrendChart("cAnnTrendLan","annTrendLan",_kv?ser.labels.map(_fmtKv):ser.labels.slice(),ser.values,nm,ser.labels,_kv?((window.ANN_META&&window.ANN_META.prelim_fran)||null):null);
+  _adTrendChart("cAnnTrendLan","annTrendLan",_kv?ser.labels.map(_fmtKv):ser.labels.slice(),ser.values,nm,ser.labels,
+    /* Årsläget skickade in null, så det pågående året varken streckades eller märktes i
+       axeln. Kvartalsläget får kvartalet, årsläget året — samma uppgift i den form läget
+       kräver. */
+    _kv?((window.ANN_META&&window.ANN_META.prelim_fran)||null)
+       :((window.ANN_META&&window.ANN_META.prelim_ar)||null));
   if(window.__anaAnnons){var _ac=document.getElementById("cAnnTrendLan"); if(_ac)__anaAnnons(_ac.closest(".r-fig"),ser.labels,ser.values,nm,(code==="00")?"riket":"länet");}
   if(src)src.textContent="Arbetsf\u00f6rmedlingen, Historiska platsannonser.";
 }
@@ -21441,16 +21485,16 @@ function buildUtbRegionMenu(){
         return (m&&ord[+m[2]-1]) ? (ord[+m[2]-1]+" kvartalet "+m[1]) : String(p||"");
       };
       blocks.push(["h2","Lediga jobb"]);
-      /* Två stycken. Det första presenterar undersökningen: vad lediga jobb betyder i den
-         och hur den skiljer sig från registerstatistiken. Det andra redovisar siffrorna.
-         Källhänvisningen stod förut sist i stycket, men den hör hemma under figuren och
-         sätts där av renderaren. */
-      blocks.push(["p","I SCB:s undersökning Lediga jobb och rekryteringsbehov mäts antalet lediga jobb genom att arbetsgivare uppger hur många lediga jobb de har. Ett ledigt jobb avser en tjänst som är utlyst eller på annat sätt öppen för ansökan."]);
-      /* Jämförelsen mot riket står som egen mening, och kvoten mot de arbetslösa som eget
-         stycke, eftersom den svarar på en annan fråga än nivån i arbetskraften. */
-      blocks.push(["p","Under "+_kvOrd(lorRD.period)+" fanns omkring "+rdNum(Math.round(lorE.vac))+" lediga jobb i "+(isR?"hela ekonomin":"länet")+", vilket motsvarar "+rdP1(lvr)+" lediga jobb per 100 personer i arbetskraften."
-        +((!isR&&lvrR!=null)?(" Denna nivå är "+((Math.abs(lvr-lvrR)<0.05)?("densamma som riksnivån på "+rdP1(lvrR)):((lvr>lvrR?"högre":"lägre")+" än riksnivån på "+rdP1(lvrR)))+"."):"")]);
-      if(ltg!=null) blocks.push(["p","Ställt mot antalet arbetslösa går det "+fmt2(ltg)+" lediga jobb per arbetslös."]);
+      /* De tre styckena är sammanslagna till ett. Innehållet är oförändrat: undersökningens
+         innebörd, nivån i länet mot riket och kvoten mot de arbetslösa. Källhänvisningen hör
+         hemma under figuren och sätts där av renderaren. */
+      blocks.push(["p","I SCB:s undersökning Lediga jobb och rekryteringsbehov mäts antalet lediga jobb genom att arbetsgivare uppger hur många lediga jobb de har. Ett ledigt jobb avser en tjänst som är utlyst eller på annat sätt öppen för ansökan."
+        +" Under "+_kvOrd(lorRD.period)+" fanns omkring "+rdNum(Math.round(lorE.vac))+" lediga jobb i "+(isR?"hela ekonomin":"länet")+", vilket motsvarar "+rdP1(lvr)+" lediga jobb per 100 personer i arbetskraften."
+        +((!isR&&lvrR!=null)?(" Denna nivå är "+((Math.abs(lvr-lvrR)<0.05)?("densamma som riksnivån på "+rdP1(lvrR)):((lvr>lvrR?"högre":"lägre")+" än riksnivån på "+rdP1(lvrR)))+"."):"")
+        +((ltg!=null)?(" Ställt mot antalet arbetslösa går det "+fmt2(ltg)+" lediga jobb per arbetslös."):"")]);
+      /* Förbehållet gäller bara när ett län är valt. För riket är underlaget tillräckligt
+         stort för att felmarginalerna inte ska behöva en egen varning. */
+      if(!isR) blocks.push(["p","Nedbrutet på länsnivå och kvartal präglas underlaget av relativt stora felmarginaler. Siffrorna bör därför tolkas med viss försiktighet."]);
     }
     /* Avsnittet "Befolkning och arbetskraft" är borttaget. Framskrivningen av
        arbetskraften och rörligheten över länsgränsen behandlas i figurerna. */
@@ -21872,10 +21916,13 @@ function buildUtbRegionMenu(){
       var _lvrRK=(_rK&&_rK.lf)?_rK.vac/_rK.lf*100:null;
       var _ltgK=_lK.unemp?_lK.vac/_lK.unemp:null;
       blocks.push(["h2","Lediga jobb"]);
-      blocks.push(["p","I SCB:s unders\u00f6kning Lediga jobb och rekryteringsbehov m\u00e4ts antalet lediga jobb genom att arbetsgivare uppger hur m\u00e5nga lediga jobb de har. Ett ledigt jobb avser en tj\u00e4nst som \u00e4r utlyst eller p\u00e5 annat s\u00e4tt \u00f6ppen f\u00f6r ans\u00f6kan."]);
-      blocks.push(["p","Under "+_kvOrdK(_lorK.period)+" fanns omkring "+rdNum(Math.round(_lK.vac))+" lediga jobb i "+d.lanName+", som kommunen tillh\u00f6r, vilket motsvarar "+rdP1(_lvrK)+" lediga jobb per 100 personer i arbetskraften."
-        +((_lvrRK!=null)?(" Denna niv\u00e5 \u00e4r "+((Math.abs(_lvrK-_lvrRK)<0.05)?("densamma som riksniv\u00e5n p\u00e5 "+rdP1(_lvrRK)):((_lvrK>_lvrRK?"h\u00f6gre":"l\u00e4gre")+" \u00e4n riksniv\u00e5n p\u00e5 "+rdP1(_lvrRK)))+"."):"")]);
-      if(_ltgK!=null) blocks.push(["p","St\u00e4llt mot antalet arbetsl\u00f6sa g\u00e5r det "+fmt2(_ltgK)+" lediga jobb per arbetsl\u00f6s."]);
+      /* Samma sammanslagning som i länsvyn: ett stycke i stället för tre. Förbehållet om
+         felmarginaler gäller här alltid, eftersom kommunvyn alltid visar ett läns tal. */
+      blocks.push(["p","I SCB:s unders\u00f6kning Lediga jobb och rekryteringsbehov m\u00e4ts antalet lediga jobb genom att arbetsgivare uppger hur m\u00e5nga lediga jobb de har. Ett ledigt jobb avser en tj\u00e4nst som \u00e4r utlyst eller p\u00e5 annat s\u00e4tt \u00f6ppen f\u00f6r ans\u00f6kan."
+        +" Under "+_kvOrdK(_lorK.period)+" fanns omkring "+rdNum(Math.round(_lK.vac))+" lediga jobb i "+d.lanName+", som kommunen tillh\u00f6r, vilket motsvarar "+rdP1(_lvrK)+" lediga jobb per 100 personer i arbetskraften."
+        +((_lvrRK!=null)?(" Denna niv\u00e5 \u00e4r "+((Math.abs(_lvrK-_lvrRK)<0.05)?("densamma som riksniv\u00e5n p\u00e5 "+rdP1(_lvrRK)):((_lvrK>_lvrRK?"h\u00f6gre":"l\u00e4gre")+" \u00e4n riksniv\u00e5n p\u00e5 "+rdP1(_lvrRK)))+"."):"")
+        +((_ltgK!=null)?(" St\u00e4llt mot antalet arbetsl\u00f6sa g\u00e5r det "+fmt2(_ltgK)+" lediga jobb per arbetsl\u00f6s."):"")]);
+      blocks.push(["p","Nedbrutet p\u00e5 l\u00e4nsniv\u00e5 och kvartal pr\u00e4glas underlaget av relativt stora felmarginaler. Siffrorna b\u00f6r d\u00e4rf\u00f6r tolkas med viss f\u00f6rsiktighet."]);
     })();
     blocks.push(["h2","Rekryteringsläge och efterfrågan"]);
     blocks.push(["p","Arbetsförmedlingen bedömer möjligheterna till arbete på ett till fem års sikt. Bedömningen görs per län och avser "+d.lanName+", som kommunen tillhör. "+(brist.length?("Bland de yrken som följs i Arbetsförmedlingens yrkesbarometer råder brist inom "+rdListLow(brist,5)+"."):"Bland de följda yrkena är läget övervägande balanserat.")+(overskott.length?" För "+rdListLow(overskott,3)+" bedöms det finnas ett överskott på sökande.":"")]);
@@ -28130,7 +28177,7 @@ window.__renderKompOpts=function(q){
                 font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
               x:{ticks:{autoSkip:!_kvLage,maxRotation:0,
                   callback:function(val){ var l=this.getLabelForValue(val);
-                    if(!_kvLage) return l;
+                    if(!_kvLage) return (typeof arEtikettDelar==="function")?arEtikettDelar(l,_prelAr2,false):l;
                     return /Q1$/.test(l)?String(l).slice(0,4):""; },
                   font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
       }
@@ -32611,7 +32658,7 @@ function dold(el){
                    tooltip:{callbacks:{label:function(c){ return c.dataset.label+": "+fmt(c.parsed.x); }}}},
           scales:{x:{ticks:{callback:fmt,font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false},
                      title:{display:true,text:"Andel av områdets examinerade",font:{family:"Inter",size:11}}},
-                  y:{ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}}
+                  y:{ticks:{autoSkip:false,callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}}
       });
 
       var avser=namn||"området";
@@ -34863,7 +34910,10 @@ window.__anaAnnons=function(figElOrId,labels,vals,namn,omrord){
     } else {
       var delar=[];
       if(counts.brist)delar.push(tal(counts.brist)+" med brist på sökande");
-      if(counts.paradox)delar.push(tal(counts.paradox)+" med brist trots många sökande");
+      /* Kategorins namn skrivs ut, eftersom diagrammets x-axel heter Paradox och läsaren
+         annars inte kan koppla ihop meningen med stapeln. Namnet står bara här, i den
+         första uppräkningen; i jämförelsen med riket är det redan infört. */
+      if(counts.paradox)delar.push(tal(counts.paradox)+" med brist trots m\u00e5nga s\u00f6kande (kategorin paradox)");
       if(counts.balans)delar.push(tal(counts.balans)+" i balans");
       if(counts.overskott)delar.push(tal(counts.overskott)+" med överskott");
       var sista=delar.pop();
@@ -36146,7 +36196,7 @@ window.__ritaGymOvg = async function(){
           plugins:{legend:{display:visAndel&&motRiket,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},
                    tooltip:{callbacks:{label:tt}}},
           scales:{x:{ticks:xTicks,grid:{color:RUTNAT},border:{display:false},title:{display:true,text:xTitel,font:{family:"Inter",size:11}}},
-                  y:{ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}} });
+                  y:{ticks:{autoSkip:false,callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}} });
       var s1=document.getElementById("gymAndelSub");
       /* Undertexten sade "som andel eller antal", vilket beskriver växlingen i stället för det
      som visas. Renderaren vet vilket läge som är valt. */
@@ -36267,7 +36317,7 @@ window.__ritaGymOvg = async function(){
                  tooltip:{callbacks:{label:function(c){ return c.dataset.label+": "+fmtP(c.parsed.x); }}}},
         scales:{x:{ticks:{callback:fmtP,font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false},
                    title:{display:true,text:"Andel av de studerande",font:{family:"Inter",size:11}}},
-                y:{ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}} });
+                y:{ticks:{autoSkip:false,callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}} });
     if(window.__usAnalysYhOmr)window.__usAnalysYhOmr({rows:rows,lokalV:lokalV,riketV:riketV,motRiket:motRiket,namn:motRiket?lanName(reg):"riket"});
     var sub=document.getElementById("yhOmrSub");
     if(sub)sub.textContent="Andel av de studerande per utbildningsområde, enligt Myndigheten för yrkeshögskolans ämnesindelning."
@@ -36439,7 +36489,7 @@ window.__ritaGymOvg = async function(){
       ? [{label:"Platser med angiven kommun",data:basV,backgroundColor:colsBas,borderRadius:function(c){ return (estV[c.dataIndex]>0)?{topLeft:4,bottomLeft:4}:4; },maxBarThickness:16,stack:"a"},
          {label:"Fördelade platser, uppskattning",data:estV,backgroundColor:colsEst,borderRadius:{topRight:4,bottomRight:4},maxBarThickness:16,stack:"a"}]
       : [{data:basV,backgroundColor:colsBas,borderRadius:4,maxBarThickness:16}];
-    _ch3=new C(document.getElementById("yhAnordCanvas"),{type:"bar",data:{labels:labels,datasets:ds},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:est,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},tooltip:{callbacks:{label:function(c){return (est?(c.dataset.label+": "):"")+nf0(c.parsed.x)+" platser";}}}},scales:{x:{stacked:est,ticks:{precision:0,callback:function(v){return nf0(v);},font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false}},y:{stacked:est,ticks:{font:{family:"Inter",size:11},callback:function(v,ix){ return delaEtikett(labels[ix]); }},grid:{display:false},border:{display:false}}}}});
+    _ch3=new C(document.getElementById("yhAnordCanvas"),{type:"bar",data:{labels:labels,datasets:ds},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:est,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},tooltip:{callbacks:{label:function(c){return (est?(c.dataset.label+": "):"")+nf0(c.parsed.x)+" platser";}}}},scales:{x:{stacked:est,ticks:{precision:0,callback:function(v){return nf0(v);},font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false}},y:{stacked:est,ticks:{autoSkip:false,font:{family:"Inter",size:11},callback:function(v,ix){ return delaEtikett(labels[ix]); }},grid:{display:false},border:{display:false}}}}});
     if(window.__usAnalysYhAnord)window.__usAnalysYhAnord({rows:poster.map(function(p){return [p.namn,p.bas+p.est];}),
       tot:totVis,cnt:cntVis,omr:omrLabel,namn:namn,riket:!reg,est:est,tote:tote,
       meta:YH_ANORD_META,avstamd:yhDatumKlartext(yhAnordAvstamd())});
@@ -36757,7 +36807,7 @@ window.__ritaGymOvg = async function(){
         /* Se gymnasiediagrammet: överlappande staplar kräver index-läge för att
            verktygstipset ska gå att träffa. */
         interaction:{mode:"index",axis:"y",intersect:false},
-        plugins:{legend:{display:motRiket,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmtP(c.parsed.x);}}}},scales:{x:{ticks:{callback:fmtP,font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false},title:{display:true,text:"Andel av helårsstudenterna",font:{family:"Inter",size:11}}},y:{ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}}});
+        plugins:{legend:{display:motRiket,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmtP(c.parsed.x);}}}},scales:{x:{ticks:{callback:fmtP,font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false},title:{display:true,text:"Andel av helårsstudenterna",font:{family:"Inter",size:11}}},y:{ticks:{autoSkip:false,callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}}});
   }
   /* Rangordnad lista över samtliga lärosäten med det valda markerat. Samma form som
      kommunrankningen i länsvyn: staplar i en gemensam skala, den valda raden framhävd, och
@@ -41568,6 +41618,17 @@ try{ window._sumOm=_sumOm; }catch(e){}
 
   var utan=false;
   window.__agUtanBemanning=function(){ return utan; };
+
+  /* Fem vyer har en arbetsgivarfigur, och var och en satte window.__agRitaOm vid ritningen.
+     Eftersom det är en enda global vann den vy som renderat senast, och växeln Alla
+     arbetsgivare / Utan bemanning ritade då om fel vy — eller ingen alls, om den vyn inte
+     var synlig. Kroken registreras nu i en lista, och växeln kör samtliga. Varje ritare
+     skriver bara i sin egen vy, så de som inte är framme gör ingenting synligt. */
+  window.__agRitaOmLista=window.__agRitaOmLista||[];
+  window.__agRitaOmAlla=function(){
+    var L=window.__agRitaOmLista||[];
+    for(var i=0;i<L.length;i++){ try{ L[i](); }catch(err){} }
+  };
   document.addEventListener("click", function(e){
     var b=(e.target&&e.target.closest)?e.target.closest(".ag-bem-toggle"):null;
     if(!b) return;
@@ -41579,7 +41640,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
       x.classList.toggle("is-on", pa);
       x.setAttribute("aria-pressed", pa?"true":"false");
     });
-    try{ if(window.__agRitaOm) window.__agRitaOm(); }catch(err){}
+    try{ if(window.__agRitaOmAlla) window.__agRitaOmAlla(); else if(window.__agRitaOm) window.__agRitaOm(); }catch(err){}
   });
 })();
 </script>
