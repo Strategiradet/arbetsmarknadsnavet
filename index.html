@@ -2792,6 +2792,12 @@ body[data-view="method"] .method-doc,body[data-view="ladda"] .method-doc{padding
 <style id="lanmap-css">@layer komponent{
   .geo-wrap{display:flex;gap:16px;align-items:stretch;margin:6px 0 4px}
   .r-sec{font:600 var(--ts-rubrik)/1.3 var(--font-ui);letter-spacing:.02em;color:var(--ink);margin:30px 0 11px;padding:0 0 6px;border-bottom:2px solid var(--ink);position:relative}.r-sec::before{display:none}
+  /* Sammanfattningens rubrik är dold på skärmen: avsnittet inleder vyn och rutan under
+     säger redan vad den är. Rubriken finns kvar i dokumentet, eftersom avsnittsnavet,
+     rapportens innehållsförteckning och dataexporten läser h3.r-sec. Den visas därför
+     igen i utskriften, där ingen navigering finns. */
+  .r-sec-dold{position:absolute;width:1px;height:1px;margin:0;padding:0;overflow:hidden;
+    clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
   .r-sec.first,.r-sec.sec-top{margin-top:12px}
   .mapbox{display:flex;justify-content:center;margin:4px 0 10px}
   .lanmap{position:relative;flex:0 0 auto}
@@ -6245,7 +6251,7 @@ section.results .vcmp .rapport-matrix-wrap{
            som gäller den valda enheten själv, alltså inte länets tal i kommunvyn eller
            rikets tal i läns- och kommunvyn, och varje punkt bär en pil till figuren där
            talet redovisas. Innehållet skrivs av sammanfattningsmodulen, se __sumRita. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumLan"></div>
       <!-- Översiktsmaterialet låg före första rubriken och bildade avsnittet Översikt.
            Sammanfattningen sattes in före det, och materialet hamnade då under
@@ -6575,7 +6581,7 @@ section.results .vcmp .rapport-matrix-wrap{
            som gäller den valda enheten själv, alltså inte länets tal i kommunvyn eller
            rikets tal i läns- och kommunvyn, och varje punkt bär en pil till figuren där
            talet redovisas. Innehållet skrivs av sammanfattningsmodulen, se __sumRita. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumKom"></div>
       <!-- Översiktsmaterialet låg före första rubriken och bildade avsnittet Översikt.
            Sammanfattningen sattes in före det, och materialet hamnade då under
@@ -6901,7 +6907,7 @@ section.results .vcmp .rapport-matrix-wrap{
            som gäller den valda enheten själv, alltså inte länets tal i kommunvyn eller
            rikets tal i läns- och kommunvyn, och varje punkt bär en pil till figuren där
            talet redovisas. Innehållet skrivs av sammanfattningsmodulen, se __sumRita. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumYrke"></div>
       <!-- Översiktsmaterialet låg före första rubriken och bildade avsnittet Översikt.
            Sammanfattningen sattes in före det, och materialet hamnade då under
@@ -7148,7 +7154,7 @@ section.results .vcmp .rapport-matrix-wrap{
            som gäller den valda enheten själv, alltså inte länets tal i kommunvyn eller
            rikets tal i läns- och kommunvyn, och varje punkt bär en pil till figuren där
            talet redovisas. Innehållet skrivs av sammanfattningsmodulen, se __sumRita. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumBransch"></div>
       <!-- Översiktsmaterialet låg före första rubriken och bildade avsnittet Översikt.
            Sammanfattningen sattes in före det, och materialet hamnade då under
@@ -7341,7 +7347,7 @@ section.results .vcmp .rapport-matrix-wrap{
            ett per punkt, med en pil till figuren där talet redovisas. Innehållet skrivs av
            sammanfattningsmodulen, se __sumRita. Underlaget kommer från nivåns renderare
            genom __usSumSatt, så att ruta och figur aldrig kan visa olika tal. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumGym"></div>
       <!-- Figuren låg före första avsnittsrubriken och räknades därför som inledande material,
            alltså Översikt. Sammanfattningen står nu där, så figuren har fått rubriken skriven
@@ -7386,7 +7392,7 @@ section.results .vcmp .rapport-matrix-wrap{
            ett per punkt, med en pil till figuren där talet redovisas. Innehållet skrivs av
            sammanfattningsmodulen, se __sumRita. Underlaget kommer från nivåns renderare
            genom __usSumSatt, så att ruta och figur aldrig kan visa olika tal. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumYh"></div>
       <h3 class="r-sec">Översikt</h3>
       <!-- Avsnittsrubrikerna nedan är nivåns egna. Avsnittsnavet byggdes tidigare från
@@ -7464,7 +7470,7 @@ section.results .vcmp .rapport-matrix-wrap{
            ett per punkt, med en pil till figuren där talet redovisas. Innehållet skrivs av
            sammanfattningsmodulen, se __sumRita. Underlaget kommer från nivåns renderare
            genom __usSumSatt, så att ruta och figur aldrig kan visa olika tal. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumHog"></div>
       <h3 class="r-sec">Översikt</h3>
       <div class="r-fig" id="figHogTid">
@@ -7598,7 +7604,7 @@ section.results .vcmp .rapport-matrix-wrap{
            som gäller den valda enheten själv, alltså inte länets tal i kommunvyn eller
            rikets tal i läns- och kommunvyn, och varje punkt bär en pil till figuren där
            talet redovisas. Innehållet skrivs av sammanfattningsmodulen, se __sumRita. -->
-      <h3 class="r-sec first">Sammanfattning</h3>
+      <h3 class="r-sec first r-sec-dold">Sammanfattning</h3>
       <div class="sum-wrap" id="sumKomp"></div>
       <!-- Förbehållet om kompetensuppgifterna stod tidigare under var och en av vyns sju
            figurer. Sju likalydande rutor i samma vy läses inte, de blir möbler. Den står nu
@@ -26432,7 +26438,7 @@ window.__KOMMUN_MAP={
             +"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
             +"<title>"+titel+"</title>"
             +rdCollectStyles()
-            +"<style>"+RD_PRINT_CSS+".rd-kortrutnat-wrap{background:transparent!important;border:0!important;border-top:0!important;border-bottom:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important;margin:14px 0 26px!important} .rd-kortrutnat-wrap::before,.rd-kortrutnat-wrap::after{display:none!important;content:none!important} .rd-kortrutnat{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))} .rd-kort{display:flex;flex-direction:column;background:#fff;border:1px solid #bfae8e;border-radius:12px; box-shadow:0 1px 2px rgba(56,47,35,.05),0 6px 14px rgba(56,47,35,.05); overflow:hidden;break-inside:avoid;page-break-inside:avoid} .rd-kort-h{background:#f2ece0;border-bottom:1px solid #bfae8e;padding:11px 15px 9px} .rd-kort-t{font:700 var(--ts-brod)/1.3 var(--font-content);color:var(--ink);margin:0} .rd-meta{margin:2px 0 0;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft)} .rd-rader{padding:6px 15px 4px} .rd-fot{margin-top:auto;padding:0 15px} .rd-rad{display:grid;grid-template-columns:38% 1fr 76px;align-items:center;gap:10px; padding:6px 0;border-top:1px solid #e7dfd0} .rd-rad:first-child{border-top:0} .rd-namn{font:600 var(--fig-text)/1.35 var(--font-ui);overflow-wrap:break-word} .rd-spar{height:11px;background:#e4dac4;border-radius:99px;overflow:hidden;position:relative} .rd-spar i{display:block;height:100%;background:#6d94a6;border-radius:99px} .rd-tal{text-align:right;font:800 var(--fig-text)/1.2 var(--font-content);font-variant-numeric:tabular-nums} .rd-lyft .rd-spar i{background:var(--petrol)} .rd-lyft .rd-namn,.rd-lyft .rd-tal{font-weight:800} .rd-saknas .rd-namn,.rd-saknas .rd-tal{color:var(--ink-soft)} .rd-spar.rd-noll{background:linear-gradient(90deg,#efe7d6 0 calc(50% - 1px),var(--linje) calc(50% - 1px) calc(50% + 1px),#efe7d6 calc(50% + 1px) 100%)} .rd-spar.rd-noll i{position:absolute;left:50%;border-radius:0 99px 99px 0} .rd-spar.rd-noll i.rd-minus{left:auto;right:50%;border-radius:99px 0 0 99px;background:#b3503f} .rd-namnrad{grid-template-columns:38% 1fr} .rd-chip{justify-self:start;font:700 var(--fig-etikett)/1.25 var(--font-ui);padding:3px 10px;border-radius:99px;background:#e4dac4;border:1px solid #bfae8e;color:var(--ink)} .rd-snitt{background:#f7f2e8;margin:0 -15px;padding:6px 15px;border-top:0} .rd-fot{border-top:1px solid #bfae8e} .rd-fot .rd-snitt:last-child{border-radius:0 0 11px 11px} .rd-snitt .rd-namn,.rd-snitt .rd-tal{color:var(--ink);font-weight:600} .rd-snitt .rd-spar{background:#e4dac4;box-shadow:none} .rd-snitt .rd-spar i{background:#a8987a;opacity:1} .rd-skalanot{margin:0;padding:7px 15px 9px;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft);text-align:right} @media(max-width:560px){ .rd-kortrutnat{grid-template-columns:1fr;gap:16px} .rd-rad{grid-template-columns:1fr 76px;grid-template-areas:\"n t\" \"s s\";gap:2px 8px;padding:7px 0} .rd-namn{grid-area:n}.rd-tal{grid-area:t}.rd-spar{grid-area:s;margin-top:4px} .rd-namnrad{grid-template-areas:\"n t\";grid-template-columns:1fr auto} .rd-chip{grid-area:t;justify-self:end} }"+".amr-not{margin:0 0 10mm;padding:6px 10px;border:1px solid #b34;border-radius:6px;background:#fdf3f3;color:#912;font:600 11pt/1.4 sans-serif}</style>"
+            +"<style>"+RD_PRINT_CSS+".r-sec-dold{position:static!important;width:auto!important;height:auto!important;clip:auto!important;clip-path:none!important;overflow:visible!important;white-space:normal!important}"+".rd-kortrutnat-wrap{background:transparent!important;border:0!important;border-top:0!important;border-bottom:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important;margin:14px 0 26px!important} .rd-kortrutnat-wrap::before,.rd-kortrutnat-wrap::after{display:none!important;content:none!important} .rd-kortrutnat{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))} .rd-kort{display:flex;flex-direction:column;background:#fff;border:1px solid #bfae8e;border-radius:12px; box-shadow:0 1px 2px rgba(56,47,35,.05),0 6px 14px rgba(56,47,35,.05); overflow:hidden;break-inside:avoid;page-break-inside:avoid} .rd-kort-h{background:#f2ece0;border-bottom:1px solid #bfae8e;padding:11px 15px 9px} .rd-kort-t{font:700 var(--ts-brod)/1.3 var(--font-content);color:var(--ink);margin:0} .rd-meta{margin:2px 0 0;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft)} .rd-rader{padding:6px 15px 4px} .rd-fot{margin-top:auto;padding:0 15px} .rd-rad{display:grid;grid-template-columns:38% 1fr 76px;align-items:center;gap:10px; padding:6px 0;border-top:1px solid #e7dfd0} .rd-rad:first-child{border-top:0} .rd-namn{font:600 var(--fig-text)/1.35 var(--font-ui);overflow-wrap:break-word} .rd-spar{height:11px;background:#e4dac4;border-radius:99px;overflow:hidden;position:relative} .rd-spar i{display:block;height:100%;background:#6d94a6;border-radius:99px} .rd-tal{text-align:right;font:800 var(--fig-text)/1.2 var(--font-content);font-variant-numeric:tabular-nums} .rd-lyft .rd-spar i{background:var(--petrol)} .rd-lyft .rd-namn,.rd-lyft .rd-tal{font-weight:800} .rd-saknas .rd-namn,.rd-saknas .rd-tal{color:var(--ink-soft)} .rd-spar.rd-noll{background:linear-gradient(90deg,#efe7d6 0 calc(50% - 1px),var(--linje) calc(50% - 1px) calc(50% + 1px),#efe7d6 calc(50% + 1px) 100%)} .rd-spar.rd-noll i{position:absolute;left:50%;border-radius:0 99px 99px 0} .rd-spar.rd-noll i.rd-minus{left:auto;right:50%;border-radius:99px 0 0 99px;background:#b3503f} .rd-namnrad{grid-template-columns:38% 1fr} .rd-chip{justify-self:start;font:700 var(--fig-etikett)/1.25 var(--font-ui);padding:3px 10px;border-radius:99px;background:#e4dac4;border:1px solid #bfae8e;color:var(--ink)} .rd-snitt{background:#f7f2e8;margin:0 -15px;padding:6px 15px;border-top:0} .rd-fot{border-top:1px solid #bfae8e} .rd-fot .rd-snitt:last-child{border-radius:0 0 11px 11px} .rd-snitt .rd-namn,.rd-snitt .rd-tal{color:var(--ink);font-weight:600} .rd-snitt .rd-spar{background:#e4dac4;box-shadow:none} .rd-snitt .rd-spar i{background:#a8987a;opacity:1} .rd-skalanot{margin:0;padding:7px 15px 9px;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft);text-align:right} @media(max-width:560px){ .rd-kortrutnat{grid-template-columns:1fr;gap:16px} .rd-rad{grid-template-columns:1fr 76px;grid-template-areas:\"n t\" \"s s\";gap:2px 8px;padding:7px 0} .rd-namn{grid-area:n}.rd-tal{grid-area:t}.rd-spar{grid-area:s;margin-top:4px} .rd-namnrad{grid-template-areas:\"n t\";grid-template-columns:1fr auto} .rd-chip{grid-area:t;justify-self:end} }"+".amr-not{margin:0 0 10mm;padding:6px 10px;border:1px solid #b34;border-radius:6px;background:#fdf3f3;color:#912;font:600 11pt/1.4 sans-serif}</style>"
             /* Sidfoten. Sidnumret står mitt på sidan sedan tidigare; till vänster skrivs nu
                rapportens ämne och område, så att ett utskrivet blad går att placera utan att
                man bläddrar till omslaget. Texten sätts här, eftersom @page-regeln behöver en
@@ -37264,11 +37270,11 @@ window.__ritaGymOvg = async function(){
     var _del=(_omrNiva==="del");
     var _tt=document.getElementById("hogOmrTitle"); if(_tt)_tt.textContent="Fördelning per "+(_del?"ämnesdelområde":"ämnesområde");
     var _nmk=(key==="00")?"samtliga lärosäten":key;
-    var _sb=document.getElementById("hogOmrSub"); if(_sb)/* Lärosätet angavs med "vid X, jämfört med samtliga lärosäten" medan tidsseriefiguren
-       intill säger "Avser X". Nu samma form i båda; jämförelsen står i meningen efter, som
-       ändå förklarar de skuggade staplarna. */
+    var _sb=document.getElementById("hogOmrSub"); if(_sb)/* Lärosätet nämndes två gånger: först som "Avser X" och sist i
+       "Avser läsåret Y för X". Den första är struken; den sista bär både läsår och
+       lärosäte och räcker. */
     _sb.textContent="Andel av hel\u00e5rsstudenterna per "+(_del?"\u00e4mnesdelomr\u00e5de":"\u00e4mnesomr\u00e5de")+". "
-      +((key!=="00")?("Avser "+key+". "):"")+((key!=="00")?"Skuggade staplar visar samtliga lärosäten. ":"Välj ett enskilt lärosäte för att jämföra dess fördelning med den för samtliga lärosäten. ")+"Avser läsåret "+_latestYear+" för "+_nmk+".";
+      +((key!=="00")?"Skuggade staplar visar samtliga l\u00e4ros\u00e4ten. ":"V\u00e4lj ett enskilt l\u00e4ros\u00e4te f\u00f6r att j\u00e4mf\u00f6ra dess f\u00f6rdelning med den f\u00f6r samtliga l\u00e4ros\u00e4ten. ")+"Avser l\u00e4s\u00e5ret "+_latestYear+" f\u00f6r "+_nmk+".";
     var C=(typeof Chart!=="undefined")?Chart:null;
     if(!C){ msg("hogOmrWrap","Diagrammet kunde inte laddas."); return; }
     var motRiket=(key!=="00");
