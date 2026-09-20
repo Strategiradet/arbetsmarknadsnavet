@@ -10921,7 +10921,7 @@ function initKommun(){
   if(typeof setupDropdownSearch==="function")setupDropdownSearch("ddKommun");
   var ddEl=document.getElementById("ddKommun"), ddBtn=document.getElementById("ddKommunBtn");
   if(ddBtn&&ddEl){ ddBtn.addEventListener("click",function(e){e.stopPropagation();ddEl.classList.toggle("open");ddBtn.setAttribute("aria-expanded",ddEl.classList.contains("open"));});
-    document.addEventListener("click",function(e){if(!e.target.closest("#ddKommun"))ddEl.classList.remove("open");}); }
+    window.__stangUtanfor("#ddKommun",function(){ddEl.classList.remove("open");}); }
   var run=document.getElementById("btnRunKom"); if(run)run.addEventListener("click",function(){window.__reportMode.kommun=false;vcRender("kommun");}); var exp=document.getElementById("btnExportKom"); if(exp)exp.addEventListener("click",function(){vcExport("kommun");});
   vcRender("kommun");
 }
@@ -11230,6 +11230,19 @@ document.querySelectorAll(".viewnav-btn").forEach(b=>{
 /* a11y: rollande tabindex, pilnavigering, Escape och annonsering */
 function setTabFocusability(){const tabs=[...document.querySelectorAll(".viewnav-btn")];const act=tabs.find(t=>t.classList.contains("active"))||tabs[0];tabs.forEach(t=>t.setAttribute("tabindex",t===act?"0":"-1"));}
 if(typeof viewnavEl!=="undefined"&&viewnavEl){viewnavEl.addEventListener("keydown",e=>{const tabs=[...document.querySelectorAll(".viewnav-btn")];const i=tabs.indexOf(document.activeElement);if(i<0)return;let ni=-1;if(e.key==="ArrowRight"||e.key==="ArrowDown")ni=(i+1)%tabs.length;else if(e.key==="ArrowLeft"||e.key==="ArrowUp")ni=(i-1+tabs.length)%tabs.length;else if(e.key==="Home")ni=0;else if(e.key==="End")ni=tabs.length-1;if(ni<0)return;e.preventDefault();tabs[ni].focus();});}
+/* Rullistorna stängdes på ett klick utanför. På iOS bubblar click inte från element
+   som saknar egen klickhantering, och en tryckning på resultatytan gav därför inget
+   klick alls: listan blev kvar öppen. Det märktes mest i jämförelse- och kombinations-
+   läget, där ytan utanför listan nästan bara är sådana element. pointerdown utlöses
+   oavsett, och closest-kontrollen är densamma, så en tryckning inuti listan påverkas
+   inte. Båda hanterarna behövs: pointerdown saknas i äldre webbläsare. */
+window.__stangUtanfor=function(sel, stang){
+  ["click","pointerdown"].forEach(function(h){
+    document.addEventListener(h, function(e){
+      try{ if(!e.target || !e.target.closest || !e.target.closest(sel)) stang(e); }catch(err){}
+    });
+  });
+};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const open=document.querySelector(".tabledd.open");if(open){open.classList.remove("open");const bb=open.querySelector(".tabledd-btn");if(bb){bb.setAttribute("aria-expanded","false");if(bb.focus)bb.focus();}}}});
 function announce(msg){const el=document.getElementById("a11yLive");if(el){el.textContent="";setTimeout(()=>{el.textContent=msg;},50);}}
 document.querySelectorAll("main.view > aside").forEach(a=>a.setAttribute("aria-label","Val och filter"));
@@ -11502,7 +11515,7 @@ document.addEventListener("keydown",e=>{
 /* ===== Regionvyn ===== */
 const ddRegionEl=document.getElementById("ddRegion");
 document.getElementById("ddRegionBtn").addEventListener("click",e=>{e.stopPropagation();ddRegionEl.classList.toggle("open");document.getElementById("ddRegionBtn").setAttribute("aria-expanded",ddRegionEl.classList.contains("open"));});
-document.addEventListener("click",e=>{if(!e.target.closest("#ddRegion"))ddRegionEl.classList.remove("open");});
+window.__stangUtanfor("#ddRegion",function(){ddRegionEl.classList.remove("open");});
 document.getElementById("btnRun").addEventListener("click",()=>{window.__reportMode.region=false;vcRender("region");});
 document.getElementById("btnExport").addEventListener("click",()=>vcExport("region"));
 
@@ -14528,7 +14541,7 @@ async function fetchYrkeRegCount(code){
 
 const ddYrkeEl=document.getElementById("ddYrke");
 
-document.addEventListener("click",e=>{if(!e.target.closest("#ddYrke"))ddYrkeEl.classList.remove("open");});
+window.__stangUtanfor("#ddYrke",function(){ddYrkeEl.classList.remove("open");});
 document.getElementById("btnRunY").addEventListener("click",()=>{window.yrkeReportMode=false;vcRender("yrke");});
 document.getElementById("btnExportY").addEventListener("click",()=>vcExport("yrke"));
 /* Pilot Färdig rapport (Yrke): definieras i huvudscopet så att rdYrke/rdBlockHtml/yrkeState/vcRender nås via closure. */
@@ -17810,7 +17823,7 @@ async function branschRegionTotals(){
 
 const ddBranschEl=document.getElementById("ddBransch");
 document.getElementById("ddBranschBtn").addEventListener("click",e=>{e.stopPropagation();ddBranschEl.classList.toggle("open");document.getElementById("ddBranschBtn").setAttribute("aria-expanded",ddBranschEl.classList.contains("open"));});
-document.addEventListener("click",e=>{if(!e.target.closest("#ddBransch"))ddBranschEl.classList.remove("open");});
+window.__stangUtanfor("#ddBransch",function(){ddBranschEl.classList.remove("open");});
 document.getElementById("btnRunB").addEventListener("click",()=>{window.__reportMode.bransch=false;vcRender("bransch");});
 function applyLevel(dim,niva){
   const st=(dim==="yrke")?yrkeState:branschState;
@@ -18586,7 +18599,7 @@ let utbState={code:null,region:"",regionVald:false,loaded:false,data:null}; wind
 
 const ddUtbEl=document.getElementById("ddUtb");
 document.getElementById("ddUtbBtn").addEventListener("click",e=>{e.stopPropagation();ddUtbEl.classList.toggle("open");document.getElementById("ddUtbBtn").setAttribute("aria-expanded",ddUtbEl.classList.contains("open"));});
-document.addEventListener("click",e=>{if(!e.target.closest("#ddUtb"))ddUtbEl.classList.remove("open");});
+window.__stangUtanfor("#ddUtb",function(){ddUtbEl.classList.remove("open");});
 document.getElementById("btnRunU").addEventListener("click",()=>{window.__reportMode.utb=false;vcRender("utbildning");});
 document.getElementById("btnExportU").addEventListener("click",()=>vcExport("utbildning"));
 
@@ -18864,7 +18877,7 @@ const ddKompEl=document.getElementById("ddKomp");
   var t=document.getElementById("ddKompText");
   if(t&&window.MutationObserver){ new MutationObserver(window.__kompSyncInput).observe(t,{childList:true,characterData:true,subtree:true}); }
 })();
-document.addEventListener("click",e=>{if(!e.target.closest("#ddKomp")){ddKompEl.classList.remove("open");var _i=document.getElementById("ddKompInput");if(_i){_i.setAttribute("aria-expanded","false");if(window.__kompSyncInput&&document.activeElement!==_i)window.__kompSyncInput();}}});
+window.__stangUtanfor("#ddKomp",function(){ddKompEl.classList.remove("open");var _i=document.getElementById("ddKompInput");if(_i){_i.setAttribute("aria-expanded","false");if(window.__kompSyncInput&&document.activeElement!==_i)window.__kompSyncInput();}});
 document.getElementById("btnRunK").addEventListener("click",()=>{window.__reportMode.komp=false;vcRender("kompetens");});
 document.getElementById("btnExportK").addEventListener("click",()=>vcExport("kompetens"));
 
@@ -21255,7 +21268,7 @@ function buildYrkeRegionMenu(){
   const el=document.getElementById("ddYrkeRegion"); if(!el)return;
   const btn=document.getElementById("ddYrkeRegionBtn");
   btn.addEventListener("click",e=>{e.stopPropagation();el.classList.toggle("open");btn.setAttribute("aria-expanded",el.classList.contains("open"));});
-  document.addEventListener("click",e=>{if(!e.target.closest("#ddYrkeRegion"))el.classList.remove("open");});
+  window.__stangUtanfor("#ddYrkeRegion",function(){el.classList.remove("open");});
   buildYrkeRegionMenu();
 })();
 
@@ -21295,7 +21308,7 @@ function buildBranschRegionMenu(){
   const el=document.getElementById("ddBranschRegion"); if(!el)return;
   const btn=document.getElementById("ddBranschRegionBtn");
   btn.addEventListener("click",e=>{e.stopPropagation();el.classList.toggle("open");btn.setAttribute("aria-expanded",el.classList.contains("open"));});
-  document.addEventListener("click",e=>{if(!e.target.closest("#ddBranschRegion"))el.classList.remove("open");});
+  window.__stangUtanfor("#ddBranschRegion",function(){el.classList.remove("open");});
   buildBranschRegionMenu();
 })();
 
@@ -21403,7 +21416,7 @@ function buildKompRegionMenu(){
   const el=document.getElementById("ddKompRegion"); if(!el)return;
   const btn=document.getElementById("ddKompRegionBtn");
   btn.addEventListener("click",e=>{e.stopPropagation();el.classList.toggle("open");btn.setAttribute("aria-expanded",el.classList.contains("open"));});
-  document.addEventListener("click",e=>{if(!e.target.closest("#ddKompRegion"))el.classList.remove("open");});
+  window.__stangUtanfor("#ddKompRegion",function(){el.classList.remove("open");});
   if(typeof setupDropdownSearch==="function") setupDropdownSearch("ddKompRegion");
 })();
 function buildUtbRegionMenu(){
@@ -21424,7 +21437,7 @@ function buildUtbRegionMenu(){
   const el=document.getElementById("ddUtbRegion"); if(!el)return;
   const btn=document.getElementById("ddUtbRegionBtn");
   btn.addEventListener("click",e=>{e.stopPropagation();el.classList.toggle("open");btn.setAttribute("aria-expanded",el.classList.contains("open"));});
-  document.addEventListener("click",e=>{if(!e.target.closest("#ddUtbRegion"))el.classList.remove("open");});
+  window.__stangUtanfor("#ddUtbRegion",function(){el.classList.remove("open");});
   if(typeof setupDropdownSearch==="function") setupDropdownSearch("ddUtbRegion");
 })();
 
@@ -31305,7 +31318,7 @@ window.setupSecNav=function(bodyId){
   (function(){
     var el=document.getElementById("ddUsRegion"); if(!el)return; var btn=document.getElementById("ddUsRegionBtn");
     btn.addEventListener("click",function(e){ e.stopPropagation(); el.classList.toggle("open"); btn.setAttribute("aria-expanded",el.classList.contains("open")); });
-    document.addEventListener("click",function(e){ if(!e.target.closest("#ddUsRegion"))el.classList.remove("open"); });
+    window.__stangUtanfor("#ddUsRegion",function(){el.classList.remove("open");});
     buildUsRegionMenu();
   })();
   seg.querySelectorAll(".lvlseg-btn").forEach(function(b){
