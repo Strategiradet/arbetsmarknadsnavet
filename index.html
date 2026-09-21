@@ -3511,49 +3511,42 @@ body>header .hdr-exp-primary,body>header .hdr-exp-more,body>header .hdr-exp-wrap
    märke först). Allt är avgränsat till .welcome-title, så sidhuvudets märke påverkas inte.
    Rutan visas bara över 860 punkters bredd, se #welcomeOverlay i mob-welcome-topp-2. */
 .welcome-title{font-size:calc(clamp(var(--ts-titel-xl),2.4vw,var(--ts-display))*1.15);gap:13px;margin-bottom:4px}
-.welcome-title .brand-mark,.welcome-title .wm-lager{width:37px;height:37px}
+.welcome-title .brand-mark{width:37px;height:37px}
 
-/* ===== Välkomstrutans märke: ekrarna rör sig i tur och ordning =====
-   När rutan öppnas rör sig ekrarna med sina prickar utåt och tillbaka en i taget, medurs med
-   början högst upp. Navet står still. Varje eker flyttas 4,5 enheter i märkets rityta (64 x 64,
-   alltså 7,03 procent av märkets bredd) under 0,56 sekunder och når sitt yttersta läge efter
-   40 procent av tiden. Nästa eker startar 0,11 sekunder efter den förra och den första 0,3
-   sekunder efter start, så förloppet tar 1,41 sekunder. Första och sista bildrutan är
-   märkets viloläge.
+/* ===== Välkomstrutans märke: ett varv med återgång =====
+   När rutan öppnas snurrar märket ett varv medurs, glider 10 grader förbi viloläget och vrider
+   sig tillbaka. Varvet tar de första 75 procenten av 2,4 sekunder (1,8 s) med kurvan
+   cubic-bezier(.42,0,.25,1): märket börjar från stillastående, har vridit sig omkring 27 grader
+   efter 0,3 sekunder och når högst fart, omkring 525 grader per sekund, efter 0,6 sekunder.
+   Återgången tar resten med en kurva som är mjuk åt båda hållen. Startläget -360 grader är
+   identiskt med viloläget, så första bildrutan hoppar inte. Rörelsen börjar 0,3 sekunder
+   efter start.
+   Kurvan var tidigare cubic-bezier(.3,.1,.1,1) på 2,1 sekunder. Den startade med fart och nådde
+   halva toppfarten redan efter 0,15 sekunder, 780 grader per sekund efter 0,3. I märkets
+   storlek i rutan, 37 punkter, syntes starten därför knappt, och varvet såg ut att börja i
+   full fart.
+   Laddsnurran (.spinner) är samma märke i jämn rotation; det är inbromsningen och stoppet som
+   skiljer de två åt.
 
-   Märket rör sig i lager. Rörelsen låg tidigare på ekrarna inne i märkets svg och startade
-   medan sidan fortfarande lästes in. I Chromium, med nedladdningen strypt till 50 Mbit/s,
-   startade webbläsaren om animeringen på kompositorn tre gånger inom en halv sekund och
-   ritade den under tiden från huvudtråden, som då var upptagen i omgångar om 50 till 140 ms.
-   Det gav ett hack i början av rörelsen. Nu bygger skriptet direkt efter välkomstrutans
-   markup en kopia av märket i sju lager (.wm-lager): ett svg per eker med sin prick och ett
-   för navet. Varje lager är ett eget element med will-change:transform, så att förflyttningen
-   sköts av kompositorn och inte hänger på huvudtråden. Rörelsen startar först när sidan är
-   färdigtolkad: klassen wm-spela sätts på rutan i första bildrutan efter DOMContentLoaded.
-   Originalmärket ligger kvar dolt och orört, eftersom rapporten kopierar det med outerHTML
-   (querySelector(".brand-mark") träffar detta märke först). Saknas lagren visas originalet
-   stillastående. Animeringen spelas också när rutan öppnas igen, eftersom display:none
-   startar om den.
+   Två saker gav tidigare ett hack i början av rörelsen, uppmätt i Chromium i september 2026.
+   Rörelsen startade medan sidan lästes in, när huvudtråden är upptagen i omgångar. Och märket
+   flyttades till ett eget lager när rörelsen började och tillbaka när den slutade, så att det
+   ritades om i just de ögonblicken. Därför ligger märket i ett eget lager hela tiden
+   (will-change:transform), och rörelsen startar först när sidan är färdigtolkad och har
+   lugnat sig: skriptet direkt efter välkomstrutans markup väntar efter DOMContentLoaded tills
+   webbläsaren har ritat i 200 ms utan att någon bildruta dröjt mer än 25 ms, och sätter då
+   klassen wm-spela på rutan. Efter 2,5 sekunders väntan sätts den ändå. Animeringen spelas också när rutan öppnas igen, eftersom display:none
+   startar om den. Markupen rörs inte, eftersom rapporten kopierar märket med outerHTML
+   (querySelector(".brand-mark") träffar detta märke först); kopiorna saknar föräldrarna nedan
+   och står still.
    Väljarna måste bära !important och vara mer specifika än body.welcome-open #welcomeOverlay *:
    medan rutan är öppen stängs all rörelse av med animation:none !important, och undantaget
    för rutan återställer med revert, som går tillbaka till webbläsarens grundvärde. */
-.welcome-title .wm-lager{position:relative;display:block;flex:none;color:#61543d}
-.welcome-title .wm-lager>svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block;will-change:transform}
-.welcome-title.wm-lagrad>.brand-mark{display:none}
-@keyframes welcomeUt1{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(0,-7.0312%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
-@keyframes welcomeUt2{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(6.0892%,-3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
-@keyframes welcomeUt3{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(6.0892%,3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
-@keyframes welcomeUt4{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(0,7.0312%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
-@keyframes welcomeUt5{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(-6.0892%,3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
-@keyframes welcomeUt6{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(-6.0892%,-3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
-body.welcome-open #welcomeOverlay.wm-spela .wm-eker1{animation:welcomeUt1 .56s 0.3s !important}
-body.welcome-open #welcomeOverlay.wm-spela .wm-eker2{animation:welcomeUt2 .56s 0.41s !important}
-body.welcome-open #welcomeOverlay.wm-spela .wm-eker3{animation:welcomeUt3 .56s 0.52s !important}
-body.welcome-open #welcomeOverlay.wm-spela .wm-eker4{animation:welcomeUt4 .56s 0.63s !important}
-body.welcome-open #welcomeOverlay.wm-spela .wm-eker5{animation:welcomeUt5 .56s 0.74s !important}
-body.welcome-open #welcomeOverlay.wm-spela .wm-eker6{animation:welcomeUt6 .56s 0.85s !important}
+.welcome-title .brand-mark{will-change:transform}
+@keyframes welcomeVarv{0%{transform:rotate(-360deg);animation-timing-function:cubic-bezier(.42,0,.25,1)}75%{transform:rotate(10deg);animation-timing-function:cubic-bezier(.45,0,.35,1)}to{transform:rotate(0deg)}}
+body.welcome-open #welcomeOverlay.wm-spela .welcome-title .brand-mark{animation:welcomeVarv 2.4s .3s !important}
 @media (prefers-reduced-motion:reduce){
-  body.welcome-open #welcomeOverlay.wm-spela .wm-eker{animation:none !important}
+  body.welcome-open #welcomeOverlay.wm-spela .welcome-title .brand-mark{animation:none !important}
 }
 
 /* ===== Välkomstrutans kort: svart text =====
@@ -6183,12 +6176,12 @@ section.results .vcmp .rapport-matrix-wrap{
       </div>
       <p class="welcome-or">Utforska ett område</p>
       <div class="welcome-views">
-        <button type="button" class="welcome-view" data-go="kompetens"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.5.4.5 1 .5 1.6h6c0-.6 0-1.2.5-1.6A6 6 0 0012 3z"/></svg>Kompetens</span><span class="wv-desc">Efterfrågan på enskilda kompetenser i jobbannonser</span></button>
-        <button type="button" class="welcome-view" data-go="yrke"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg>Yrke</span><span class="wv-desc">Sysselsättning, jobbannonsdata och geografi</span></button>
-        <button type="button" class="welcome-view" data-go="bransch"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="8" width="16" height="11" rx="1.5"/><path d="M9 8V6.5A1.5 1.5 0 0110.5 5h3A1.5 1.5 0 0115 6.5V8M4 13h16"/></svg>Bransch</span><span class="wv-desc">Sysselsättning, yrken och jobbannonser per bransch</span></button>
+        <button type="button" class="welcome-view" data-go="kompetens"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.5.4.5 1 .5 1.6h6c0-.6 0-1.2.5-1.6A6 6 0 0012 3z"/></svg>Kompetenser</span><span class="wv-desc">Efterfrågan på enskilda kompetenser i jobbannonser</span></button>
+        <button type="button" class="welcome-view" data-go="yrke"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg>Yrken</span><span class="wv-desc">Sysselsättning, jobbannonsdata och geografi</span></button>
+        <button type="button" class="welcome-view" data-go="bransch"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="8" width="16" height="11" rx="1.5"/><path d="M9 8V6.5A1.5 1.5 0 0110.5 5h3A1.5 1.5 0 0115 6.5V8M4 13h16"/></svg>Branscher</span><span class="wv-desc">Sysselsättning, yrken och jobbannonser per bransch</span></button>
         <button type="button" class="welcome-view" data-go="region"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.5"><path d="M8.5 9.5 12 6.5 15.5 9.5"/><path d="M9.5 9v4.5h5V9"/><path d="M2 15.5 5.5 12.5 9 15.5"/><path d="M3 15v4.5h5V15"/><path d="M15 15.5 18.5 12.5 22 15.5"/><path d="M16 15v4.5h5V15"/></svg>Län</span><span class="wv-desc">Arbetsmarknad, specialisering och jobbannonser per län</span></button>
-        <button type="button" class="welcome-view" data-go="kommun"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 11 12 5 20 11"/><path d="M6.5 10V19H17.5V10"/></svg>Kommun</span><span class="wv-desc">Arbetsmarknad, specialisering och jobbannonser per kommun</span></button>
-        <button type="button" class="welcome-view" data-go="utbstat"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M3.5 6.8c2.6-.8 5.9-.7 8.5 1 2.6-1.7 5.9-1.8 8.5-1v10.8c-2.6-.8-5.9-.7-8.5 1-2.6-1.7-5.9-1.8-8.5-1V6.8z"/><path d="M12 7.8v11"/></svg>Utbildning</span><span class="wv-desc">Examinerade, söktryck och etablering efter examen</span></button>
+        <button type="button" class="welcome-view" data-go="kommun"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 11 12 5 20 11"/><path d="M6.5 10V19H17.5V10"/></svg>Kommuner</span><span class="wv-desc">Arbetsmarknad, specialisering och jobbannonser per kommun</span></button>
+        <button type="button" class="welcome-view" data-go="utbstat"><span class="wv-name"><svg width="15" height="15" fill="none" stroke="currentColor" class="wv-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M3.5 6.8c2.6-.8 5.9-.7 8.5 1 2.6-1.7 5.9-1.8 8.5-1v10.8c-2.6-.8-5.9-.7-8.5 1-2.6-1.7-5.9-1.8-8.5-1V6.8z"/><path d="M12 7.8v11"/></svg>Utbildningar</span><span class="wv-desc">Examinerade, söktryck och etablering efter examen</span></button>
       </div>
     </div>
     <div class="welcome-foot">
@@ -6197,30 +6190,25 @@ section.results .vcmp .rapport-matrix-wrap{
   </div>
 </div>
 <script>
-/* Välkomstrutans märke i lager, se CSS-blocket "Välkomstrutans märke: ekrarna rör sig i tur och
-   ordning". Skriptet står direkt efter rutans markup, så att lagren finns redan när rutan ritas
-   första gången. Kopian byggs ur originalmärkets egna element, så märkets form finns på ett
-   enda ställe. Originalet ändras inte; klassen wm-lagrad sätts på rubriken. */
+/* Välkomstrutans märke: rörelsen startar när sidan är färdigtolkad och har lugnat sig. Efter
+   DOMContentLoaded mäts tiden mellan bildrutorna. När webbläsaren har ritat i 200 ms utan att
+   någon bildruta dröjt mer än 25 ms sätts klassen wm-spela, och efter 2,5 sekunders väntan sätts
+   den ändå. Under inläsningen tappade webbläsaren bildrutor i början av varvet, eftersom den
+   samtidigt ritade upp och läste in resten av sidan. Se CSS-blocket "Välkomstrutans märke: ett
+   varv med återgång". */
 (function(){
-  try{
-    var h=document.getElementById("welcomeTitle"), org=h?h.querySelector("svg.brand-mark"):null;
-    var c=org?org.querySelectorAll("circle"):[], l=org?org.querySelectorAll("line"):[];
-    if(org&&c.length===8&&l.length===6){
-      var NS="http://www.w3.org/2000/svg";
-      var ny=function(k){ var s=document.createElementNS(NS,"svg"); s.setAttribute("viewBox","0 0 64 64");
-        s.setAttribute("focusable","false"); s.setAttribute("class",k); return s; };
-      var lager=document.createElement("span"); lager.className="wm-lager"; lager.setAttribute("aria-hidden","true");
-      for(var i=0;i<6;i++){ var s=ny("wm-eker wm-eker"+(i+1));
-        s.appendChild(c[i].cloneNode(false)); s.appendChild(l[i].cloneNode(false)); lager.appendChild(s); }
-      var nav=ny("wm-nav"); nav.appendChild(c[6].cloneNode(false)); nav.appendChild(c[7].cloneNode(false));
-      lager.appendChild(nav);
-      org.parentNode.insertBefore(lager, org.nextSibling);
-      h.classList.add("wm-lagrad");
-    }
-  }catch(e){}
-  /* Rörelsen startar när sidan är färdigtolkad, i första bildrutan efter DOMContentLoaded. */
   function spela(){ var ov=document.getElementById("welcomeOverlay"); if(ov) ov.classList.add("wm-spela"); }
-  function vänta(){ requestAnimationFrame(spela); }
+  function vänta(){
+    var borjan=0, forra=0, lugnSedan=0;
+    function ruta(t){
+      if(!borjan){ borjan=t; lugnSedan=t; }
+      if(forra && t-forra>25) lugnSedan=t;
+      forra=t;
+      if(t-lugnSedan>=200 || t-borjan>=2500){ spela(); return; }
+      requestAnimationFrame(ruta);
+    }
+    requestAnimationFrame(ruta);
+  }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", vänta); else vänta();
 })();
 </script>
@@ -6295,12 +6283,12 @@ section.results .vcmp .rapport-matrix-wrap{
     <span class="viewnav-indicator" aria-hidden="true"></span>
 
     <div class="viewnav-group" role="presentation">Välj perspektiv</div>
-    <button class="viewnav-btn active" id="tab-kompetens" data-vw="kompetens" role="tab" aria-selected="true" aria-controls="view-kompetens" tabindex="0" data-tip="Följ en enskild kompetens genom jobbannonserna. Efterfrågan redovisas över tid, och nyckeltalen visar hur bred kompetensen är, alltså hur många av yrkena som söker den. Vyn kopplar också ihop kompetensen med branscher och utbildningar."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.5.4.5 1 .5 1.6h6c0-.6 0-1.2.5-1.6A6 6 0 0012 3z"/></svg>Kompetens</button>
-    <button class="viewnav-btn" id="tab-yrke" data-vw="yrke" role="tab" aria-selected="false" aria-controls="view-yrke" tabindex="-1" data-tip="Yrket beskrivs från flera håll: sysselsatta över tid, lön, könsfördelning och åldersstruktur. Åldersavgångarna visar hur mycket yrket måste rekrytera bara för att behålla sin storlek. Längre ned redovisas rekryteringsläget och vägarna in."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg>Yrke</button>
-    <button class="viewnav-btn" id="tab-bransch" data-vw="bransch" role="tab" aria-selected="false" aria-controls="view-bransch" tabindex="-1" data-tip="Hur stor är branschen, och åt vilket håll går utvecklingen? Sysselsättningen redovisas över tid, tillsammans med branschens ekonomiska storlek. Geografin och yrkessammansättningen visar var branschen finns och vilka den anställer."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="8" width="16" height="11" rx="1.5"/><path d="M9 8V6.5A1.5 1.5 0 0110.5 5h3A1.5 1.5 0 0115 6.5V8M4 13h16"/></svg>Bransch</button>
+    <button class="viewnav-btn active" id="tab-kompetens" data-vw="kompetens" role="tab" aria-selected="true" aria-controls="view-kompetens" tabindex="0" data-tip="Följ en enskild kompetens genom jobbannonserna. Efterfrågan redovisas över tid, och nyckeltalen visar hur bred kompetensen är, alltså hur många av yrkena som söker den. Vyn kopplar också ihop kompetensen med branscher och utbildningar."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.5.4.5 1 .5 1.6h6c0-.6 0-1.2.5-1.6A6 6 0 0012 3z"/></svg>Kompetenser</button>
+    <button class="viewnav-btn" id="tab-yrke" data-vw="yrke" role="tab" aria-selected="false" aria-controls="view-yrke" tabindex="-1" data-tip="Yrket beskrivs från flera håll: sysselsatta över tid, lön, könsfördelning och åldersstruktur. Åldersavgångarna visar hur mycket yrket måste rekrytera bara för att behålla sin storlek. Längre ned redovisas rekryteringsläget och vägarna in."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg>Yrken</button>
+    <button class="viewnav-btn" id="tab-bransch" data-vw="bransch" role="tab" aria-selected="false" aria-controls="view-bransch" tabindex="-1" data-tip="Hur stor är branschen, och åt vilket håll går utvecklingen? Sysselsättningen redovisas över tid, tillsammans med branschens ekonomiska storlek. Geografin och yrkessammansättningen visar var branschen finns och vilka den anställer."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="8" width="16" height="11" rx="1.5"/><path d="M9 8V6.5A1.5 1.5 0 0110.5 5h3A1.5 1.5 0 0115 6.5V8M4 13h16"/></svg>Branscher</button>
     <button class="viewnav-btn" id="tab-region" data-vw="region" role="tab" aria-selected="false" aria-controls="view-region" tabindex="-1" data-tip="Hela länets arbetsmarknad samlad på en sida. Sysselsättning, arbetslöshet och utbildningsnivå jämförs med riket, och pendlingen visar hur mycket dagbefolkningen skiljer sig från nattbefolkningen. Specialiseringen visar vad länet har en större andel av än riket."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.5"><path d="M8.5 9.5 12 6.5 15.5 9.5"/><path d="M9.5 9v4.5h5V9"/><path d="M2 15.5 5.5 12.5 9 15.5"/><path d="M3 15v4.5h5V15"/><path d="M15 15.5 18.5 12.5 22 15.5"/><path d="M16 15v4.5h5V15"/></svg>Län</button>
-    <button class="viewnav-btn" id="tab-kommun" data-vw="kommun" role="tab" aria-selected="false" aria-controls="view-kommun" tabindex="-1" data-tip="Kommunens arbetsmarknad, mätt med samma mått som länets. Pendlingen har stor betydelse här. Sysselsättningsgraden räknas på nattbefolkningen och näringslivets sammansättning på dagbefolkningen. Jämförelsen görs mot riket och mot länets övriga kommuner."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 11 12 5 20 11"/><path d="M6.5 10V19H17.5V10"/></svg>Kommun</button>
-    <button class="viewnav-btn" id="tab-utbstat" data-vw="utbstat" role="tab" aria-selected="false" aria-controls="view-utbstat" tabindex="-1" data-tip="Utbildningsstatistik för högskola, yrkeshögskola och gymnasium. Examinerade och studerande redovisas över tid, och du kan följa etablering och inkomst efter examen. Prognoserna för tillgång och efterfrågan sträcker sig till 2040."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M3.5 6.8c2.6-.8 5.9-.7 8.5 1 2.6-1.7 5.9-1.8 8.5-1v10.8c-2.6-.8-5.9-.7-8.5 1-2.6-1.7-5.9-1.8-8.5-1V6.8z"/><path d="M12 7.8v11"/></svg>Utbildning</button>
+    <button class="viewnav-btn" id="tab-kommun" data-vw="kommun" role="tab" aria-selected="false" aria-controls="view-kommun" tabindex="-1" data-tip="Kommunens arbetsmarknad, mätt med samma mått som länets. Pendlingen har stor betydelse här. Sysselsättningsgraden räknas på nattbefolkningen och näringslivets sammansättning på dagbefolkningen. Jämförelsen görs mot riket och mot länets övriga kommuner."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 11 12 5 20 11"/><path d="M6.5 10V19H17.5V10"/></svg>Kommuner</button>
+    <button class="viewnav-btn" id="tab-utbstat" data-vw="utbstat" role="tab" aria-selected="false" aria-controls="view-utbstat" tabindex="-1" data-tip="Utbildningsstatistik för högskola, yrkeshögskola och gymnasium. Examinerade och studerande redovisas över tid, och du kan följa etablering och inkomst efter examen. Prognoserna för tillgång och efterfrågan sträcker sig till 2040."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><path d="M3.5 6.8c2.6-.8 5.9-.7 8.5 1 2.6-1.7 5.9-1.8 8.5-1v10.8c-2.6-.8-5.9-.7-8.5 1-2.6-1.7-5.9-1.8-8.5-1V6.8z"/><path d="M12 7.8v11"/></svg>Utbildningar</button>
     
         <div class="viewnav-group" id="navGroupData" role="presentation">Data och metod</div>
         <button class="viewnav-btn" id="tab-method" data-vw="method" role="tab" aria-selected="false" aria-controls="view-method" tabindex="-1" data-tip="Om verktygets datakällor, metod och hur måtten ska tolkas."><svg width="18" height="18" fill="none" stroke="currentColor" class="vn-ico" viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 7.8h.01"/></svg>Om verktyget</button>
@@ -7857,7 +7845,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <p>Alla efterfrågade kompetenser anges inte heller uttryckligen i annonserna. En kompetens som tidigare behövde anges som krav kan med tiden betraktas som självklar och därför utelämnas ur jobbannonser. En minskad förekomst i annonserna behöver därför inte innebära minskad efterfrågan, vilket kräver försiktighet vid jämförelser över tid och mellan yrken.</p>
         <p>Även kvaliteten på informationen varierar, bland annat vad gäller geografisk placering. I vissa annonser anges exempelvis &rdquo;hela Sverige&rdquo; eller kopplas till arbetsgivarens huvudkontor trots att arbetet utförs på annan ort. Det kan ge en missvisande bild av den geografiska efterfrågan.</p>
         <p>Slutligen publiceras vissa annonser av bemannings- eller rekryteringsföretag. Det kan innebära att samma kompetensbehov förekommer flera gånger i datan eller att den geografiska kopplingen blir mindre tydlig.</p>
-        <h3 class="method-h" id="m-uppdaterad">Uppdatering</h3> <p>Statistik ur SCB:s statistikdatabas hämtas via API vid varje besök. Övriga underlag lagras i verktyget och byts ut när nya versioner publiceras. Listan nedan anger versionen för varje underlag. Det senaste redovisade året framgår av figurernas källrader.</p> <ul id="dataVersioner"></ul> <h3 class="method-h" id="m-kalla">Källor</h3>
+        <h3 class="method-h" id="m-kalla">Källor</h3>
     <p>Nedan framgår de källor som används i verktyget.</p>
     <div class="method-kallor">
       <p class="kallgrupp-h">Arbetsförmedlingen</p>
@@ -38616,7 +38604,11 @@ window.__ritaGymOvg = async function(){
           if(window.__hoppaTillFigur){
             Promise.resolve(window.__hoppaTillFigur(o.post)).then(function(sv){
               if(sv&&sv.ok&&sv.synlig===false){
-                res.innerHTML='<div class="gs-empty">'+esc(o.name)+' finns i '+esc(o.post.vyNamn.toLowerCase())+'vyn, men visas först när ett område är valt.</div>';
+                /* Vyns namn i bestämd form. Det byggdes förut ur menyknappens text plus "vyn", vilket gav
+                   "yrkevyn", "länvyn" och "utbildningvyn", och med menyns pluralformer hade det blivit
+                   "yrkenvyn" och liknande. Formerna står därför här. */
+                var _vyForm={kompetens:"kompetensvyn",yrke:"yrkesvyn",bransch:"branschvyn",region:"länsvyn",kommun:"kommunvyn",utbstat:"utbildningsvyn"};
+                res.innerHTML='<div class="gs-empty">'+esc(o.name)+' finns i '+esc(_vyForm[o.post.vy]||(o.post.vyNamn.toLowerCase()+'vyn'))+', men visas först när ett område är valt.</div>';
                 res.hidden=false;
                 setTimeout(function(){ if(!inp.value)res.hidden=true; }, 4200);
               }
@@ -39195,8 +39187,9 @@ window.__ritaGymOvg = async function(){
     }catch(e){ return null; }
   };
 
-  /* Notisen hör hemma i versionslistan under Om verktyget, där underlagens datum står.
-     Den skrivs bara när kontrollen slagit larm, och bara en gång. */
+  /* Notisen skrevs i versionslistan under Om verktyget. Listan togs bort i september 2026,
+     så funktionen hittar inget element att skriva i, och larmet syns bara som varning i
+     webbläsarens konsol. Funktionen står kvar tills notisen får en ny plats. */
   window.__sniNotisRita=function(){
     try{
       if(!window.__sniAvvikelse)return;
@@ -39223,16 +39216,16 @@ window.__ritaGymOvg = async function(){
    Två av datumen finns maskinläsbara i datablocken, KOMP_META.uppdaterad och
    yrkesmixens meta.framstalld, och läses därifrån när de finns. De kan alltså
    inte glida ifrån verkligheten efter en ny körning. Övriga står nedan och
-   behöver ändras för hand när underlaget byts – här, på ett ställe, varifrån
-   både sidfoten och Om verktyget läser.
+   behöver ändras för hand när underlaget byts, här på ett ställe. Analystexterna
+   läser datumen via DATA_VERSIONER. Versionslistan under Om verktyget, avsnittet
+   Uppdatering, togs bort i september 2026.
 
-   Sidfoten visar det senaste av datumen. Den ligger i .rail-footer-text, som
-   döljs under 860 px, så på mobil nås uppgiften via Om verktyget i stället. */
+   Sidfotens datum står i markupen, se dataStampel. */
 (function(){
   function iso(v){ return (typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v)) ? v.slice(0,10) : null; }
   function ur(obj, nyckel){ try { return iso(obj && obj[nyckel]); } catch(e){ return null; } }
 
-  /* Underlagen och deras datum. Listan under Ladda ned data byggs ur den här tabellen.
+  /* Underlagen och deras datum. Analystexterna läser dem via DATA_VERSIONER.
    OBS: sidfotens rad "Senaste uppdatering" är hårdkodad i markupen och följer inte med
    automatiskt. Ändrar du ett datum här ska sidfoten ändras för hand, sök på dataStampel. */
 var UNDERLAG = [
@@ -39253,7 +39246,6 @@ var UNDERLAG = [
   window.__senasteDatauppdatering = function(){
     return UNDERLAG.map(function(u){ return u.datum; }).filter(Boolean).sort().pop() || "";
   };
-  function beskrivning(u){ return u.datum ? (u.ord + " " + u.datum) : u.text; }
 
   /* Filnamnsdatum: sv-SE ger år-månad-dag, alltså sorterbart utan egen formatering. */
   window.__isoDatum = function(){
@@ -39289,19 +39281,7 @@ var UNDERLAG = [
   p.textContent = "Senaste uppdatering: " + _txt + ".";
     ft.appendChild(p);
   }
-  function skrivLista(){
-    var ul = document.getElementById("dataVersioner");
-    if(!ul || ul.children.length) return;
-    UNDERLAG.forEach(function(u){
-      var li = document.createElement("li");
-      li.textContent = u.namn + " – " + beskrivning(u);
-      ul.appendChild(li);
-    });
-  }
-  /* Kontrollen av n\u00e4ringsgrensversionen kan sl\u00e5 larm f\u00f6re eller efter att listan skrivits,
-     beroende p\u00e5 n\u00e4r branschvyn h\u00e4mtar sin lista. Notisen ritas d\u00e4rf\u00f6r ocks\u00e5 h\u00e4r; funktionen
-     skriver bara n\u00e4r larmet finns och notisen saknas. */
-  function start(){ skrivSidfot(); skrivLista(); if(window.__sniNotisRita)window.__sniNotisRita(); }
+  function start(){ skrivSidfot(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 })();
