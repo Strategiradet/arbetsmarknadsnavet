@@ -2064,6 +2064,20 @@ main.view>aside .us-stat>.block>/* Rubriken som ligger först i ett block fick f
    nowrap: talen är korta och ska inte kunna delas. */
 .rapport-table tbody th[scope="row"]{white-space:normal;overflow-wrap:break-word;
   max-width:26ch;min-width:0;hyphens:auto}
+  /* Radetiketten låses till vänsterkanten. Tabellerna rullar i sidled när de har många
+     kolumner, och etiketten försvann då ur bild: man såg ett tal utan att veta vilken rad
+     det tillhörde. Samma grepp som matristabellen redan använder. Bakgrunden måste vara
+     ogenomskinlig, annars syns kolumnerna som rullar under. */
+  .rapport-table tbody th[scope="row"],
+  .rapport-table thead th:first-child,
+  .rapport-table tfoot th:first-child{position:sticky;left:0;z-index:2;background:#fff}
+  .rapport-table thead th:first-child{z-index:3}
+  .rapport-table tfoot .rapport-ref-row th:first-child{background:#f6faf9}
+  /* En skugga visar att något ligger dolt åt vänster när tabellen är rullad. */
+  .rapport-table tbody th[scope="row"]::after,
+  .rapport-table thead th:first-child::after{content:"";position:absolute;top:0;right:-6px;
+    bottom:0;width:6px;pointer-events:none;
+    background:linear-gradient(90deg,rgba(56,47,35,.09),rgba(56,47,35,0))}
   .rapport-matrix-scroll{overflow-x:auto;margin:4px 0 0}
   .rapport-matrix{border-collapse:collapse;width:100%;font:400 var(--fig-text)/1.35 var(--font-ui);color:var(--ink);min-width:420px}
   .rapport-matrix th,.rapport-matrix td{border:1px solid #eaf1ef;padding:6px 10px;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -6048,7 +6062,7 @@ section.results .vcmp .rapport-matrix-wrap{
   .rd-rader{padding:6px 15px 4px}
   /* Foten trycks till kortets underkant, så att referensraderna står i linje mellan
      kort av olika höjd i samma rutnätsrad. */
-  .rd-fot{margin-top:auto;padding:0 15px}
+  .rd-fot{margin-top:auto;padding:0 15px;background:#f7f2e8}
   /* Fast namnkolumn: staplarna börjar på samma plats i alla kort. */
   .rd-rad{display:grid;grid-template-columns:38% 1fr 76px;align-items:center;gap:10px;
           padding:6px 0;border-top:1px solid #e7dfd0}
@@ -6068,9 +6082,9 @@ section.results .vcmp .rapport-matrix-wrap{
   /* Referensrader: tonade och kursiva, så att de läses som jämförelsepunkter. */
   /* Linjen sitter på foten som helhet, inte mellan referensraderna: den skiljer
      områdena från referenserna och ska därför ligga ovanför genomsnittet. */
-  .rd-snitt{background:#f7f2e8;margin:0 -15px;padding:6px 15px;border-top:0}
+  .rd-snitt{background:transparent;margin:0;padding:6px 0;border-top:0}
   .rd-fot{border-top:1px solid #bfae8e}
-  .rd-fot .rd-snitt:last-child{border-radius:0 0 11px 11px}
+  .rd-fot .rd-snitt:last-child{padding-bottom:9px}
   .rd-snitt .rd-namn,.rd-snitt .rd-tal{color:var(--ink);font-weight:600}
   .rd-snitt .rd-spar{background:#e4dac4;box-shadow:none}
   .rd-snitt .rd-spar i{background:#a8987a;opacity:1}
@@ -21851,19 +21865,25 @@ function buildUtbRegionMenu(){
     else blocks.push(["p", _specDefL+" H\u00f6gst kvot bland yrkesomr\u00e5dena har "+rdList(topY.slice(0,2).map(function(y){return rdLow(y.name)+" ("+fmt2(y.lq)+")";}),2)+"."]);
     if(!_lqYSaknas) blocks.push(["p","I motsatt riktning utgör "+rdLow(botY[0].name)+" en mindre andel än i riket ("+fmt2(botY[0].lq)+")"+(botY[1]?", liksom "+rdLow(botY[1].name)+" ("+fmt2(botY[1].lq)+")":"")+". Eftersom samma yrke kan finnas i flera branscher ger yrkesperspektivet en delvis annan bild än branschperspektivet."]);
     blocks.push(["fig",{title:"Yrkesspecialisering mot riket",sub:"Specialiseringskvot per yrkesområde. Över 1,0 betyder att yrkesområdet utgör en större andel av sysselsättningen i "+(isR?"länet":d.name)+" än i riket. Under 1,0 är andelen mindre.",id:"rapportYrkeBar",source:"SCB."}]);
+    /* Branschstyckena låg inuti kompetensavsnittets villkor, alltså
+       !isR && rdKompLq.length>=4, och skrevs därför inte med Hela riket valt eller när
+       kompetenslistan var kort — trots att de bygger på d.lqBransch och inte på
+       kompetensdatan. De låg dessutom efter övergångsavsnittets rubrik, så de gånger de
+       skrevs hamnade de i det avsnittet vid injektionen. De står nu direkt efter
+       yrkesstyckena, i det avsnitt rubriken namnger. */
+    if(_lqBSaknas){ blocks.push(["p","Uppgift om branschspecialisering saknas i underlaget f\u00f6r l\u00e4net."]); }
+    else blocks.push(["p",(_lqYSaknas?(_specDefL+" "):"")+"Bland branscherna har "+rdLow(topB[0].name)+" h\u00f6gst kvot ("+fmt2(topB[0].lq)+")"+(topB[1]?", f\u00f6ljt av "+rdLow(topB[1].name)+" ("+fmt2(topB[1].lq)+")":"")+(topB[2]?" och "+rdLow(topB[2].name)+" ("+fmt2(topB[2].lq)+")":"")+"."]);
+    if(!_lqBSaknas) blocks.push(["p","I andra änden är "+rdLow(botB[0].name)+" "+(botB[0].lq<0.95?"underrepresenterad":"ungefär i nivå med riket")+" med kvoten "+fmt2(botB[0].lq)+(botB[1]?", liksom "+rdLow(botB[1].name)+" ("+fmt2(botB[1].lq)+")":"")+"."]);
+    blocks.push(["fig",{title:"Branschspecialisering mot riket",sub:"Specialiseringskvot. Över 1,0 betyder att branschen utgör en större andel av sysselsättningen i "+(isR?"länet":d.name)+" än i riket. Under 1,0 är andelen mindre.",id:"rapportBar",source:"SCB."}]);
     _ovgRapportBlocks(blocks, d.code, d.code==="00"?[["riket","Riket"]]:[["lan","Länet"],["riket","Riket"]]);
     var rdKompLq=(typeof regionKompLQ==="function")?regionKompLQ(d):[];
     if(!isR && rdKompLq.length>=4){
       var kT=rdKompLq.slice(0,3), kB=rdKompLq.slice(-2).slice().reverse();
       var _kP=specPick(rdKompLq,14); var kBar=_kP.items.map(function(x){return {name:x.namn,lq:x.lq};});
-    if(_lqBSaknas){ blocks.push(["p","Uppgift om branschspecialisering saknas i underlaget f\u00f6r l\u00e4net."]); }
-    else blocks.push(["p",(_lqYSaknas?(_specDefL+" "):"")+"Bland branscherna har "+rdLow(topB[0].name)+" h\u00f6gst kvot ("+fmt2(topB[0].lq)+")"+(topB[1]?", f\u00f6ljt av "+rdLow(topB[1].name)+" ("+fmt2(topB[1].lq)+")":"")+(topB[2]?" och "+rdLow(topB[2].name)+" ("+fmt2(topB[2].lq)+")":"")+"."]);
-    if(!_lqBSaknas) blocks.push(["p","I andra änden är "+rdLow(botB[0].name)+" "+(botB[0].lq<0.95?"underrepresenterad":"ungefär i nivå med riket")+" med kvoten "+fmt2(botB[0].lq)+(botB[1]?", liksom "+rdLow(botB[1].name)+" ("+fmt2(botB[1].lq)+")":"")+"."]);
-    blocks.push(["fig",{title:"Branschspecialisering mot riket",sub:"Specialiseringskvot. Över 1,0 betyder att branschen utgör en större andel av sysselsättningen i "+(isR?"länet":d.name)+" än i riket. Under 1,0 är andelen mindre.",id:"rapportBar",source:"SCB."}]);
-    blocks.push(["h2","Efterfrågade kompetenser"]);
+      blocks.push(["h2","Efterfrågade kompetenser"]);
       /* Samma inledning som kommunvyn. Meningen om h\u00f6gst och l\u00e4gst kvot st\u00e5r kvar i stycket
-     nedanf\u00f6r, som l\u00e4nsvyn har och kommunvyn saknar. */
-  blocks.push(["p","I jobbannonser anger arbetsgivarna vilka kompetenser de s\u00f6ker. Diagrammet visar vilka kompetenser arbetsgivare i "+d.name+" efterfr\u00e5gar."]);
+         nedanf\u00f6r, som l\u00e4nsvyn har och kommunvyn saknar. */
+      blocks.push(["p","I jobbannonser anger arbetsgivarna vilka kompetenser de s\u00f6ker. Diagrammet visar vilka kompetenser arbetsgivare i "+d.name+" efterfr\u00e5gar."]);
       blocks.push(["p","H\u00f6gst specialiseringskvot har kompetensen "+kurs(kT[0].namn)+" med "+fmt2(kT[0].lq)+(kT[1]?", f\u00f6ljt av "+kurs(kT[1].namn)+" ("+fmt2(kT[1].lq)+")":"")+(kT[2]?" och "+kurs(kT[2].namn)+" ("+fmt2(kT[2].lq)+")":"")+"."
         +" L\u00e4gst kvot mot riket har "+(kB[1]?"kompetenserna ":"kompetensen ")+kurs(kB[0].namn)+" ("+fmt2(kB[0].lq)+")"+(kB[1]?" och "+kurs(kB[1].namn)+" ("+fmt2(kB[1].lq)+")":"")+"."]);
       blocks.push(["fig",{title:"Specialisering i kompetensefterfrågan",sub:"Specialiseringskvot för efterfrågan i jobbannonser. Över 1,0 betyder att kompetensen nämns i en större andel av länets annonser än i riket."+(_kP.hidden>0?" "+ental(_kP.hidden,"kompetens","kompetenser")+" i mitten visas inte.":""),id:"rapportKompBar",source:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments."}]);
@@ -22673,7 +22693,11 @@ function buildUtbRegionMenu(){
        resonemang utan underlag i figuren, den andra st\u00e5r i stycket strax under. */
     if(d.foretag!=null)blocks.push(["p","I branschen finns "+rdNum(d.foretag)+" f\u00f6retag"+(d.solo!=null?", varav "+rdNum(d.solo)+" procent \u00e4r solof\u00f6retag utan anst\u00e4llda":"")+"."]);
     if(d.solo!=null)blocks.push(["fig",{title:"Företagsstruktur",sub:"Andel soloföretag utan anställda jämfört med företag med anställda.",id:"rapportForetagBar",source:"SCB."}]);
-    if(d.kvinnor!=null){
+    /* Yrkesblocket låg inuti villkoret för könsfördelningen och skrevs därför bara när
+       den uppgiften fanns för branschen. De två har inget med varandra att göra, och
+       saknades könsuppgiften föll både stycket om yrkena och figurblocket bort utan
+       att något sades om det. Yrkesblocket står nu för sig. */
+    if(d.kvinnor!=null)
       blocks.push(["fig",{title:"Könsfördelning i branschen",sub:"Andelen kvinnor och män bland de sysselsatta i branschen. Avser "+(reg||"riket")+".",id:"rapportKonBar",source:"SCB."}]);
     if(d.yrken&&d.yrken.length){
       /* Fältet är numera en lista med namn och andel, inte enbart namn. */
@@ -22689,17 +22713,17 @@ function buildUtbRegionMenu(){
          parentesen i stället för bokstaven, och de tre numrerade behåller versal medan
          de övriga står med gemen. */
       var _ynNum=_yn.map(function(n,i){ return (i<3?["(i) ","(ii) ","(iii) "][i]:"")+rdLow(n); });
-      blocks.push(["p","De vanligaste yrkena i branschen är "+rdList(_ynNum,5)+"."
+      /* Meningen om vad figuren visar stod i ett eget stycke under uppräkningen. Den säger
+         vad andelarna beskriver och hör därför före dem, som första mening i avsnittets
+         enda stycke. Förbehållet "Avser riket." utgår: figuren bär det själv i sin
+         undertext, som är det nivåpasset läser när det sätter etiketten Riksnivå.
+         Därmed faller också villkoret på valt län bort: beskrivningen av figuren gäller
+         oavsett områdesval, till skillnad från förbehållet. */
+      blocks.push(["p","Figuren visar hur branschens anst\u00e4llda f\u00f6rdelar sig \u00f6ver yrken. "
+        +"De vanligaste yrkena i branschen är "+rdList(_ynNum,5)+"."
         +((_y3>0)?(" De tre största yrkesgrupperna samlar tillsammans "+rdP1(_y3)+" procent."):"")
         ]);
-      /* Förbehållet om vad andelarna avser är ett eget stycke. Sist i uppräkningen blev det
-         en svans på en redan lång mening. Med hela riket valt säger meningen bara att
-         riksuppgifter avser riket, och då utgår den. */
-      /* Lydelsen är den nivåpasset känner igen, så att figuren också får etiketten Riksnivå. */
-      if(d.region) blocks.push(["p","Figuren visar hur branschens anst\u00e4llda f\u00f6rdelar sig \u00f6ver yrken. Avser riket."]);
       blocks.push(["fig",{title:"Yrken i branschen",sub:"De \u00e5tta yrkesgrupper som syssels\u00e4tter flest i "+d.name+", som andel av branschens anst\u00e4llda.",id:"rapportYrkenBar",source:"SCB. Avser riket."}]);
-    }
-
     }
     blocks.push(["h2","Geografisk fördelning"]);
     if(top.length){
@@ -22934,8 +22958,10 @@ function buildUtbRegionMenu(){
       blocks.push(["fig",{title:"Vanligast tillsammans med",sub:"Andel av annonserna för "+d.name+" där respektive kompetens också nämns.",id:"rapportBar",source:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments."+(d.saknasData?" Förenklat urval.":"")}]);
       blocks.push(["svgfig",{title:"Kompetensnätverk",sub:"Kompetensen "+d.name+" är i mitten av figuren, omgiven av de kompetenser som oftast nämns i samma annons. Tjockare linje betyder starkare samvariation. Cirkelns storlek visar hur ofta kompetensen nämns i samtliga annonser.",svg:window.buildKompNetSvg(d.name,d.related),source:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments."+(d.saknasData?" Förenklat urval.":"")}]);
     }
-    if((d.yrken&&d.yrken.length)||(d.branscher&&d.branscher.length)){
-      var rdKompGeo=(typeof kompRegionalData==="function"&&d.code)?kompRegionalData(d.code):null;
+    /* Geografiavsnittet låg inuti villkoret för yrken och branscher, fast det hänger
+       på rdKompGeo. En kompetens med länsdata men utan yrken och branscher fick därför
+       inget geografiavsnitt. Det står nu för sig, före yrkesavsnittet som förut. */
+    var rdKompGeo=(typeof kompRegionalData==="function"&&d.code)?kompRegionalData(d.code):null;
     if(rdKompGeo&&rdKompGeo.length){
       var gByLq=rdKompGeo.slice().sort(function(a,b){return b.lq-a.lq;});
       var gByAbs=rdKompGeo.slice().sort(function(a,b){return b.abs-a.abs;});
@@ -22978,7 +23004,8 @@ function buildUtbRegionMenu(){
       blocks.push(["fig",{title:"Specialisering i efterfrågan per län",sub:"Specialiseringskvot för efterfrågan i jobbannonser. Över 1,0 betyder att "+d.name+" nämns i en större andel av länets annonser än i riket."+(_gP.hidden>0?" "+ental(_gP.hidden,"län","län")+" i mitten visas inte.":""),id:"rapportKompGeoBar",source:"Arbetsförmedlingen, Historiska platsannonser."}]);
       rdKompGeoChart={id:"rapportKompGeoBar",config:rdBarLq(gBar,_valdNamn)};
     }
-    blocks.push(["h2","Yrken och branscher där "+d.name+" efterfrågas"]);
+    if((d.yrken&&d.yrken.length)||(d.branscher&&d.branscher.length)){
+      blocks.push(["h2","Yrken och branscher där "+d.name+" efterfrågas"]);
             /* Branscherna räknas upp med romerska siffror, eftersom flera av namnen själva rymmer
          ett och: utvinning och tillverkning, vård och omsorg. I en vanlig uppräkning gick det
          inte att se var ett namn slutade och nästa började.
@@ -26438,7 +26465,7 @@ window.__KOMMUN_MAP={
             +"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
             +"<title>"+titel+"</title>"
             +rdCollectStyles()
-            +"<style>"+RD_PRINT_CSS+".r-sec-dold{position:static!important;width:auto!important;height:auto!important;clip:auto!important;clip-path:none!important;overflow:visible!important;white-space:normal!important}"+".rd-kortrutnat-wrap{background:transparent!important;border:0!important;border-top:0!important;border-bottom:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important;margin:14px 0 26px!important} .rd-kortrutnat-wrap::before,.rd-kortrutnat-wrap::after{display:none!important;content:none!important} .rd-kortrutnat{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))} .rd-kort{display:flex;flex-direction:column;background:#fff;border:1px solid #bfae8e;border-radius:12px; box-shadow:0 1px 2px rgba(56,47,35,.05),0 6px 14px rgba(56,47,35,.05); overflow:hidden;break-inside:avoid;page-break-inside:avoid} .rd-kort-h{background:#f2ece0;border-bottom:1px solid #bfae8e;padding:11px 15px 9px} .rd-kort-t{font:700 var(--ts-brod)/1.3 var(--font-content);color:var(--ink);margin:0} .rd-meta{margin:2px 0 0;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft)} .rd-rader{padding:6px 15px 4px} .rd-fot{margin-top:auto;padding:0 15px} .rd-rad{display:grid;grid-template-columns:38% 1fr 76px;align-items:center;gap:10px; padding:6px 0;border-top:1px solid #e7dfd0} .rd-rad:first-child{border-top:0} .rd-namn{font:600 var(--fig-text)/1.35 var(--font-ui);overflow-wrap:break-word} .rd-spar{height:11px;background:#e4dac4;border-radius:99px;overflow:hidden;position:relative} .rd-spar i{display:block;height:100%;background:#6d94a6;border-radius:99px} .rd-tal{text-align:right;font:800 var(--fig-text)/1.2 var(--font-content);font-variant-numeric:tabular-nums} .rd-lyft .rd-spar i{background:var(--petrol)} .rd-lyft .rd-namn,.rd-lyft .rd-tal{font-weight:800} .rd-saknas .rd-namn,.rd-saknas .rd-tal{color:var(--ink-soft)} .rd-spar.rd-noll{background:linear-gradient(90deg,#efe7d6 0 calc(50% - 1px),var(--linje) calc(50% - 1px) calc(50% + 1px),#efe7d6 calc(50% + 1px) 100%)} .rd-spar.rd-noll i{position:absolute;left:50%;border-radius:0 99px 99px 0} .rd-spar.rd-noll i.rd-minus{left:auto;right:50%;border-radius:99px 0 0 99px;background:#b3503f} .rd-namnrad{grid-template-columns:38% 1fr} .rd-chip{justify-self:start;font:700 var(--fig-etikett)/1.25 var(--font-ui);padding:3px 10px;border-radius:99px;background:#e4dac4;border:1px solid #bfae8e;color:var(--ink)} .rd-snitt{background:#f7f2e8;margin:0 -15px;padding:6px 15px;border-top:0} .rd-fot{border-top:1px solid #bfae8e} .rd-fot .rd-snitt:last-child{border-radius:0 0 11px 11px} .rd-snitt .rd-namn,.rd-snitt .rd-tal{color:var(--ink);font-weight:600} .rd-snitt .rd-spar{background:#e4dac4;box-shadow:none} .rd-snitt .rd-spar i{background:#a8987a;opacity:1} .rd-skalanot{margin:0;padding:7px 15px 9px;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft);text-align:right} @media(max-width:560px){ .rd-kortrutnat{grid-template-columns:1fr;gap:16px} .rd-rad{grid-template-columns:1fr 76px;grid-template-areas:\"n t\" \"s s\";gap:2px 8px;padding:7px 0} .rd-namn{grid-area:n}.rd-tal{grid-area:t}.rd-spar{grid-area:s;margin-top:4px} .rd-namnrad{grid-template-areas:\"n t\";grid-template-columns:1fr auto} .rd-chip{grid-area:t;justify-self:end} }"+".amr-not{margin:0 0 10mm;padding:6px 10px;border:1px solid #b34;border-radius:6px;background:#fdf3f3;color:#912;font:600 11pt/1.4 sans-serif}</style>"
+            +"<style>"+RD_PRINT_CSS+".r-sec-dold{position:static!important;width:auto!important;height:auto!important;clip:auto!important;clip-path:none!important;overflow:visible!important;white-space:normal!important}"+".rd-kortrutnat-wrap{background:transparent!important;border:0!important;border-top:0!important;border-bottom:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important;margin:14px 0 26px!important} .rd-kortrutnat-wrap::before,.rd-kortrutnat-wrap::after{display:none!important;content:none!important} .rd-kortrutnat{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))} .rd-kort{display:flex;flex-direction:column;background:#fff;border:1px solid #bfae8e;border-radius:12px; box-shadow:0 1px 2px rgba(56,47,35,.05),0 6px 14px rgba(56,47,35,.05); overflow:hidden;break-inside:avoid;page-break-inside:avoid} .rd-kort-h{background:#f2ece0;border-bottom:1px solid #bfae8e;padding:11px 15px 9px} .rd-kort-t{font:700 var(--ts-brod)/1.3 var(--font-content);color:var(--ink);margin:0} .rd-meta{margin:2px 0 0;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft)} .rd-rader{padding:6px 15px 4px} .rd-fot{margin-top:auto;padding:0 15px;background:#f7f2e8} .rd-rad{display:grid;grid-template-columns:38% 1fr 76px;align-items:center;gap:10px; padding:6px 0;border-top:1px solid #e7dfd0} .rd-rad:first-child{border-top:0} .rd-namn{font:600 var(--fig-text)/1.35 var(--font-ui);overflow-wrap:break-word} .rd-spar{height:11px;background:#e4dac4;border-radius:99px;overflow:hidden;position:relative} .rd-spar i{display:block;height:100%;background:#6d94a6;border-radius:99px} .rd-tal{text-align:right;font:800 var(--fig-text)/1.2 var(--font-content);font-variant-numeric:tabular-nums} .rd-lyft .rd-spar i{background:var(--petrol)} .rd-lyft .rd-namn,.rd-lyft .rd-tal{font-weight:800} .rd-saknas .rd-namn,.rd-saknas .rd-tal{color:var(--ink-soft)} .rd-spar.rd-noll{background:linear-gradient(90deg,#efe7d6 0 calc(50% - 1px),var(--linje) calc(50% - 1px) calc(50% + 1px),#efe7d6 calc(50% + 1px) 100%)} .rd-spar.rd-noll i{position:absolute;left:50%;border-radius:0 99px 99px 0} .rd-spar.rd-noll i.rd-minus{left:auto;right:50%;border-radius:99px 0 0 99px;background:#b3503f} .rd-namnrad{grid-template-columns:38% 1fr} .rd-chip{justify-self:start;font:700 var(--fig-etikett)/1.25 var(--font-ui);padding:3px 10px;border-radius:99px;background:#e4dac4;border:1px solid #bfae8e;color:var(--ink)} .rd-snitt{background:transparent;margin:0;padding:6px 0;border-top:0} .rd-fot{border-top:1px solid #bfae8e} .rd-fot .rd-snitt:last-child{padding-bottom:9px} .rd-snitt .rd-namn,.rd-snitt .rd-tal{color:var(--ink);font-weight:600} .rd-snitt .rd-spar{background:#e4dac4;box-shadow:none} .rd-snitt .rd-spar i{background:#a8987a;opacity:1} .rd-skalanot{margin:0;padding:7px 15px 9px;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft);text-align:right} @media(max-width:560px){ .rd-kortrutnat{grid-template-columns:1fr;gap:16px} .rd-rad{grid-template-columns:1fr 76px;grid-template-areas:\"n t\" \"s s\";gap:2px 8px;padding:7px 0} .rd-namn{grid-area:n}.rd-tal{grid-area:t}.rd-spar{grid-area:s;margin-top:4px} .rd-namnrad{grid-template-areas:\"n t\";grid-template-columns:1fr auto} .rd-chip{grid-area:t;justify-self:end} }"+".amr-not{margin:0 0 10mm;padding:6px 10px;border:1px solid #b34;border-radius:6px;background:#fdf3f3;color:#912;font:600 11pt/1.4 sans-serif}</style>"
             /* Sidfoten. Sidnumret står mitt på sidan sedan tidigare; till vänster skrivs nu
                rapportens ämne och område, så att ett utskrivet blad går att placera utan att
                man bläddrar till omslaget. Texten sätts här, eftersom @page-regeln behöver en
@@ -41540,7 +41567,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
       jmf=!!(c && !c.hidden && c.offsetParent!==null);
     }catch(e){}
     if(jmf){
-      var _jh='<div class="sum-box"><p class="sum-h">Sammanfattning</p>'
+      var _jh='<div class="sum-box">'
         +'<p class="sum-sub">I jämförelseläget står nyckeltalen i tabellen nedan, en rad per mått '
         +'och en kolumn per valt objekt. Sammanfattningen i punktform visas när ett enda objekt är valt.</p></div>';
       if(host.innerHTML!==_jh) host.innerHTML=_jh;
@@ -41586,7 +41613,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
          tidigare för hand och blev en rubrik med linje under, alltså något annat än vyns
          övriga rubriker. */
       html='<div class="sum-box sum-kortform"><div class="sum-head">'
-        +'<p class="vy-analys-h sum-h">Sammanfattning</p></div>'
+        +'</div>'
         +'<ul class="sum-kortlista">';
       /* Saknas ett sent kort läggs en platshållare på dess plats, så att rutan får sin
          slutliga höjd direkt. Finns kortet redan görs ingenting. */
@@ -41659,7 +41686,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
       });
       html+="</ul></div>";
     } else if(form==="rutnat"){
-      html='<div class="sum-box sum-kortform"><div class="sum-head"><p class="sum-h">Sammanfattning</p>'
+      html='<div class="sum-box sum-kortform"><div class="sum-head">'
         +'<p class="sum-sub">Talen som ger bilden. Pilen tar dig till figuren.</p></div>'
         +'<div class="sum-rutnat">';
       punkter.forEach(function(pt){
@@ -41669,7 +41696,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
       });
       html+="</div></div>";
     } else {
-      html='<div class="sum-box"><p class="sum-h">Sammanfattning</p><ul class="sum-list">';
+      html='<div class="sum-box"><ul class="sum-list">';
       punkter.forEach(function(pt){
         html+='<li class="sum-item"><span class="sum-text">'+pt.text+'</span>'
           +pil(pt,"sum-pil")
