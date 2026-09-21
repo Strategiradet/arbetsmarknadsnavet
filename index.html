@@ -3501,6 +3501,61 @@ body>header .hdr-exp-primary,body>header .hdr-exp-more,body>header .hdr-exp-wrap
 .welcome-title .brand-word{color:#382f23}
 .welcome-title .brand-nav{color:#66703f}
 
+/* ===== Välkomstrutans märke och namn: 15 procent större, rutan lika stor =====
+   Namnet växer från clamp(21px, 2.4vw, 26px) med faktorn 1,15 och märket från 32 till 37
+   punkter. Märket är det högsta elementet i titelraden även efter ändringen (radhöjden är som
+   mest 29,9 x 1,18 = 35,3 punkter), så raden blir exakt 5 punkter högre vid alla bredder.
+   De 5 punkterna tas från titelns nedre marginal, 9 till 4 punkter. Överraden står kvar på
+   samma plats och huvudet, och därmed hela rutan, behåller sin höjd. Märkets markup rörs inte,
+   eftersom rapporten kopierar den med outerHTML (querySelector(".brand-mark") träffar detta
+   märke först). Allt är avgränsat till .welcome-title, så sidhuvudets märke påverkas inte.
+   Rutan visas bara över 860 punkters bredd, se #welcomeOverlay i mob-welcome-topp-2. */
+.welcome-title{font-size:calc(clamp(var(--ts-titel-xl),2.4vw,var(--ts-display))*1.15);gap:13px;margin-bottom:4px}
+.welcome-title .brand-mark,.welcome-title .wm-lager{width:37px;height:37px}
+
+/* ===== Välkomstrutans märke: ekrarna rör sig i tur och ordning =====
+   När rutan öppnas rör sig ekrarna med sina prickar utåt och tillbaka en i taget, medurs med
+   början högst upp. Navet står still. Varje eker flyttas 4,5 enheter i märkets rityta (64 x 64,
+   alltså 7,03 procent av märkets bredd) under 0,56 sekunder och når sitt yttersta läge efter
+   40 procent av tiden. Nästa eker startar 0,11 sekunder efter den förra och den första 0,3
+   sekunder efter start, så förloppet tar 1,41 sekunder. Första och sista bildrutan är
+   märkets viloläge.
+
+   Märket rör sig i lager. Rörelsen låg tidigare på ekrarna inne i märkets svg och startade
+   medan sidan fortfarande lästes in. I Chromium, med nedladdningen strypt till 50 Mbit/s,
+   startade webbläsaren om animeringen på kompositorn tre gånger inom en halv sekund och
+   ritade den under tiden från huvudtråden, som då var upptagen i omgångar om 50 till 140 ms.
+   Det gav ett hack i början av rörelsen. Nu bygger skriptet direkt efter välkomstrutans
+   markup en kopia av märket i sju lager (.wm-lager): ett svg per eker med sin prick och ett
+   för navet. Varje lager är ett eget element med will-change:transform, så att förflyttningen
+   sköts av kompositorn och inte hänger på huvudtråden. Rörelsen startar först när sidan är
+   färdigtolkad: klassen wm-spela sätts på rutan i första bildrutan efter DOMContentLoaded.
+   Originalmärket ligger kvar dolt och orört, eftersom rapporten kopierar det med outerHTML
+   (querySelector(".brand-mark") träffar detta märke först). Saknas lagren visas originalet
+   stillastående. Animeringen spelas också när rutan öppnas igen, eftersom display:none
+   startar om den.
+   Väljarna måste bära !important och vara mer specifika än body.welcome-open #welcomeOverlay *:
+   medan rutan är öppen stängs all rörelse av med animation:none !important, och undantaget
+   för rutan återställer med revert, som går tillbaka till webbläsarens grundvärde. */
+.welcome-title .wm-lager{position:relative;display:block;flex:none;color:#61543d}
+.welcome-title .wm-lager>svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block;will-change:transform}
+.welcome-title.wm-lagrad>.brand-mark{display:none}
+@keyframes welcomeUt1{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(0,-7.0312%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
+@keyframes welcomeUt2{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(6.0892%,-3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
+@keyframes welcomeUt3{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(6.0892%,3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
+@keyframes welcomeUt4{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(0,7.0312%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
+@keyframes welcomeUt5{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(-6.0892%,3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
+@keyframes welcomeUt6{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,0,.2,1)}40%{transform:translate(-6.0892%,-3.5156%);animation-timing-function:cubic-bezier(.4,0,.3,1)}to{transform:translate(0,0)}}
+body.welcome-open #welcomeOverlay.wm-spela .wm-eker1{animation:welcomeUt1 .56s 0.3s !important}
+body.welcome-open #welcomeOverlay.wm-spela .wm-eker2{animation:welcomeUt2 .56s 0.41s !important}
+body.welcome-open #welcomeOverlay.wm-spela .wm-eker3{animation:welcomeUt3 .56s 0.52s !important}
+body.welcome-open #welcomeOverlay.wm-spela .wm-eker4{animation:welcomeUt4 .56s 0.63s !important}
+body.welcome-open #welcomeOverlay.wm-spela .wm-eker5{animation:welcomeUt5 .56s 0.74s !important}
+body.welcome-open #welcomeOverlay.wm-spela .wm-eker6{animation:welcomeUt6 .56s 0.85s !important}
+@media (prefers-reduced-motion:reduce){
+  body.welcome-open #welcomeOverlay.wm-spela .wm-eker{animation:none !important}
+}
+
 /* ===== Välkomstrutans kort: svart text =====
    Namnet låg i mörkgrått och beskrivningen i en ljusare grå. Korten är knappar, inte löptext,
    och båda raderna hör till samma klickyta, så de bär nu samma svarta färg. Rutan visas
@@ -6141,6 +6196,34 @@ section.results .vcmp .rapport-matrix-wrap{
     </div>
   </div>
 </div>
+<script>
+/* Välkomstrutans märke i lager, se CSS-blocket "Välkomstrutans märke: ekrarna rör sig i tur och
+   ordning". Skriptet står direkt efter rutans markup, så att lagren finns redan när rutan ritas
+   första gången. Kopian byggs ur originalmärkets egna element, så märkets form finns på ett
+   enda ställe. Originalet ändras inte; klassen wm-lagrad sätts på rubriken. */
+(function(){
+  try{
+    var h=document.getElementById("welcomeTitle"), org=h?h.querySelector("svg.brand-mark"):null;
+    var c=org?org.querySelectorAll("circle"):[], l=org?org.querySelectorAll("line"):[];
+    if(org&&c.length===8&&l.length===6){
+      var NS="http://www.w3.org/2000/svg";
+      var ny=function(k){ var s=document.createElementNS(NS,"svg"); s.setAttribute("viewBox","0 0 64 64");
+        s.setAttribute("focusable","false"); s.setAttribute("class",k); return s; };
+      var lager=document.createElement("span"); lager.className="wm-lager"; lager.setAttribute("aria-hidden","true");
+      for(var i=0;i<6;i++){ var s=ny("wm-eker wm-eker"+(i+1));
+        s.appendChild(c[i].cloneNode(false)); s.appendChild(l[i].cloneNode(false)); lager.appendChild(s); }
+      var nav=ny("wm-nav"); nav.appendChild(c[6].cloneNode(false)); nav.appendChild(c[7].cloneNode(false));
+      lager.appendChild(nav);
+      org.parentNode.insertBefore(lager, org.nextSibling);
+      h.classList.add("wm-lagrad");
+    }
+  }catch(e){}
+  /* Rörelsen startar när sidan är färdigtolkad, i första bildrutan efter DOMContentLoaded. */
+  function spela(){ var ov=document.getElementById("welcomeOverlay"); if(ov) ov.classList.add("wm-spela"); }
+  function vänta(){ requestAnimationFrame(spela); }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", vänta); else vänta();
+})();
+</script>
 
 <a class="skip-link" href="#huvudinnehall">Hoppa till innehåll</a>
 <div id="a11yLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -11422,7 +11505,7 @@ moveNavIndicator();
     return {id:"arbetsgivare_"+p[0],
       namn:"Arbetsgivare som annonserar mest \u2013 "+p[1],
       /* Perioden byggs ur datafilen, som i figurernas texter, i st\u00e4llet f\u00f6r att st\u00e5 fast. */
-      desc:"De st\u00f6rsta annons\u00f6rerna "+p[2]+" under perioden "
+      desc:function(){ return "De st\u00f6rsta annons\u00f6rerna "+p[2]+" under perioden "
         +(function(){ try{ var _d=window.__agData&&window.__agData();
             var _f=String((_d&&_d.period)||"").match(/^(\d{4})/), _fr=_f?_f[1]:"2023";
             var _t=(window.KOMP_META&&window.KOMP_META.kvartal_aktuellt)||"";
@@ -11433,20 +11516,20 @@ moveNavIndicator();
            om arbetsst\u00e4llets l\u00e4ge beskrev d\u00e4r n\u00e5got som inte finns i filen. */
         +((p[0]==="yrke"||p[0]==="kompetens")
             ? "Geografin avser arbetsst\u00e4llets l\u00e4ge, branschen arbetsgivarens huvudsakliga verksamhet enligt SNI."
-            : "Branschen avser arbetsgivarens huvudsakliga verksamhet enligt SNI."),
+            : "Branschen avser arbetsgivarens huvudsakliga verksamhet enligt SNI."); },
       kalla:"Arbetsf\u00f6rmedlingen, Historiska platsannonser",
       build:function(){ return agRader(p[0]); }};
   });
   var DL_SETS=[
     {group:"Kompetenser i jobbannonser", items:[
-      {id:"kompetenser_riket", namn:"Efterfrågade kompetenser i riket över tid", desc:"Antal jobbannonser per kompetens och \u00e5r f\u00f6r hela landet, fr\u00e5n 2020. Endast kompetenser som n\u00e4mnts i minst 30 annonser under perioden "
-        +dlKvPeriod()+" ing\u00e5r.", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+      {id:"kompetenser_riket", namn:"Efterfrågade kompetenser i riket över tid", desc:function(){ return "Antal jobbannonser per kompetens och \u00e5r f\u00f6r hela landet, fr\u00e5n 2020. Endast kompetenser som n\u00e4mnts i minst 30 annonser under perioden "
+        +dlKvPeriod()+" ing\u00e5r."; }, kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
         build:function(){ var M=window.NAT_KOMP||{}; var rows=[["kompetens","ar","full_year","antal_annonser"]]; ks(M).forEach(function(k){ var y=M[k]; ks(y).forEach(function(yr){ rows.push([k,yr,dlHelar(yr),y[yr]]); }); }); return rows; }},
-      {id:"kompetenser_lan", namn:"Efterfrågade kompetenser per län över tid", desc:"Antal jobbannonser d\u00e4r respektive kompetens n\u00e4mns per l\u00e4n och \u00e5r under perioden "+dlKvPeriod()+".", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+      {id:"kompetenser_lan", namn:"Efterfrågade kompetenser per län över tid", desc:function(){ return "Antal jobbannonser d\u00e4r respektive kompetens n\u00e4mns per l\u00e4n och \u00e5r under perioden "+dlKvPeriod()+"."; }, kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
         build:function(){ var M=window.KOMP_LAN||{}, LAN=(window.SVE_LAN&&window.SVE_LAN.names)||{}; var rows=[["kompetens","lanskod","lan","ar","full_year","antal_annonser"]]; ks(M).forEach(function(k){ var lm=M[k]; ks(lm).forEach(function(lan){ var ym=lm[lan]; ks(ym).forEach(function(yr){ rows.push([k,lan,LAN[lan]||"",yr,dlHelar(yr),ym[yr]]); }); }); }); return rows; }},
-      {id:"kompetenser_yrke", namn:"Kompetenser per yrke", desc:"Antalet jobbannonser d\u00e4r en kompetens n\u00e4mns, f\u00f6rdelat p\u00e5 yrke enligt SSYK 2012 p\u00e5 tresiffrig niv\u00e5. F\u00f6r varje kompetens redovisas de upp till femton yrkesgrupper med flest annonser d\u00e4r kompetensen n\u00e4mns. Statistiken avser riket under perioden "+dlKvPeriod()+".", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+      {id:"kompetenser_yrke", namn:"Kompetenser per yrke", desc:function(){ return "Antalet jobbannonser d\u00e4r en kompetens n\u00e4mns, f\u00f6rdelat p\u00e5 yrke enligt SSYK 2012 p\u00e5 tresiffrig niv\u00e5. F\u00f6r varje kompetens redovisas de upp till femton yrkesgrupper med flest annonser d\u00e4r kompetensen n\u00e4mns. Statistiken avser riket under perioden "+dlKvPeriod()+"."; }, kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
         build:function(){ var M=window.KOMP_YRKE||{}, YRK=window.YRKE_NAMN3||{}; var per=dlPeriod(); var rows=[["kompetens","ssyk3","yrkesgrupp","antal_annonser","period"]]; ks(M).forEach(function(k){ var top=(M[k]&&M[k].top)||[]; top.forEach(function(t){ rows.push([k,t[0],YRK[t[0]]||"",t[1],per]); }); }); return rows; }},
-      {id:"kompetenser_samvariation", namn:"Kompetenser som n\u00e4mns tillsammans", desc:"Antalet f\u00f6rekomster av tv\u00e5 kompetenser i samma jobbannonser. F\u00f6r varje kompetens ing\u00e5r de upp till femton kompetenser som den oftast f\u00f6rekommer tillsammans med i jobbannonser. Statistiken avser riket under perioden "+dlKvPeriod()+".", kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
+      {id:"kompetenser_samvariation", namn:"Kompetenser som n\u00e4mns tillsammans", desc:function(){ return "Antalet f\u00f6rekomster av tv\u00e5 kompetenser i samma jobbannonser. F\u00f6r varje kompetens ing\u00e5r de upp till femton kompetenser som den oftast f\u00f6rekommer tillsammans med i jobbannonser. Statistiken avser riket under perioden "+dlKvPeriod()+"."; }, kalla:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments",
         build:function(){ var M=window.SAMVAR||{}; var per=dlPeriod(); var rows=[["kompetens","samvarierande_kompetens","antal_gemensamma_annonser","period"]]; ks(M).forEach(function(k){ var rel=(M[k]&&M[k].rel)||[]; rel.forEach(function(r){ rows.push([k,r[0],r[1],per]); }); }); return rows; }},
         ]},
     /* Kompetenser per kommun erbjuds inte. Verktyget har ingen sådan uppdelning: kommunvyns
@@ -11465,8 +11548,35 @@ moveNavIndicator();
   function dlToCSV(rows){ return (typeof toCsv==="function")?toCsv(rows):rows.map(function(r){return r.join(";");}).join("\r\n"); }
   function dlSave(name,text){ name=(window.__datumFilnamn?window.__datumFilnamn(name):name); try{ var blob=new Blob(["\ufeff"+text],{type:"text/csv;charset=utf-8;"}); var url=URL.createObjectURL(blob); var a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){ if(a.parentNode)a.parentNode.removeChild(a); URL.revokeObjectURL(url); },150); }catch(e){ alert("Nedladdningen kunde inte skapas."); } }
   var byId={}, html="";
-  DL_SETS.forEach(function(g){ html+='<h3 class="method-h">'+esc(g.group)+'</h3>'; g.items.forEach(function(it){ byId[it.id]=it; html+='<div class="dl-card"><div class="dl-card-main"><p class="dl-card-name">'+esc(it.namn)+'</p><p class="dl-card-desc">'+esc(it.desc)+'</p><p class="dl-card-src">'+esc(it.kalla)+'</p></div><button class="dl-btn" type="button" data-dl="'+it.id+'">Ladda ned CSV</button></div>'; }); });
+  DL_SETS.forEach(function(g){ html+='<h3 class="method-h">'+esc(g.group)+'</h3>'; g.items.forEach(function(it){ byId[it.id]=it; html+='<div class="dl-card"><div class="dl-card-main"><p class="dl-card-name">'+esc(it.namn)+'</p><p class="dl-card-desc">'+esc(typeof it.desc==="function"?it.desc():it.desc)+'</p><p class="dl-card-src">'+esc(it.kalla)+'</p></div><button class="dl-btn" type="button" data-dl="'+it.id+'">Ladda ned CSV</button></div>'; }); });
   list.innerHTML=html;
+  /* Kompetensposterna beskrev perioden som "2020Q1 och framåt" och arbetsgivarposterna som
+     "2023 och framåt". Beskrivningarna skrevs när listan byggdes, alltså när det här skriptet
+     tolkas, och då har verktyg_grunddata.js längre ned i dokumentet ännu inte lästs in.
+     KOMP_KV_AXIS och KOMP_META saknades därför, och texten föll tillbaka på perioden utan
+     slutkvartal. Beskrivningarna är nu funktioner och skrivs om när grunddatan finns, vid
+     DOMContentLoaded, när arbetsgivarfilen har kommit (startåret står i dess periodfält) och som
+     skyddsnät när kompetensdatan lästs in. Kompetensposterna får första och sista kvartalet i
+     KOMP_KV_AXIS, samma uppgift som kompetensvyns figurer räknar på. Arbetsgivarposterna får
+     samma period som arbetsgivarfilerna och figurtexterna: startåret ur arbetsgivarfilen och
+     slutkvartalet ur KOMP_META. Arbetsgivarfilen anger bara år (2023-2026). Att den når till
+     2026Q2 prövades i september 2026 mot annonsarkivet: summan 2023Q1-2026Q2 i NAT_ANN_KV var
+     2 614 372 annonser och arbetsgivarfilens riket 2 596 938. Ingen yrkesgrupp hade fler
+     annonser i arbetsgivarfilen, och skillnaden låg i ett fåtal yrkesgrupper, inte i proportion
+     till gruppernas annonser i andra kvartalet 2026 som ett tidigare slut hade gett. */
+  function dlSkrivBeskrivningar(){
+    [].forEach.call(list.querySelectorAll(".dl-card"),function(kort){
+      var b=kort.querySelector(".dl-btn"), it=b?byId[b.getAttribute("data-dl")]:null;
+      if(!it||typeof it.desc!=="function")return;
+      var el=kort.querySelector(".dl-card-desc"); if(el)el.textContent=it.desc();
+    });
+  }
+  function dlVidStart(){
+    dlSkrivBeskrivningar();
+    try{ if(window.__agNarKlar)window.__agNarKlar(function(ok){ if(ok)dlSkrivBeskrivningar(); }); }catch(e){}
+    try{ if(window.__kompKlar&&window.__kompKlar.then)window.__kompKlar.then(dlSkrivBeskrivningar); }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",dlVidStart); else dlVidStart();
   list.querySelectorAll(".dl-btn").forEach(function(btn){ btn.addEventListener("click",function(){ var it=byId[btn.getAttribute("data-dl")]; if(!it)return; var old=btn.textContent;
     /* Kompetens- och arbetsgivartabellerna bygger pa data som hamtas i bakgrunden. Ar den
        inte pa plats an vantas den in, sa att nedladdningen aldrig ger en tom fil. */
