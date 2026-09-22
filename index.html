@@ -19724,9 +19724,17 @@ function renderKompYrken(){
     host.innerHTML='<div class="msg">Uppgiften saknas f\u00f6r kompetensen.</div>';
     if(src)src.textContent="";
     window.__kompYrkenUrval="";
+    window.__kompYrkenTre=null;
+    window.__kompYrkenTot=null;
     return;
   }
   const topp=V.rader.slice(0,10);
+  /* De tre största yrkesgruppernas andel av alla kompetensens annonser, för analystexten.
+     Den räknas på kompetensens samtliga annonser och inte bara på figurens yrkesgrupper,
+     så att meningen "av omnämnandena av kompetensen" stämmer (september 2026). */
+  window.__kompYrkenTot=(V.tot>0)?V.tot:null;
+  window.__kompYrkenTre=(V.tot&&V.rader.length>3)
+    ? 100*V.rader.slice(0,3).reduce(function(a,r){return a+(r.antal||0);},0)/V.tot : null;
   if(src)src.textContent="Arbetsf\u00f6rmedlingen, Historiska platsannonser och JobAd Enrichments"+".";
   var _tackVisad=(V.tot?Math.min(100,100*topp.reduce(function(a,r){return a+(r.antal||0);},0)/V.tot):null);
   /* Urvalet och täckningen beskriver vad figuren visar och står i undertexten. Talen sätts
@@ -19790,7 +19798,9 @@ function renderKompYrken(){
      nämnare kommer ur samma underlag. */
   var _andelsvy=(typeof annonsantalTillatet==="function" && !annonsantalTillatet());
   { var _ys=document.getElementById("kompYrkenSub");
-    var _ysn=(d&&d.name)||"kompetensen";
+    /* Namnet står med ordet kompetensen framför: "där kompetensen Sociala medier
+       efterfrågas" (september 2026). Saknas namnet står bara "kompetensen". */
+    var _ysn=(d&&d.name)?("kompetensen "+d.name):"kompetensen";
     if(_ys)_ys.textContent=(_andelsvy
       ? ("Yrkets andel av de jobbannonser som efterfr\u00e5gar "+_ysn+".")
       : ("Antal jobbannonser per yrke d\u00e4r "+_ysn+" efterfr\u00e5gas."))
@@ -33577,8 +33587,12 @@ function dold(el){
     if(!rd||!rd.length)return null;
     var so=rd.slice().sort(function(a,b){return (b.v||0)-(a.v||0);});
     var s1=so[0]; if(s1.v==null)return "Överst i listan står "+so.slice(0,3).map(function(r){return kurs(r.namn);}).join(", ")+".";
-    var tot=(totFast!=null)?totFast:sum(rd.map(function(r){return r.v;}));
-    var t=(inled||"Störst andel har ")+kurs(s1.namn)+(tot>0?(", som står för "+pct(s1.v/tot*100)+" procent av "+vadAlla):"");
+    /* Andelar räknas bara mot hela underlaget, som anroparen anger i totFast. Tidigare
+       räknades de annars på summan av figurens staplar, alltså på det urval figuren visar,
+       till exempel de tio största (september 2026). Utan total för hela underlaget skrivs
+       ingen andel, bara vilken kategori som är störst och kvoten mot den näst största. */
+    var tot=(typeof totFast==="number"&&isFinite(totFast)&&totFast>0)?totFast:0;
+    var t=(tot>0?(inled||"Störst andel har "):"Störst är ")+kurs(s1.namn)+(tot>0?(", som står för "+pct(s1.v/tot*100)+" procent av "+vadAlla):"");
     var k=so[1]?kvot(s1.v,so[1].v):null;
     if(k)t+=", "+k+" "+kurs(so[1].namn);
     t+=".";
@@ -33619,11 +33633,21 @@ function dold(el){
     var kurs=window.__kursNamn;
     var t="I figuren visas antalet jobbannonser d\u00e4r kompetensen efterfr\u00e5gas f\u00f6rdelat per yrkesgrupp. "
       +"Flest omn\u00e4mnanden sker i jobbannonser som avser "+kurs(so[0].namn)+". "
-      +"Jobbannonser som avser detta yrke st\u00e5r f\u00f6r "+pct(so[0].v/tot*100)+" procent av omn\u00e4mnandena i de yrkesgrupper figuren visar";
+      /* Andelen räknas på kompetensens samtliga annonser (september 2026). Saknas totalen
+         utelämnas andelen, i stället för att räknas på figurens yrkesgrupper. */
+      +((window.__kompYrkenTot>0)
+        ? ("Jobbannonser som avser detta yrke st\u00e5r f\u00f6r "+pct(so[0].v/window.__kompYrkenTot*100)+" procent av omn\u00e4mnandena av kompetensen")
+        : ("Detta yrke har flest omn\u00e4mnanden"));
     var k=so[1]?kvot(so[0].v,so[1].v):null;
     if(k)t+=", vilket \u00e4r "+k+" "+kurs(so[1].namn);
     t+=".";
-    if(rd.length>3) t+=" De tre st\u00f6rsta yrkesgrupperna samlar "+pct(sum(so.slice(0,3).map(function(r){return r.v;}))/tot*100)+" procent.";
+    /* Andelen avser kompetensens samtliga annonser, se __kompYrkenTre i renderKompYrken.
+       Saknas den räknas andelen på figurens yrkesgrupper och sägs då vara det. */
+    if(rd.length>3){
+      var _tre=window.__kompYrkenTre;
+      if(_tre!=null&&isFinite(_tre)) t+=" De tre st\u00f6rsta yrkesgrupperna samlar "+pct(_tre)+" procent av omn\u00e4mnandena av kompetensen.";
+      /* Utan total för hela underlaget utelämnas andelen. */
+    }
     /* Nivåförbehållet står i undertexten och i etiketten efter figurrubriken, se nivaMarkera. */
     return {rubrik:"Var kompetensen efterfr\u00e5gas", stycken:[t]};
   };
@@ -33668,25 +33692,14 @@ B["Kompetenser som samvarierar"]=B["Kompetensnätverk"]=B["Kompetenser som samva
              +" annonser som nämner "+_vald+", alltså i "+pct(_gr[0].co/_info.nA*100)+" procent av dem.";
         }
         /* Läsanvisningen. Varje påstående är kontrollerat mot ritkoden: cirkelns radie
-           sätts av grannens eget antal annonser (nB), nyansen av styrkan mot mittpunkten
-           (strength/maxStr genom svMix), och de mörka linjerna dras när två grannar delar
-           minst tolv procent av den mindres annonser — alltså räknat på alla annonser, inte
-           bara på dem som nämner mittpunkten. Alla noder ligger på samma radie, så avståndet
-           till mitten betyder ingenting. Det sägs uttryckligen, eftersom en nätverksbild
-           annars inbjuder till att läsa avstånd som styrka. */
-        _st.push("S\u00e5 l\u00e4ser du figuren. Cirkelns storlek visar hur ofta kompetensen n\u00e4mns i samtliga jobbannonser. "
-          +"Cirkelns m\u00f6rkhet visar hur starkt den samvarierar med "+_vald+": ju m\u00f6rkare, desto starkare samband. "
-          +"Avst\u00e5ndet till mitten betyder ingenting, eftersom alla kompetenser ligger p\u00e5 samma ring.");
-        var _par=c.fig.querySelectorAll("line.sv-edge-bg").length;
-        /* Linjerna mellan de yttre kompetenserna räknas på alla annonser, inte på urvalet
-           som nämner mittpunkten. Det framgick inte, och sambandet kunde läsas som om det
-           bara gällde inom mittpunktens annonser. */
-        var _linjer;
-        if(_par>1) _linjer=tal(_par)+" m\u00f6rka linjer \u00e4r dragna mellan de yttre kompetenserna.";
-        else if(_par===1) _linjer="En m\u00f6rk linje \u00e4r dragen mellan de yttre kompetenserna.";
-        else _linjer="Ingen m\u00f6rk linje \u00e4r dragen mellan de yttre kompetenserna.";
-        _t+=" "+_linjer+" De linjerna visar hur kompetenserna samvarierar med varandra i samtliga jobbannonser, inte bara i dem som n\u00e4mner "+_vald+".";
-        if(_par===0) _t+=" De yttre kompetenserna f\u00f6rekommer allts\u00e5 s\u00e4llan tillsammans med varandra.";
+           sätts av grannens eget antal annonser (nB) och nyansen av styrkan mot mittpunkten
+           (strength/maxStr genom svMix).
+
+           Stycket är kortat enligt Jonas lydelse i september 2026. Inledningen "Så läser du
+           figuren", meningen om att avståndet till mitten inte betyder något och de två
+           meningarna om de mörka linjerna mellan de yttre kompetenserna är strukna. */
+        _st.push("Cirkelns storlek visar hur ofta kompetensen n\u00e4mns i samtliga jobbannonser. "
+          +"Cirkelns m\u00f6rkhet visar hur starkt den samvarierar med "+_vald+": ju m\u00f6rkare, desto starkare samband.");
         _st.push(_t);
       }
     }catch(e){}
@@ -33697,7 +33710,9 @@ B["Kompetenser som samvarierar"]=B["Kompetensnätverk"]=B["Kompetenser som samva
     return {rubrik:"Närliggande kompetenser", stycken:["Listan visar vilka kompetenser som oftast n\u00e4mns i samma jobbannons som "+c.subj.no+", rangordnade efter hur ofta det sker. H\u00f6gst upp st\u00e5r "+_uppr(c.rows.slice(0,3).map(function(r){return kurs(r.namn);}))+"."]};
   };
   B["Efterfrågan per län – antal"]=function(c){
-    var rd=staplar(c.chart); var t=toppText(rd,"länen","efterfrågan i riket");
+    /* Figuren visar alla län med annonser, så staplarna tillsammans är hela underlaget,
+       med undantag för annonser utan angivet län. */
+    var rd=staplar(c.chart); var t=toppText(rd,"länen","kompetensens annonser med angivet län",null,rd?sum(rd.map(function(r){return r.v;})):0);
     return t&&{rubrik:"Geografisk fördelning",
       stycken:[t]};
   };
@@ -34553,7 +34568,8 @@ function _gruppText(c, matt){
     var rd=_listaAv(c); if(!rd.length)return null;
     /* De två sista meningarna var villkorssatser om vad som händer om en stor del är äldre.
        De följde inte av yrkets egna tal utan gällde vilket yrke som helst. */
-    var t=toppText(rd,"åldersgrupperna","de sysselsatta i figuren");
+    /* Åldersgrupperna täcker tillsammans alla sysselsatta, så summan är hela underlaget. */
+    var t=toppText(rd,"åldersgrupperna","de sysselsatta",null,sum(rd.map(function(r){return r.v;})));
     return {rubrik:"Yrkets åldersprofil",
       stycken:["Figuren visar hur de sysselsatta i yrket f\u00f6rdelar sig \u00f6ver \u00e5ldersgrupper, j\u00e4mf\u00f6rt med samtliga yrken."+(t?(" "+t):"")]};
   };
@@ -34702,14 +34718,16 @@ function _gruppText(c, matt){
   B["Arbetsgivare som annonserar i"]=function(c){
     var rd=_listaAv(c); if(!rd||!rd.length)return null;
     var _vad=(c.dim==="yrke")?"yrkets":((c.dim==="bransch")?"branschens":((c.dim==="kommun")?"kommunens":"l\u00e4nets"));
-    var t=toppText(rd,"arbetsgivarna","annonserna i figuren");
+    var _agTot=+((c.fig&&c.fig.getAttribute)?(c.fig.getAttribute("data-ag-total")||0):0)||0;
+    var t=toppText(rd,"arbetsgivarna",_vad+" annonser",null,_agTot);
     var _k=_agKoncMening(rd);
     return t&&{rubrik:"Arbetsgivare",
       stycken:["Listan visar de arbetsgivare som har publicerat flest av "+_vad+" jobbannonser under perioden. "+t+_k]};
   };
   B["Arbetsgivare som efterfrågar kompetensen"]=function(c){
     var rd=_listaAv(c); if(!rd||!rd.length)return null;
-    var t=toppText(rd,"arbetsgivarna","annonserna i figuren");
+    var _agTot=+((c.fig&&c.fig.getAttribute)?(c.fig.getAttribute("data-ag-total")||0):0)||0;
+    var t=toppText(rd,"arbetsgivarna","kompetensens annonser",null,_agTot);
     var _k=_agKoncMening(rd);
     return t&&{rubrik:"Arbetsgivare",
       stycken:["Listan visar de arbetsgivare som oftast efterfr\u00e5gar kompetensen i sina jobbannonser. "+t+_k]};
@@ -34739,7 +34757,8 @@ function _gruppText(c, matt){
      bedömt läge, och en lista med bedömningen per yrke. */
   B["Antal yrken per bedömt rekryteringsläge"]=function(c){
     var rd=_listaAv(c); if(!rd||!rd.length)return null;
-    var t=toppText(rd,"bed\u00f6mningarna","yrkena i figuren");
+    /* Bedömningarna täcker tillsammans alla bedömda yrken, så summan är hela underlaget. */
+    var t=toppText(rd,"bed\u00f6mningarna","de bed\u00f6mda yrkena",null,sum(rd.map(function(r){return r.v;})));
     return t&&{rubrik:"Rekryteringsl\u00e4get i stort",
       stycken:["Bed\u00f6mningen avser m\u00f6jligheterna till arbete p\u00e5 ett till fem \u00e5rs sikt. "+t]};
   };
@@ -34753,7 +34772,8 @@ function _gruppText(c, matt){
   /* Kommunvyns åldersfigur. Yrkesvyn har en egen post med en annan rubrik. */
   B["Åldersstruktur bland de sysselsatta"]=function(c){
     var rd=_listaAv(c); if(!rd||!rd.length)return null;
-    var t=toppText(rd,"\u00e5ldersgrupperna","de sysselsatta i figuren");
+    /* Åldersgrupperna täcker tillsammans alla sysselsatta, så summan är hela underlaget. */
+    var t=toppText(rd,"\u00e5ldersgrupperna","de sysselsatta",null,sum(rd.map(function(r){return r.v;})));
     return t&&{rubrik:"\u00c5ldersstruktur",
       stycken:["Figuren visar hur de sysselsatta f\u00f6rdelar sig \u00f6ver \u00e5ldersgrupper, j\u00e4mf\u00f6rt med riket. "+t]};
   };
@@ -42254,6 +42274,10 @@ try{ window._sumOm=_sumOm; }catch(e){}
       /* Antalet arbetsgivare i gruppen. Analystexten beh\u00f6ver det f\u00f6r att veta om
          koncentrationen \u00e4r m\u00e4tt p\u00e5 fem eller p\u00e5 alla som finns. */
       window.__agAntalRader=(g&&g.topp)?g.topp.length:null;
+      /* Gruppens totala antal annonser läggs på figuren, så att analystexten räknar
+         andelar på hela underlaget och inte på de arbetsgivare listan visar (september 2026). */
+      try{ var _agFig=(s&&s.closest)?s.closest(".r-fig"):null;
+           if(_agFig){ if(g&&g.annonser>0)_agFig.setAttribute("data-ag-total",String(g.annonser)); else _agFig.removeAttribute("data-ag-total"); } }catch(e){}
     }catch(e){}
   }
   window.__agRita=rita;
