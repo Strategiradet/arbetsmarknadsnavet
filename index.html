@@ -2079,14 +2079,33 @@ main.view>aside .us-stat>.block>/* Rubriken som ligger först i ett block fick f
     bottom:0;width:6px;pointer-events:none;
     background:linear-gradient(90deg,rgba(56,47,35,.09),rgba(56,47,35,0))}
   .rapport-matrix-scroll{overflow-x:auto;margin:4px 0 0}
-  .rapport-matrix{border-collapse:collapse;width:100%;font:400 var(--fig-text)/1.35 var(--font-ui);color:var(--ink);min-width:420px}
-  .rapport-matrix th,.rapport-matrix td{border:1px solid #eaf1ef;padding:6px 10px;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+  /* Kantlinjerna ritas per cell (höger och under, plus vänster i första kolumnen och överst i
+     huvudraden) i stället för med border-collapse. Med sammanslagna kanter ritas linjerna av
+     tabellen och följer inte med en låst cell, så en smal remsa av de rullade cellerna syntes
+     till vänster om den låsta kolumnen. */
+  .rapport-matrix{border-collapse:separate;border-spacing:0;width:100%;font:400 var(--fig-text)/1.35 var(--font-ui);color:var(--ink);min-width:420px}
+  .rapport-matrix th,.rapport-matrix td{border:0;border-right:1px solid #eaf1ef;border-bottom:1px solid #eaf1ef;padding:6px 10px;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
   /* Tabellstandarden: allt i samma storlek, skillnaderna bärs av vikt och dämpad färg.
      Kolumnrubrikerna hade 700 i etikettstorlek och en blågrå ton utanför paletten;
      de följer nu samma mönster som nyckeltalstabellen i jämförelsen. */
   .rapport-matrix thead th{background:var(--paper-2,#f3f7f6);font:600 var(--fig-text)/1.2 var(--font-ui);color:var(--ink-soft)}
   .rapport-matrix thead th:first-child,.rapport-matrix tbody th{text-align:left;white-space:normal}
   .rapport-matrix tbody th{font-weight:600;background:#fff;max-width:240px}
+  .rapport-matrix tr>:first-child{border-left:1px solid #eaf1ef}
+  .rapport-matrix thead tr:first-child>*{border-top:1px solid #eaf1ef}
+  /* Radetiketten och hörncellen ligger fast till vänster när matrisen rullas i sidled, på
+     samma sätt som i jämförelsetabellerna ovan. På smal skärm rullade etiketten annars ur
+     bild, och man såg ett tal utan att veta vilken bransch eller vilket yrke det gällde
+     (september 2026). Bakgrunden är ogenomskinlig, så att de färgade cellerna som rullar in
+     under etiketten inte syns igenom. Endast left sätts: huvudraden ska inte klistras mot
+     sidans överkant, se regeln om position:static för tabellhuvuden. */
+  .rapport-matrix tbody th,
+  .rapport-matrix thead th:first-child{position:sticky;left:0;z-index:2}
+  .rapport-matrix thead th:first-child{z-index:3}
+  .rapport-matrix tbody th::after,
+  .rapport-matrix thead th:first-child::after{content:"";position:absolute;top:0;right:-6px;
+    bottom:0;width:6px;pointer-events:none;
+    background:linear-gradient(90deg,rgba(56,47,35,.09),rgba(56,47,35,0))}
   .mx-legend{display:flex;align-items:center;gap:8px;margin:9px 0 0;font:400 var(--fig-mikro)/1 var(--font-ui);color:var(--ink-soft)}
   .mx-legend-bar{flex:0 0 auto;width:120px;height:9px;border-radius:5px;background:linear-gradient(90deg,rgb(234,243,242),rgb(44,98,118))}
   .mx-legend-lbl{white-space:nowrap}
@@ -6100,23 +6119,34 @@ section.results .vcmp .rapport-matrix-wrap{
   .rd-kortrutnat-wrap{background:transparent!important;border:0!important;border-top:0!important;border-bottom:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important;margin:14px 0 26px!important}
   .rd-kortrutnat-wrap::before,.rd-kortrutnat-wrap::after{display:none!important;content:none!important}
   .rd-kortrutnat{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
-  .rd-kort{display:flex;flex-direction:column;background:#fff;border:1px solid #bfae8e;border-radius:12px;
+  /* Kortet är ett rutnät med fem kolumner: marginal, namn, stapel, tal och marginal.
+     Rubrikband, rader och fot sträcker sig över hela bredden, och raderna ärver kolumnerna
+     (subgrid), så att staplarna börjar på samma plats i alla rader i kortet, också i foten.
+     Namnkolumnen är 38 procent av radbredden som förut men växer till kortets längsta ord.
+     Tidigare var kolumnen fast och ord som inte rymdes bröts mitt i, till exempel
+     "programmeringsspr" och "åk" (september 2026). Den sista raden i rutnätet tar upp
+     överskottshöjden, så att foten hamnar i kortets underkant och referensraderna står i
+     linje mellan kort av olika höjd i samma rutnätsrad. */
+  .rd-kort{display:grid;grid-template-columns:15px minmax(min-content,calc((100% - 30px)*.38)) minmax(0,1fr) 76px 15px;
+           grid-template-rows:auto 1fr auto;background:#fff;border:1px solid #bfae8e;border-radius:12px;
            box-shadow:0 1px 2px rgba(56,47,35,.05),0 6px 14px rgba(56,47,35,.05);
            overflow:hidden;break-inside:avoid;page-break-inside:avoid}
   /* Rubrikband: rubriken blir en list och inte en rad bland de andra. */
-  .rd-kort-h{background:#f2ece0;border-bottom:1px solid #bfae8e;padding:11px 15px 9px}
+  .rd-kort-h{grid-column:1/-1;background:#f2ece0;border-bottom:1px solid #bfae8e;padding:11px 15px 9px}
   .rd-kort-t{font:700 var(--ts-brod)/1.3 var(--font-content);color:var(--ink);margin:0}
   .rd-meta{margin:2px 0 0;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft)}
-  .rd-rader{padding:6px 15px 4px}
-  /* Foten trycks till kortets underkant, så att referensraderna står i linje mellan
-     kort av olika höjd i samma rutnätsrad. */
-  .rd-fot{margin-top:auto;padding:0 15px;background:#f7f2e8}
-  /* Fast namnkolumn: staplarna börjar på samma plats i alla kort. */
-  .rd-rad{display:grid;grid-template-columns:38% 1fr 76px;align-items:center;gap:10px;
+  .rd-rader{grid-column:1/-1;display:grid;grid-template-columns:subgrid;align-content:start;padding:6px 0 4px}
+  .rd-fot{grid-column:1/-1;display:grid;grid-template-columns:subgrid;background:#f7f2e8}
+  .rd-rad{grid-column:2/5;display:grid;grid-template-columns:subgrid;align-items:center;column-gap:10px;
           padding:6px 0;border-top:1px solid #e7dfd0}
   .rd-rad:first-child{border-top:0}
   .rd-namn{font:600 var(--fig-text)/1.35 var(--font-ui);overflow-wrap:break-word}
-  .rd-spar{height:11px;background:#e4dac4;border-radius:99px;overflow:hidden;position:relative}
+  /* Spåret har en svag kontur. Den ofyllda delen hade nästan samma ton som bakgrunden,
+     särskilt i foten med Genomsnitt och Riket, där bakgrunden är #f7f2e8 och spåret #e4dac4
+     (september 2026). Konturen är en inre skugga, så att stapelns fyllning ritas ovanpå den
+     och konturen bara syns runt den ofyllda delen. */
+  .rd-spar{height:11px;background:#e4dac4;border-radius:99px;overflow:hidden;position:relative;
+           box-shadow:inset 0 0 0 1px rgba(120,98,60,.28)}
   .rd-spar i{display:block;height:100%;background:#6d94a6;border-radius:99px}
   .rd-tal{text-align:right;font:800 var(--fig-text)/1.2 var(--font-content);font-variant-numeric:tabular-nums}
   .rd-lyft .rd-spar i{background:var(--petrol)}
@@ -6125,8 +6155,11 @@ section.results .vcmp .rapport-matrix-wrap{
   .rd-spar.rd-noll{background:linear-gradient(90deg,#efe7d6 0 calc(50% - 1px),var(--linje) calc(50% - 1px) calc(50% + 1px),#efe7d6 calc(50% + 1px) 100%)}
   .rd-spar.rd-noll i{position:absolute;left:50%;border-radius:0 99px 99px 0}
   .rd-spar.rd-noll i.rd-minus{left:auto;right:50%;border-radius:99px 0 0 99px;background:#b3503f}
-  .rd-namnrad{grid-template-columns:38% 1fr}
-  .rd-chip{justify-self:start;font:700 var(--fig-etikett)/1.25 var(--font-ui);padding:3px 10px;border-radius:99px;background:#e4dac4;border:1px solid #bfae8e;color:var(--ink)}
+  .rd-namnrad .rd-chip{grid-column:span 2}
+  /* Textvärden, till exempel yrkesgruppen med flest annonser, står som vanlig text i
+     medelvikt, så att namnen till vänster behåller sin tyngd. De låg tidigare i en rundad
+     bricka som vid två eller tre rader blev en stor brun klump (september 2026). */
+  .rd-chip{justify-self:start;font:500 var(--fig-text)/1.35 var(--font-ui);color:var(--ink)}
   /* Referensrader: tonade och kursiva, så att de läses som jämförelsepunkter. */
   /* Linjen sitter på foten som helhet, inte mellan referensraderna: den skiljer
      områdena från referenserna och ska därför ligga ovanför genomsnittet. */
@@ -6134,7 +6167,7 @@ section.results .vcmp .rapport-matrix-wrap{
   .rd-fot{border-top:1px solid #bfae8e}
   .rd-fot .rd-snitt:last-child{padding-bottom:9px}
   .rd-snitt .rd-namn,.rd-snitt .rd-tal{color:var(--ink);font-weight:600}
-  .rd-snitt .rd-spar{background:#e4dac4;box-shadow:none}
+  .rd-snitt .rd-spar{background:#e4dac4;box-shadow:inset 0 0 0 1px rgba(120,98,60,.28)}
   .rd-snitt .rd-spar i{background:#a8987a;opacity:1}
   
   .rd-skalanot{margin:0;padding:7px 15px 9px;font:400 var(--fig-mikro)/1.3 var(--font-ui);color:var(--ink-soft);text-align:right}
@@ -6143,7 +6176,7 @@ section.results .vcmp .rapport-matrix-wrap{
     .rd-rad{grid-template-columns:1fr 76px;grid-template-areas:"n t" "s s";gap:2px 8px;padding:7px 0}
     .rd-namn{grid-area:n}.rd-tal{grid-area:t}.rd-spar{grid-area:s;margin-top:4px}
     .rd-namnrad{grid-template-areas:"n t";grid-template-columns:1fr auto}
-    .rd-chip{grid-area:t;justify-self:end}
+    .rd-namnrad .rd-chip{grid-area:t;justify-self:end;text-align:right}
   }
 </style>
 </head>
@@ -18301,6 +18334,35 @@ function vcRender(dim){
     if(typeof announce==="function")announce("Visar "+c.name(st.code));
     return;
   }
+  /* Jämförelsen av kompetenser räknas på kompetensdatan, som läses in i bakgrunden efter
+     sidladdningen. Öppnades en jämförelse via länk samlades underlaget in redan när sidan
+     tolkades, innan någon kompetensdata fanns, och ritades aldrig om: alla kompetenser fick
+     samma reservnamn och serierna blev nollor (september 2026). Kombinationsläget hade redan
+     samma spärr, se renderKombinera. Nu väntas datan in, och jämförelsen ritas när den finns. */
+  if(dim==="kompetens" && c.sel.length>1 && !window.__kompFel && !(window.__kompKlar && window.__kompKlar.klar())){
+    if(body)body.hidden=true; if(cmp)cmp.hidden=true;
+    if(status)status.innerHTML='<div class="msg"><div class="spinner"></div>Sammanställer jämförelse…</div>';
+    var _igen=function(){
+      try{ var _lg=(typeof vcModeOf==="function")?vcModeOf("kompetens"):"jamfor";
+           if(_lg==="jamfor" && VC.kompetens.sel.length>1) vcRender("kompetens"); }
+      catch(e){ if(window.__fel)__fel("jämförelse efter kompetensdata",e); }
+    };
+    /* Laddaren definieras längre ned i dokumentet. Kommer anropet medan sidan fortfarande
+       tolkas finns den inte ännu, och då väntas tolkningen in först. */
+    if(window.__kompKlar){ if(window.__kompStarta)window.__kompStarta(); window.__kompKlar.then(_igen); }
+    else if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",_igen,{once:true}); }
+    else {
+      window.__kompJmfForsok=(window.__kompJmfForsok||0)+1;
+      if(window.__kompJmfForsok<=50) setTimeout(_igen,300);
+      else if(status) status.innerHTML='<div class="msg">Kompetensuppgifterna kunde inte läsas in. Kontrollera att filen verktyg_kompetensdata.js ligger i samma mapp som verktygsfilen.</div>';
+    }
+    return;
+  }
+  if(dim==="kompetens" && c.sel.length>1 && window.__kompFel){
+    if(body)body.hidden=true; if(cmp){ cmp.hidden=true; cmp.innerHTML=""; }
+    if(status)status.innerHTML='<div class="msg">Kompetensuppgifterna kunde inte läsas in. Kontrollera att filen verktyg_kompetensdata.js ligger i samma mapp som verktygsfilen.</div>';
+    return;
+  }
   if(body)body.hidden=true; if(cmp)cmp.hidden=true;
   if(status)status.innerHTML='<div class="msg"><div class="spinner"></div>Sammanställer jämförelse…</div>';
   const idp="vy"+dim;
@@ -23249,7 +23311,10 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
       {label:"Arbetslöshet",period:__arAv("arbSeries","arbYears"),unit:"%",get:function(d){return d.kpis.arbReg;},fmt:rdP1,dir:"low",noun:"arbetslöshet",sup:"lägst",inf:"högst"},
       {label:"Arbetslöshet 20–24 år",period:__arAv("arb24Series","arb24Years"),unit:"%",get:function(d){return d.kpis.arbReg2024;},fmt:rdP1,dir:"low",noun:"ungdomsarbetslöshet",sup:"lägst",inf:"högst"},
       {label:"Andel med minst treårig eftergymnasial utbildning, 25–64 år",period:__arFalt("utbFord._year","kpis.utbAr"),unit:"%",enhetIRubrik:false,get:function(d){return d.kpis.utbReg;},fmt:rdNum,dir:"high",noun:"andel med längre eftergymnasial utbildning",sup:"högst",inf:"lägst"},
-      {label:"Medianinkomst",period:__arAv("inkSeries","inkYears"),unit:"tkr",get:function(d){return d.kpis.medInkReg;},fmt:rdNum,dir:"high",noun:"medianinkomst",sup:"högst",inf:"lägst"},
+      /* Årtalet läses ur kpis.medInkAr, som båda laddarna sätter till året för just det värde
+         kortet visar. Tidigare lästes det ur inkomstserien, som bara kommundatan har, så
+         länskortet saknade årtal fast enskilt läge visade det (september 2026). */
+      {label:"Medianinkomst",period:__arFalt("kpis.medInkAr"),unit:"tkr",get:function(d){return d.kpis.medInkReg;},fmt:rdNum,dir:"high",noun:"medianinkomst",sup:"högst",inf:"lägst"},
       /* Andelen företagare bland de sysselsatta. Måttet har ingen självklar riktning: en
          hög andel kan spegla ett livskraftigt småföretagande likaväl som en arbetsmarknad
          med få stora arbetsgivare. Det jämförs därför utan att pekas ut som bra eller
@@ -23284,7 +23349,7 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
       {label:"Arbetslöshet",period:__arAv("arbSeries","arbYears"),unit:"%",get:function(d){return d.kpis.arbReg;},fmt:rdP1,dir:"low",noun:"arbetslöshet",sup:"lägst",inf:"högst"},
       {label:"Arbetslöshet 20–24 år",period:__arAv("arb24Series","arb24Years"),unit:"%",get:function(d){return d.kpis.arbReg2024;},fmt:rdP1,dir:"low",noun:"ungdomsarbetslöshet",sup:"lägst",inf:"högst"},
       {label:"Andel med minst treårig eftergymnasial utbildning, 25–64 år",period:__arFalt("utbFord._year","kpis.utbAr"),unit:"%",enhetIRubrik:false,get:function(d){return d.kpis.utbReg;},fmt:rdNum,dir:"high",noun:"andel med längre eftergymnasial utbildning",sup:"högst",inf:"lägst"},
-      {label:"Medianinkomst",period:__arAv("inkSeries","inkYears"),unit:"tkr",get:function(d){return d.kpis.medInkReg;},fmt:rdNum,dir:"high",noun:"medianinkomst",sup:"högst",inf:"lägst"},
+      {label:"Medianinkomst",period:__arFalt("kpis.medInkAr"),unit:"tkr",get:function(d){return d.kpis.medInkReg;},fmt:rdNum,dir:"high",noun:"medianinkomst",sup:"högst",inf:"lägst"},
       /* Andelen företagare bland de sysselsatta. Måttet har ingen självklar riktning: en
          hög andel kan spegla ett livskraftigt småföretagande likaväl som en arbetsmarknad
          med få stora arbetsgivare. Det jämförs därför utan att pekas ut som bra eller
@@ -23567,6 +23632,11 @@ function __annonsPeriod(){
   function __sistaArUr(d, serieFalt, arFalt){
     try{
       var s=d&&d[serieFalt], y=d&&d[arFalt];
+      /* Läns- och kommundatan bär serien som ett objekt: områdets egen serie i region, plus
+         riket och i kommunvyn länet. Funktionen läste bara vanliga listor, så kort som
+         Sysselsättningsgrad, Arbetslöshet och Medianinkomst fick inget årtal (september 2026).
+         Kortets tal är områdets eget, så året läses ur områdets serie. */
+      if(s && !Array.isArray(s) && Array.isArray(s.region)) s=s.region;
       if(!s||!y||!y.length) return "";
       for(var i=s.length-1;i>=0;i--){ if(s[i]!=null&&!isNaN(s[i])&&y[i]!=null) return String(y[i]); }
       return "";
@@ -23767,10 +23837,15 @@ function __annonsPeriod(){
          föll radetiketten bort så fort man rullade i sidled. Korten läses uppifrån och ned
          och behöver ingen sidledsrullning.
 
-         Skalan väljs per kort: procenttal mot 0–100, eftersom en skala mot kortets största
-         värde annars förstorar små skillnader; mått som kan vara negativa får en nollinje
-         i mitten; övriga skalas mot kortets största värde. Mått utan riktning får ingen
-         markering, eftersom det inte finns något bäst. */
+         Skalan väljs per kort. Mått som kan vara negativa får en nollinje i mitten. Övriga
+         skalas mot kortets största värde, och alla staplar utgår från noll. Procenttal
+         skalades tidigare mot 0–100, men små andelar blev då nästan tomma: andelen av
+         samtliga jobbannonser, 0,2 till 1,3 procent, gav staplar på en till tre bildpunkter.
+         Sedan september 2026 skalas även procenttal mot kortets största värde. I procentkort
+         räknas genomsnittet och referensraderna, till exempel Riket och Samtliga annonser,
+         med i det största värdet, eftersom de har samma storleksordning som urvalet och
+         annars hade kapats vid kanten. Mått utan riktning får ingen markering, eftersom det
+         inte finns något bäst. */
       if(t.data && t.data.rows && t.data.rows.length){
         var D=t.data, _n=(D.cols||[]).length;
         var _kort=[];
@@ -23782,9 +23857,17 @@ function __annonsPeriod(){
           var _giltiga=_raw.filter(function(v){return v!=null&&isFinite(v);});
           var _proc=(_u==="%"), _neg=_giltiga.some(function(v){return v<0;});
           var _mx=_giltiga.length?Math.max.apply(null,_giltiga.map(Math.abs)):0;
+          if(_proc&&!_neg){
+            (D.refs||[]).forEach(function(rr){
+              if(!rr||rr.name==="Genomsnitt")return;
+              var _rv=(rr.name==="Riket"&&D.rikRaw)?D.rikRaw[ci]
+                     :((D.refRaw&&D.refRaw[rr.name])?D.refRaw[rr.name][ci]:null);
+              if(_rv!=null&&isFinite(_rv)&&Math.abs(_rv)>_mx)_mx=Math.abs(_rv);
+            });
+            if(!_txt&&D.avg&&D.avg[ci]!=null&&isFinite(D.avg[ci])&&Math.abs(D.avg[ci])>_mx)_mx=Math.abs(D.avg[ci]);
+          }
           function _bredd(v){
             if(v==null||!isFinite(v))return 0;
-            if(_proc&&!_neg)return Math.max(1.2,Math.min(100,v));
             if(!_mx)return 0;
             return Math.max(1.2,Math.min(100,100*Math.abs(v)/_mx));
           }
@@ -23859,7 +23942,7 @@ function __annonsPeriod(){
 +'</div>';
         }).join("");
         var _srcK=(t.source?'<p class="rapport-fig-src">'+t.source+'</p>':'');
-        return '<figure class="rapport-table-wrap rd-kortrutnat-wrap" role="group" aria-label="Nyckeltal i j\u00e4mf\u00f6relsen">'
+        return '<figure class="rapport-table-wrap rd-kortrutnat-wrap" role="group" aria-label="Nyckeltal">'
           +_cap+'<div class="rd-kortrutnat">'+_kh+'</div>'+_srcK+'</figure>';
       }
         /* Transponerad jämförelsetabell: nyckeltalen som rader, områdena som kolumner.
@@ -24805,8 +24888,10 @@ window.__KOMMUN_MAP={
     var __tolkV=[];
     /* Hur markeringen i tabellen ska läsas. Meningen stod tidigare dels här, dels i
        tabellens källrad, med olika ordalydelse på de två ställena. */
+  /* Meningen om kort utan riktning är struken och första meningen omformulerad, enligt
+     Jonas lydelse i september 2026: "Nedan beskrivs nyckeltal för de valda länen." */
   var __markering="Det gynnsammaste v\u00e4rdet i varje kort \u00e4r markerat, allts\u00e5 det h\u00f6gsta eller "
-    +"det l\u00e4gsta beroende p\u00e5 m\u00e5ttet. Kort utan given riktning markeras inte.";
+    +"det l\u00e4gsta beroende p\u00e5 m\u00e5ttet.";
     function __pushTolk(b){ if(__brVy)__tolk.push(b); else __tolkV.push(b); }
     /* Branschjämförelsen har en egen, avskalad disposition i vyn. Ingressen hör ändå
        hemma där: den namnger de valda och säger vad jämförelsen avser. Utan den här
@@ -24818,7 +24903,7 @@ window.__KOMMUN_MAP={
          vad referenskolumnen avser och hur skuggningen läses. Branschjämförelsen saknar
          rikskolumn, se RD_RIKGET, så meningen om Genomsnitt är den utan riksjämförelse. */
       __tolk.push(["h2","Nyckeltal"]);
-      __tolk.push(["p","Nedan beskrivs "+rdValda(dim)+", med ett kort per nyckeltal. "
+      __tolk.push(["p","Nedan beskrivs nyckeltal f\u00f6r "+rdValda(dim)+". "
         +"Raden Genomsnitt avser "+rdValda(dim)+", inte riksniv\u00e5. "+__markering]);
     }
     if(!__brVy){
@@ -24832,19 +24917,25 @@ window.__KOMMUN_MAP={
          och hur den läses. Genomgången mått för mått är borttagen: den står i tabellen. */
       if(dim==="region"||dim==="kommun"||dim==="yrke"){
         __tolkV.push(["lead","Jämförelsen omfattar "+rdNamnLista(dim,names)+"."]);
+        /* Mellanrubriken Nyckeltal står över stycket och korten, som i branschvyn
+           (september 2026). */
+        __tolkV.push(["h2","Nyckeltal"]);
       /* Samma form som kompetensj\u00e4mf\u00f6relsen: vad tabellen inneh\u00e5ller, vad referens-
          kolumnerna avser och hur skuggningen l\u00e4ses. Meningen om vilka m\u00e5tt tabellen
          rymmer utg\u00e5r; raderna namnger dem. Yrkesj\u00e4mf\u00f6relsen saknar rikskolumn. */
       var _ref=(dim==="yrke")
         ? ("Raden Genomsnitt avser "+rdValda(dim)+", inte riksniv\u00e5.")
         : ("Raden Genomsnitt avser "+rdValda(dim)+", medan raden Riket avser hela landet.");
-      __tolkV.push(["p","Nedan beskrivs "+rdValda(dim)+", med ett kort per nyckeltal. "
+      __tolkV.push(["p","Nedan beskrivs nyckeltal f\u00f6r "+rdValda(dim)+". "
         +_ref+" "+__markering]);
       } else {
         __tolkV.push(["lead",__ingress]);
+        /* Samma mellanrubrik som i övriga jämförelser. Kompetensvyn får sin rubrik när
+           avsnitten ställs i ordning längre ned, så den hoppas över här. */
+        if(dim!=="kompetens")__tolkV.push(["h2","Nyckeltal"]);
         /* Meningen förklarade spännvidden, ett begrepp som inte längre används sedan
            måttsatserna togs bort. Kvar står vad tabellen innehåller och hur den läses. */
-      __tolkV.push(["p","Nedan beskrivs "+rdValda(dim)+", med ett kort per nyckeltal. "
+      __tolkV.push(["p","Nedan beskrivs nyckeltal f\u00f6r "+rdValda(dim)+". "
         +"Raden Genomsnitt avser "+rdValda(dim)+", inte riksniv\u00e5. "+__markering]);
       }
     }
@@ -25451,12 +25542,20 @@ window.__KOMMUN_MAP={
     if(!root||!root.querySelectorAll)return;
     [].slice.call(root.querySelectorAll(".rapport-table-wrap")).forEach(function(el){
       if(el.querySelector(".rapport-fig-cap"))return;
+      /* Nyckeltalskorten får ingen egen rubrik. Stycket ovanför säger redan vad korten visar,
+         och varje kort har sin egen rubrik (september 2026). */
+      if(el.classList && el.classList.contains("rd-kortrutnat-wrap"))return;
+      /* Står avsnittsrubriken Nyckeltal redan närmast ovanför, med bara brödtext emellan,
+         får korten ingen egen rubrik. Annars hade Nyckeltal stått två gånger i de vyer som
+         delar in jämförelsen i avsnitt, till exempel kompetensvyn (september 2026). */
+      var _f=el.previousElementSibling, _s=0;
+      while(_f && _s<4 && !/^H[1-6]$/.test(_f.tagName) && /^(P|DIV)$/.test(_f.tagName)){ _f=_f.previousElementSibling; _s++; }
+      if(_f && /^H[1-6]$/.test(_f.tagName) && String(_f.textContent||"").trim()==="Nyckeltal") return;
       var cap=document.createElement("figcaption");
       cap.className="rapport-fig-cap";
-      /* Bildtexten sätts på färdig html och känner inte till dimensionen. Den hämtas
-         därför ur den vy som står framme. */
-      var __d=""; try{ __d=(typeof __aktivDim==="function")?__aktivDim():""; }catch(e){}
-      cap.innerHTML='<span class="rapport-fig-title">Nyckeltal i jämförelsen</span><span class="rapport-fig-sub">Korten visar nyckeltal f\u00f6r '+rdValda(__d)+'.</span>';
+      /* Rubriken är kortad till Nyckeltal och undertexten om vad korten visar borttagen,
+         eftersom stycket ovanför redan säger det (september 2026). */
+      cap.innerHTML='<span class="rapport-fig-title">Nyckeltal</span>';
       el.insertBefore(cap,el.firstChild);
     });
   }
@@ -26514,32 +26613,14 @@ window.__KOMMUN_MAP={
              avsteg alls, hellre än att förbehållet tappas bort. */
           /* Rutan sätts in sist på förteckningens sida. Finns ingen förteckning ställs den
              överst i rapporten i stället, så att förbehållet aldrig tappas bort. */
-          /* Riksnoten står på förteckningens sida i de vyer som har figurer med enbart
-             rikstal: kompetens, yrke, bransch och utbildningsstatistik. Läns- och kommunvyn
-             undantas, eftersom deras figurer är nedbrutna på just län respektive kommun.
-             Riket förekommer där bara som jämförelsetal i specialiseringskvoterna, och en not
-             om riksuppgifter hade sagt något som inte stämmer.
-
-             Utan noten säger figurernas egna undertexter det var för sig, som förut. */
-          var __riksvy=(["region","kommun"].indexOf(String(v))<0);
-          /* Kommunrapporten har ett besläktat förbehåll på länsnivå. Tre figurer använder
-             länets tal, eftersom uppgiften inte redovisas per kommun: lediga jobb och
-             matchning, rekryteringsläget enligt Yrkesbarometern, och åldersstrukturens
-             fördelning på yrke och bransch. Var och en säger det i sin undertext; noten
-             säger det en gång innan rapporten börjar, som riksnoten gör i övriga vyer. */
-          var __lansnot=(String(v)!=="kommun")?"":'<div class="fakta-ruta" style="margin-top:9mm"><b>Figurer som visar l\u00e4net<\/b>'
-            +'Alla uppgifter finns inte per kommun. En figur som visar kommunens l\u00e4n \u00e4r m\u00e4rkt '
-            +'<b>L\u00e4nsniv\u00e5<\/b> efter sin rubrik och s\u00e4ger det i sin underrubrik. Om\u00e4rkta figurer '
-            +'avser kommunen.</div>';
-          /* Avståndet till rutan ovanför sätts på elementet. Det låg i stilmallen, men den
-             regeln kan skuggas av senare inlästa stilar, och rutorna stod kvar kant i kant. */
-          var __riksnot=!__riksvy?"":'<div class="fakta-ruta" style="margin-top:9mm"><b>Figurer som visar riket<\/b>'
-            +'Alla uppgifter finns inte p\u00e5 den niv\u00e5 rapporten avser. En figur som visar hela landet '
-            +'\u00e4r m\u00e4rkt <b>Riksniv\u00e5<\/b> efter sin rubrik och s\u00e4ger det i sin underrubrik. Om\u00e4rkta figurer '
-            +'avser det omr\u00e5de rapporten handlar om.</div>';
+          /* Rutorna Figurer som visar riket (kompetens-, yrkes-, bransch- och
+             utbildningsrapporten) och Figurer som visar länet (kommunrapporten), som stod
+             på förteckningens sida, är borttagna (september 2026). Figurer med riks- eller
+             länstal är märkta Riksnivå respektive Länsnivå efter rubriken och säger det i sin
+             underrubrik, så rutorna upprepade vad figurerna redan säger. */
           var __forbehall="";
           if(__toc.length){
-            __forbehall='<div class="amr-toc-forbehall">'+(__forbehallHtml||"")+__riksnot+__lansnot+'</div>';
+            __forbehall='<div class="amr-toc-forbehall">'+(__forbehallHtml||"")+'</div>';
           }
           if(__forbehallHtml){
             if(__toc.length){ /* redan inlagd ovan */ }
@@ -28124,10 +28205,16 @@ window.__KOMMUN_MAP={
 
 /* ===== Delningsbara länkar ===== */
 /* Hash speglar aktuell vy och hela urvalet (VC[vy].sel, kommaseparerat). Återställs vid laddning. */
-function parseShareHash(){ var h=(location.hash||"").replace(/^#/,""); if(!h)return null; var p={}; /* En stympad länk, till exempel avklippt av ett mejlprogram mitt i en procentsekvens, fick decodeURIComponent att kasta. Felet stoppade blockets rest: figurhoppet och länkbevakningen. Ett trasigt par hoppas nu över och antecknas, resten av länken läses som vanligt. */ h.split("&").forEach(function(kv){var i=kv.indexOf("=");if(i<=0)return; try{p[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1));}catch(e){ if(window.__fel)__fel("delningsl\u00e4nk",e); }}); if(!p.view)return null; /* Dubbletter i länken tas bort. En länk kan skrivas för hand eller klippas ihop, och
+function parseShareHash(){ var h=(location.hash||"").replace(/^#/,""); if(!h)return null; var p={}, rå={}; /* En stympad länk, till exempel avklippt av ett mejlprogram mitt i en procentsekvens, fick decodeURIComponent att kasta. Felet stoppade blockets rest: figurhoppet och länkbevakningen. Ett trasigt par hoppas nu över och antecknas, resten av länken läses som vanligt. */ h.split("&").forEach(function(kv){var i=kv.indexOf("=");if(i<=0)return; try{rå[decodeURIComponent(kv.slice(0,i))]=kv.slice(i+1);}catch(e){} try{p[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1));}catch(e){ if(window.__fel)__fel("delningsl\u00e4nk",e); }}); if(!p.view)return null; /* Dubbletter i länken tas bort. En länk kan skrivas för hand eller klippas ihop, och
      samma enhet två gånger i urvalet ger både en dubblerad rad i jämförelsen och, i det
      sammanslagna kompetensläget, ett överlapp på hundra procent. */
-  var codes=p.sel?p.sel.split(",").filter(Boolean).filter(function(x,i,a){return a.indexOf(x)===i;}):[];
+  /* Urvalet delas vid kommatecken innan varje kod avkodas. updateShareUrl kodar varje kod
+     för sig, så ett kommatecken inuti en kod står som %2C och bara skiljetecknen mellan
+     koderna är riktiga kommatecken. Läsningen avkodade tidigare hela värdet först och delade
+     sedan, så ”Python, programmeringsspråk” blev två val (september 2026). En kod som
+     inte går att avkoda hoppas över, resten av urvalet läses som vanligt. */
+  var codes=(rå.sel!=null?String(rå.sel).split(",").map(function(x){ try{ return decodeURIComponent(x); }catch(e){ if(window.__fel)__fel("delningsl\u00e4nk",e); return ""; } }):[])
+    .filter(Boolean).filter(function(x,i,a){return a.indexOf(x)===i;});
   /* reg saknas i äldre länkar och betyder då att inget regionval delats. "riket" står för
      Hela riket, som är ett aktivt val och inte samma sak som att inget valts. */
   /* fig pekar ut en enskild figur. Den ingår inte i vyns tillstånd utan är ett mål att hoppa
