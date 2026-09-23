@@ -6515,7 +6515,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <div class="r-chart" style="height:260px"><canvas id="cBaroBarLan"></canvas></div>
         <p class="r-src" id="srcBaroBarLan"></p>
       </div>
-      <div class="r-fig" style="margin-top:18px" data-ejrapport="1">
+      <div class="r-fig" style="margin-top:18px" data-ejrapport="1" data-ejexport="1">
         <p class="r-fig-title">Rekryteringsläge för efterfrågade yrken</p>
         <p class="r-fig-sub" data-amn="Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt. Avser {S}.">Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt. Avser länet.</p>
         <div class="brist-list" id="bristList"></div>
@@ -6848,7 +6848,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <div class="r-chart" style="height:260px"><canvas id="cBaroBarKom"></canvas></div>
         <p class="r-src" id="srcBaroBarKom"></p>
       </div>
-      <div class="r-fig" data-ejrapport="1">
+      <div class="r-fig" data-ejrapport="1" data-ejexport="1">
         <p class="r-fig-title">Rekryteringsläge för efterfrågade yrken</p>
         <p class="r-fig-sub" id="bristSubKom" data-amn="Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt. Avser {L}, eftersom läget bedöms per län och inte per kommun.">Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt. Avser kommunens län, eftersom uppgiften inte redovisas per kommun.</p>
         <div class="brist-list" id="bristListKom"></div>
@@ -12179,7 +12179,13 @@ function renderPendling(cfg){
           datasets:[{label:"Pendlar in",data:rader.map(function(x){return x.in;}),backgroundColor:_fIn,borderRadius:4,barPercentage:.82,categoryPercentage:.78},
                     {label:"Pendlar ut",data:rader.map(function(x){return -x.ut;}),backgroundColor:_fUt,borderRadius:4,barPercentage:.82,categoryPercentage:.78}]},
         options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
-          plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+nf.format(Math.abs(Math.round(c.parsed.x)))+" personer";}}}},
+          /* Rutan pekade ut fel kommun. Utan inställning jämför Chart.js avståndet längs
+             x-axeln, och i ett liggande diagram är det stapelns längd och inte raden
+             muspekaren står på. Då vann den stapel vars ände låg närmast pekaren, oavsett
+             kommun. Nu jämförs avståndet längs y-axeln, som i vyns övriga liggande
+             diagram (september 2026). */
+          interaction:{mode:"index",axis:"y",intersect:false},
+          plugins:{legend:{display:false},tooltip:{mode:"index",axis:"y",intersect:false,callbacks:{label:function(c){return c.dataset.label+": "+nf.format(Math.abs(Math.round(c.parsed.x)))+" personer";}}}},
           scales:{x:{stacked:true,ticks:{callback:function(v){return nf.format(Math.abs(v));},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
                   y:{stacked:true,ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11},color:"#1a1a1a",autoSkip:false},grid:{display:false},border:{display:false}}}}});
     }
@@ -12464,7 +12470,7 @@ function renderKompKval(){
                avsågs. Namnet skrivs därför ut. */
             datasets:[{label:"Kompetensen "+(d.name||""),data:niva.map(function(n){return K[n.nyckel].andel;}),backgroundColor:PETROL,borderRadius:4,barPercentage:.78,categoryPercentage:.74},
                       {label:"Samtliga jobbannonser i riket",data:niva.map(function(n){return R[n.nyckel].andel;}),backgroundColor:REFERENS_LJUS,borderRadius:4,barPercentage:.78,categoryPercentage:.74}]},
-          options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+          options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.x)+" % av annonserna";}}}},
             scales:{x:{min:0,ticks:{callback:function(v){return v+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
                     /* Etiketterna skrevs p\u00e5 en rad. Fördjupad högskolekompetens \u00e4r 27 tecken och fick
@@ -12556,7 +12562,7 @@ function renderKompLon(){
             datasets:[{label:"Medianl\u00f6n",data:topp.map(function(x){return x.lon;}),
               backgroundColor:topp.map(function(x){return (x.lon>=brytpunkt)?PETROL:REFERENS_LJUS;}),
               borderRadius:4,barPercentage:.8,categoryPercentage:.76}]},
-          options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+          options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
               var r=topp[c.dataIndex];
               return nf.format(Math.round(r.lon))+" kr/m\u00e5n \u00b7 "+fmt1(100*r.antal/L.vikt)+" % av kompetensens annonser";}}}},
@@ -12884,7 +12890,7 @@ function renderNaringsbredd(cfg){
       if(charts[cfg.chartKey])charts[cfg.chartKey].destroy();
       charts[cfg.chartKey]=new Chart(ctx,{type:"bar",
         data:{labels:b.rader.map(function(x){return x.namn;}),datasets:ds},
-        options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+        options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
           plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.x)+" % av de sysselsatta";}}}},
           scales:{x:{min:0,ticks:{callback:function(v){return v+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
                   y:{ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11},color:"#1a1a1a",autoSkip:false},grid:{display:false},border:{display:false}}}}});
@@ -14483,7 +14489,7 @@ async function fetchRegionTotals(){
         var c=new Chart(ctx,{type:"bar",
           data:{labels:etik,datasets:ds},
           options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
-            interaction:{mode:"index",intersect:false},
+            interaction:{axis:"y",mode:"index",intersect:false},
             plugins:{legend:{display:false},tooltip:{callbacks:{
               label:function(cc){ return cc.dataset.label+": "+fmt1(cc.parsed.x)+"\u00a0%"; },
               footer:function(items){
@@ -15634,7 +15640,7 @@ try{ window.renderBranschAlder=renderBranschAlder; window.fetchBranschAlderAlla=
     var c=new Chart(ctx,{type:"bar",
       data:{labels:rader.map(function(r){ return r.namn; }),datasets:ds},
       options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
-        interaction:{mode:"index",intersect:false},
+        interaction:{axis:"y",mode:"index",intersect:false},
         plugins:{legend:{display:false},tooltip:{callbacks:{
           label:function(cc){
             var r=rader[cc.dataIndex];
@@ -16351,7 +16357,7 @@ function renderYrkeLon(){
           {label:"median",type:"line",showLine:false,data:MD,order:1,
            pointBackgroundColor:"#fff",pointBorderColor:kvF,pointBorderWidth:3,pointRadius:8,pointHoverRadius:9}
         ]},
-        options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+        options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
           plugins:{legend:{display:false},tooltip:{callbacks:{
             label:function(c){
               if(c.dataset.label==="median")return "Median: "+nf.format(Math.round(c.parsed.x))+" kr/m\u00e5n";
@@ -19823,7 +19829,7 @@ function renderKompYrken(){
       datasets:[{label:(_andelsvy?"Andel av kompetensens annonser":"Annonser"),
               data:topp.map(function(r){return _andelsvy?(r.andel!=null?r.andel:0):r.antal;}),
         backgroundColor:PETROL,borderRadius:4,barPercentage:.8,categoryPercentage:.78}]},
-    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+    options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
       /* Figuren \u00e4r inte l\u00e4ngre klickbar. Utan handpekare och klickhanterare ser staplarna
          ut som vad de \u00e4r: en redovisning, inte en meny. */
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
@@ -19989,7 +19995,7 @@ function renderKompRegional(){
       /* Ett golv på 220 punkter, så att en kompetens som bara finns i ett par län inte får ett
          diagram som är lägre än sin egen förklaring. */
       if(_wr)_wr.style.height=Math.max(220, absRows.length*22+52)+"px"; }
-    charts.kompRegAbs=new Chart(ca,{type:"bar",data:{labels:absRows.map(r=>r.name),datasets:[{label:_andelG?"Andel av kompetensens annonser":"Antal jobbannonser",data:absRows.map(r=>_andelG?(r.abs/_sumG*100):r.abs),backgroundColor:PETROL,borderColor:absRows.map(r=>String(r.code)===valdKod?"#1a1a1a":"transparent"),borderWidth:absRows.map(r=>String(r.code)===valdKod?2:0),borderRadius:4,maxBarThickness:20}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>_andelG?(fmt1(c.parsed.x)+"\u00a0procent av kompetensens annonser"):(nf.format(c.parsed.x)+" annonser")}}},scales:{x:{ticks:{precision:_andelG?1:0,callback:v=>_andelG?(fmt1(v)+"\u00a0%"):nf.format(v),font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},y:{min:0,ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},autoSkip:false,font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
+    charts.kompRegAbs=new Chart(ca,{type:"bar",data:{labels:absRows.map(r=>r.name),datasets:[{label:_andelG?"Andel av kompetensens annonser":"Antal jobbannonser",data:absRows.map(r=>_andelG?(r.abs/_sumG*100):r.abs),backgroundColor:PETROL,borderColor:absRows.map(r=>String(r.code)===valdKod?"#1a1a1a":"transparent"),borderWidth:absRows.map(r=>String(r.code)===valdKod?2:0),borderRadius:4,maxBarThickness:20}]},options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>_andelG?(fmt1(c.parsed.x)+"\u00a0procent av kompetensens annonser"):(nf.format(c.parsed.x)+" annonser")}}},scales:{x:{ticks:{precision:_andelG?1:0,callback:v=>_andelG?(fmt1(v)+"\u00a0%"):nf.format(v),font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},y:{min:0,ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},autoSkip:false,font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
   }
   /* Indexfiguren ritas som lista, inte som diagram: canvasen cKompRegLq finns
      inte i markupen. Ritkoden för den låg kvar och kördes aldrig, och är borttagen.
@@ -21736,13 +21742,13 @@ function buildUtbRegionMenu(){
       /* Cirkeldiagrammet behåller sitt eget läge. Det globala index-läget, som finns för
        linjediagrammens markör, skulle annars visa ett tips för närmaste sektor även när
        pekaren är utanför cirkeln. */
-    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"nearest",intersect:true},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+": "+fmt1(c.parsed)+"\u00a0%";}}}}}};
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{axis:"y",mode:"nearest",intersect:true},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+": "+fmt1(c.parsed)+"\u00a0%";}}}}}};
   }
   function rdBarPct(items,color){
     var labels=items.map(function(x){return x[0];});
     var vals=items.map(function(x){return x[1];});
     return {type:"bar",data:{labels:labels,datasets:[{data:vals,backgroundColor:color||"#3b6e87",borderRadius:4,barThickness:14}]},
-      options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmt1(c.parsed.x)+"\u00a0%";}}}},
+      options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmt1(c.parsed.x)+"\u00a0%";}}}},
         scales:{x:{suggestedMin:0,grid:{color:RUTNAT},border:{display:false},ticks:{callback:function(v){return axTal(pct1(v))+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"}},y:{grid:{display:false},border:{display:false},ticks:{font:{family:"Inter",size:11},color:"#1a1a1a",autoSkip:false,callback:function(v){ return brytEtikett(this.getLabelForValue(v),26,4); }}}}}};
   }
   function rdBarProg(tillgang,efterfragan){
@@ -23792,7 +23798,7 @@ function __annonsPeriod(){
        användaren valt. Den får en ram i stället för en egen färg, så att den
        befintliga färgsättningen behåller sin betydelse. */
     return {type:"bar",data:{labels:items.map(function(x){return x.name;}),datasets:[{data:items.map(function(x){return x.val;}),backgroundColor:items.map(function(x,i){return RD_PAL[i%RD_PAL.length];}),borderColor:items.map(function(x){return (markera&&x.name===markera)?"#1a1a1a":"transparent";}),borderWidth:items.map(function(x){return (markera&&x.name===markera)?2:0;}),borderRadius:5,barThickness:20}]},
-      options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return nf.format(c.parsed.x)+(suffix?" "+suffix:"");}}}},
+      options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return nf.format(c.parsed.x)+(suffix?" "+suffix:"");}}}},
         scales:{x:{suggestedMin:0,grid:{color:RUTNAT},border:{display:false},ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"}},y:{grid:{display:false},border:{display:false},ticks:{font:{family:"Inter",size:11},color:"#1a1a1a",autoSkip:false,callback:function(v){ return brytEtikett(this.getLabelForValue(v),26,4); }}}}}};
   }
 
@@ -29082,7 +29088,7 @@ window.__renderKompOpts=function(q){
                 data:{labels:_yEt,
                   datasets:[{label:"Annonser",data:_rader.map(function(y){return y.antal;}),
                     backgroundColor:PETROL,borderRadius:4,barPercentage:.8,categoryPercentage:.78}]},
-                options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+                options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
                   /* Diagrammet \u00e4r inte l\u00e4ngre klickbart. Utan handpekare och klickhanterare
                      ser staplarna ut som vad de \u00e4r: en redovisning, inte en meny. */
                   plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
@@ -29158,7 +29164,7 @@ window.__renderKompOpts=function(q){
                 data:{labels:_lanAnt.map(function(x){ return LN0[x.kod]||("Län "+x.kod); }),
                   datasets:[{label:"Antal jobbannonser",data:_lanAnt.map(function(x){ return x.antal; }),
                     backgroundColor:PETROL,borderRadius:4,maxBarThickness:20}]},
-                options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+                options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
                   /* Diagrammet \u00e4r inte l\u00e4ngre klickbart, som \u00f6vriga diagram i verktyget. */
                   plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
                     var r=_lanAnt[c.dataIndex];
@@ -30406,15 +30412,13 @@ window.utbListFor = function(niva){
     var titel=fig.querySelector(".r-fig-title"); if(!titel)return;
     var inne=titel.querySelector(".niva-etikett"); if(inne&&inne.parentNode)inne.parentNode.removeChild(inne);
     var ord=(visa==="riket")?"Riksniv\u00e5":((visa==="lanet")?"L\u00e4nsniv\u00e5":"");
-    /* Etiketten säger vad men inte varför: den som valt ett län och ser Riksnivå kan tro
-       att valet inte slagit igenom. Förklaringen hängs på rubriken, eftersom etiketten
-       ritas av CSS ur attributet och saknar eget element att peka på. */
+    /* Etiketten hade en förklarande ruta vid muspekaren, satt som data-tip på rubriken.
+       Den är borttagen (september 2026): figurens undertext säger redan vilken nivå
+       värdena avser. Ett data-tip från en tidigare version tas bort när etiketten sätts. */
     if(!ord){ if(titel.hasAttribute("data-niva"))titel.removeAttribute("data-niva");
               if(titel.hasAttribute("data-tip"))titel.removeAttribute("data-tip"); return; }
     if(titel.getAttribute("data-niva")!==ord)titel.setAttribute("data-niva",ord);
-    var _tip=(visa==="riket")?"Figuren visar v\u00e4rden p\u00e5 riksniv\u00e5"
-            :((visa==="lanet")?"Figuren visar v\u00e4rden p\u00e5 l\u00e4nsniv\u00e5":"");
-    if(_tip && titel.getAttribute("data-tip")!==_tip)titel.setAttribute("data-tip",_tip);
+    if(titel.hasAttribute("data-tip"))titel.removeAttribute("data-tip");
   }
   function nivaMarkera(rot){
     try{
@@ -32058,7 +32062,7 @@ window.YH_ETAB={"ar":[2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,202
              bara 1,67 i kontrast och försvinner i stapeln. Rundning och tjocklek följer däremot
              huset, alltså fyra punkter och en tjocklek som får krympa när raderna blir många. */
           backgroundColor:FARG.stapel, borderRadius:4, maxBarThickness:16}]},
-      options:{indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false}, responsive:true, maintainAspectRatio:false,
         layout:{padding:{right:26}},
         plugins:{legend:{display:false},
           sprot:{fel:med.map(function(r){return r.f;})},
@@ -32108,7 +32112,7 @@ window.YH_ETAB={"ar":[2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,202
           return {label:s[1], backgroundColor:s[2], maxBarThickness:16,
                   data:rader.map(function(o){ return d.t[o.k][s[0]][j]; })};
         })},
-      options:{indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false}, responsive:true, maintainAspectRatio:false,
         plugins:{legend:{position:"top", align:"start", labels:{boxWidth:10, boxHeight:10, font:{family:"Inter",size:11}, color:"#1a1a1a"}},
           tooltip:{callbacks:{label:function(c){ return c.dataset.label+": "+c.parsed.x+"\u00a0%"; }}}},
         scales:{x:{stacked:true, beginAtZero:true, max:100,
@@ -32440,7 +32444,7 @@ window.__ritaYhDim = function(){
     if(!C){ setMsg(wrapId,"Diagrammet visas n\u00e4r sidan k\u00f6rs med n\u00e4tuppkoppling."); return chRef; }
     var top=rows.slice(0,14), w=document.getElementById(wrapId); if(w)w.style.height=Math.max(220,top.length*22+30)+"px";
     if(chRef)chRef.destroy();
-    return new C(host,{type:"bar",data:{labels:top.map(function(r){return r.name;}),datasets:[{data:top.map(function(r){return r.v;}),backgroundColor:PETROL,borderRadius:4,maxBarThickness:16}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return nf0(c.parsed.x)+" "+unit+(tidLabel?(" "+tidLabel):"");}}}},scales:{x:{ticks:{callback:function(v){return nf0(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},y:{ticks:{autoSkip:false,font:{family:"Inter",size:11},color:"#1a1a1a",callback:function(v){ return brytEtikett(this.getLabelForValue(v),24,4); }},grid:{display:false},border:{display:false}}}}});
+    return new C(host,{type:"bar",data:{labels:top.map(function(r){return r.name;}),datasets:[{data:top.map(function(r){return r.v;}),backgroundColor:PETROL,borderRadius:4,maxBarThickness:16}]},options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return nf0(c.parsed.x)+" "+unit+(tidLabel?(" "+tidLabel):"");}}}},scales:{x:{ticks:{callback:function(v){return nf0(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},y:{ticks:{autoSkip:false,font:{family:"Inter",size:11},color:"#1a1a1a",callback:function(v){ return brytEtikett(this.getLabelForValue(v),24,4); }},grid:{display:false},border:{display:false}}}}});
   }
 
   var _chG=null, _chI=null;
@@ -37227,7 +37231,7 @@ window.__ritaGymOvg = async function(){
       ? [{label:"Platser med angiven kommun",data:basV,backgroundColor:colsBas,borderRadius:function(c){ return (estV[c.dataIndex]>0)?{topLeft:4,bottomLeft:4}:4; },maxBarThickness:16,stack:"a"},
          {label:"Fördelade platser, uppskattning",data:estV,backgroundColor:colsEst,borderRadius:{topRight:4,bottomRight:4},maxBarThickness:16,stack:"a"}]
       : [{data:basV,backgroundColor:colsBas,borderRadius:4,maxBarThickness:16}];
-    _ch3=new C(document.getElementById("yhAnordCanvas"),{type:"bar",data:{labels:labels,datasets:ds},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:est,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},tooltip:{callbacks:{label:function(c){return (est?(c.dataset.label+": "):"")+nf0(c.parsed.x)+" platser";}}}},scales:{x:{stacked:est,ticks:{precision:0,callback:function(v){return nf0(v);},font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false}},y:{stacked:est,ticks:{autoSkip:false,font:{family:"Inter",size:11},callback:function(v,ix){ return delaEtikett(labels[ix]); }},grid:{display:false},border:{display:false}}}}});
+    _ch3=new C(document.getElementById("yhAnordCanvas"),{type:"bar",data:{labels:labels,datasets:ds},options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,plugins:{legend:{display:est,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},tooltip:{callbacks:{label:function(c){return (est?(c.dataset.label+": "):"")+nf0(c.parsed.x)+" platser";}}}},scales:{x:{stacked:est,ticks:{precision:0,callback:function(v){return nf0(v);},font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false}},y:{stacked:est,ticks:{autoSkip:false,font:{family:"Inter",size:11},callback:function(v,ix){ return delaEtikett(labels[ix]); }},grid:{display:false},border:{display:false}}}}});
     if(window.__usAnalysYhAnord)window.__usAnalysYhAnord({rows:poster.map(function(p){return [p.namn,p.bas+p.est];}),
       tot:totVis,cnt:cntVis,omr:omrLabel,namn:namn,riket:!reg,est:est,tote:tote,
       meta:YH_ANORD_META,avstamd:yhDatumKlartext(yhAnordAvstamd())});
@@ -37737,7 +37741,7 @@ window.__ritaGymOvg = async function(){
     var ds=[{label:namn,data:KAT.map(function(x){return reg[x.k];}),backgroundColor:PETROL,borderRadius:4,maxBarThickness:18}];
     if(rik)ds.push({label:"Riket",data:KAT.map(function(x){return rik[x.k];}),backgroundColor:"rgba(59,121,146,.28)",borderRadius:4,maxBarThickness:18});
     _ch[pfx]=new Chart(ctx,{type:"bar",data:{labels:KAT.map(function(x){return x.namn;}),datasets:ds},
-      options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+      options:{indexAxis:"y",interaction:{mode:"index",axis:"y",intersect:false},responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:!!rik,position:"top",align:"start",labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},
                  tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.x)+"\u00a0%";}}}},
         scales:{x:{min:0,ticks:{callback:function(v){return axTal(fmt1(v))+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
@@ -39600,10 +39604,26 @@ var UNDERLAG = [
     var a=kalla.querySelectorAll("*"), b=kopia.querySelectorAll("*"), i, j;
     function en(fran, till){
       var cs=window.getComputedStyle(fran), bit=[];
+      /* Låsta celler, till exempel matristabellens första kolumn, har position:sticky med
+         left:0. I bilden finns ingen rullningsyta att låsa mot, så cellerna la sig vid
+         bildens vänsterkant och hamnade ovanpå rubriken och de andra cellerna (september
+         2026). I kopian blir de relativa utan förskjutning. Relativ och inte statisk,
+         eftersom cellens ::after, skuggan vid kolumnens kant, positioneras mot cellen. */
+      var _stick=(cs.getPropertyValue("position")==="sticky");
+      /* En ruta som rullar i vyn, till exempel matristabellens sidledsrullning, får inte
+         behålla sin höjd i bilden. Överflöd sätts till synligt här, och tabellen inuti blir
+         någon bildpunkt högre än i vyn, så med den kopierade höjden la sig tabellens sista
+         rader över färgskalan under den. Då syntes bara ett hörn av ordet Lägre (september
+         2026). Utan höjd växer rutan med sitt innehåll. */
+      var _rullyta=/(auto|scroll)/.test(cs.getPropertyValue("overflow-x")+" "+cs.getPropertyValue("overflow-y"));
       for(j=0;j<EGENSKAPER.length;j++){
-        var v=cs.getPropertyValue(EGENSKAPER[j]);
-        if(v&&v!=="none"&&v!=="normal"&&v!=="auto"&&v!=="0px"&&v!=="rgba(0, 0, 0, 0)")bit.push(EGENSKAPER[j]+":"+v);
+        var e=EGENSKAPER[j];
+        if(_rullyta&&(e==="height"||e==="min-height"||e==="max-height"))continue;
+        if(_stick&&(e==="position"||e==="top"||e==="right"||e==="bottom"||e==="left"))continue;
+        var v=cs.getPropertyValue(e);
+        if(v&&v!=="none"&&v!=="normal"&&v!=="auto"&&v!=="0px"&&v!=="rgba(0, 0, 0, 0)")bit.push(e+":"+v);
       }
+      if(_stick)bit.push("position:relative");
       /* överflöd döljer inget i bilden, den ska visa hela figuren */
       till.setAttribute("style", bit.join(";")+";overflow:visible");
     }
@@ -39748,7 +39768,15 @@ var UNDERLAG = [
       var o=s.options&&s.options[s.selectedIndex];
       if(o&&o.text)_lagen.push(o.text.replace(/\s+/g," ").trim());
     });
-    [].slice.call(kopia.querySelectorAll(".fig-dl,.fc-row,.unit-seg,.term-pop,button,select,input,[id$='-toc']"))
+    /* Text som bara är till för skärmläsare döljs med clip och en yta på en bildpunkt.
+       Varken clip eller clip-path kopieras till bilden, och överflöd sätts dessutom till
+       synligt, så texten slog ut i bild: matristabellens sr-only-caption lade rubriken och
+       underrubriken en gång till ovanpå första raden (september 2026). Sådana element
+       plockas därför bort ur klonen. */
+    /* Reglagens etiketter och deras omslag tas bort tillsammans med reglagen. Tidigare
+       togs bara select-elementet bort, så etiketten Välj mått blev kvar och la sig över
+       undertexten i bilden (september 2026). Läget står i raden Visat läge nedan. */
+    [].slice.call(kopia.querySelectorAll(".sr-only,.fig-dl,.fc-row,.unit-seg,.term-pop,.rd-trend-val,label,button,select,input,[id$='-toc']"))
       .forEach(function(e){ if(e.parentNode)e.parentNode.removeChild(e); });
     if(_lagen.length){
       var _und=kopia.querySelector(".r-fig-sub");
@@ -39920,6 +39948,14 @@ var UNDERLAG = [
     [].slice.call(figurer).forEach(function(f){
       var fanns=f.querySelector(":scope > .fig-dl");
       if(!utritad(f)){ if(fanns&&fanns.parentNode)fanns.parentNode.removeChild(fanns); return; }
+      /* En figur kan stängas av från nedladdning med data-ejexport="1" i uppmärkningen.
+         Rekryteringsläge för efterfrågade yrken är satt så: den är fyra knappar som öppnar
+         listor, och varken bilden eller datan säger något utan dem (september 2026). */
+      if(f.getAttribute&&f.getAttribute("data-ejexport")==="1"){
+        if(fanns&&fanns.parentNode)fanns.parentNode.removeChild(fanns);
+        var _m=f.querySelector(":scope > .fig-dl-meny"); if(_m&&_m.parentNode)_m.parentNode.removeChild(_m);
+        return;
+      }
       if(fanns)return;
       if(f.closest(".amr-view"))return;                 /* rapportfönstret ska inte ha den */
       if(!f.querySelector(".r-fig-title,.rapport-fig-title"))return;
