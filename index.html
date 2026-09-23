@@ -29312,7 +29312,9 @@ window.__renderKompOpts=function(q){
         var rows=[],s;
         for(s in TA){ var cc=TA[s],kk=0,yy; for(yy in cc){ if(parseInt(yy,10)>=fromY)kk+=cc[yy]; } if(kk>0){ var w=wilson(kk,n); rows.push({name:s,k:kk,share:w[0]*100,lo:w[1]*100,hi:w[2]*100}); } }
         rows.sort(function(a,b){return b.share-a.share;});
-        rows=rows.slice(0,12);
+        /* Grunddatan bär 25 förmågor per yrkesgrupp sedan september 2026, och alla visas.
+           Taket låg tidigare på tolv, vilket var lika många som datan rymde. */
+        rows=rows.slice(0,25);
         if(rows.length){
           var mx=1; rows.forEach(function(r){ if(r.hi>mx)mx=r.hi; });
           listEl.innerHTML=mangdLista(rows.map(function(r){return {namn:r.name,varde:r.share};}),"Förmåga"); kompStaplarVaxer();
@@ -29650,7 +29652,7 @@ window.yrkeTraitFor=function(code){
     });
   });
   if(!adTot)return null;
-  var rows=Object.keys(trSum).map(function(c){return [c,Math.round(1000*trSum[c]/adTot)/10];}).filter(function(r){return r[1]>0;}).sort(function(a,b){return b[1]-a[1];}).slice(0,12);
+  var rows=Object.keys(trSum).map(function(c){return [c,Math.round(1000*trSum[c]/adTot)/10];}).filter(function(r){return r[1]>0;}).sort(function(a,b){return b[1]-a[1];}).slice(0,25);
   return rows.length?rows:null;
 };
 </script>
@@ -31325,8 +31327,15 @@ window.setupSecNav=function(bodyId){
 </script>
 <script>
 (function(){
-  window.__natTrait=function(){ if(window.__natTraitCache&&Object.keys(window.__natTraitCache).length)return window.__natTraitCache; var YT=window.YRKE_TRAIT||{},t={}; for(var occ in YT){ var tr=YT[occ]; for(var c in tr){ var y=tr[c],dst=(t[c]=t[c]||{}),k; for(k in y)dst[k]=(dst[k]||0)+(y[k]||0); } } return Object.keys(t).length?(window.__natTraitCache=t):t; };
-  window.__specRows=function(occData,natData,ans,natAds,fromY){
+  window.__natTrait=function(){ /* Riksreferensen för förmågor kommer ur nat_trait i grunddatan: den otrunkerade
+     summan per förmåga och år över alla annonser. Tidigare summerades yrkesserierna, men de
+     rymmer bara tolv förmågor per yrkesgrupp, så rikets andel blev för låg och specialiserings-
+     kvoten för hög. För Nyfiken i IT-arkitekter, systemutvecklare och testledare m.fl. gav det
+     3,28 i stället för 1,49 (september 2026). Saknas sektionen faller funktionen tillbaka på den
+     gamla summeringen, så att en äldre grunddatafil fortfarande fungerar. */
+    if(window.NAT_TRAIT&&Object.keys(window.NAT_TRAIT).length)return window.NAT_TRAIT;
+    if(window.__natTraitCache&&Object.keys(window.__natTraitCache).length)return window.__natTraitCache; var YT=window.YRKE_TRAIT||{},t={}; for(var occ in YT){ var tr=YT[occ]; for(var c in tr){ var y=tr[c],dst=(t[c]=t[c]||{}),k; for(k in y)dst[k]=(dst[k]||0)+(y[k]||0); } } return Object.keys(t).length?(window.__natTraitCache=t):t; };
+  window.__specRows=function(occData,natData,ans,natAds,fromY,max){
     try{
       if(!occData||!natData||!ans||!natAds)return null;
       var occN=0,y; for(y in ans){ if(parseInt(y,10)>=fromY) occN+=ans[y]; }
@@ -31343,13 +31352,16 @@ window.setupSecNav=function(bodyId){
         rows.push({name:c, share:occShare/natShare, k:occKk});
       }
       rows.sort(function(a,b){return b.share-a.share;});
-      return rows.length?rows.slice(0,15):null;
+      /* Taket kan sättas av anroparen. Förmågorna skickar 25, lika många som grunddatan
+         bär per yrkesgrupp, medan kompetenserna behåller femton. */
+      var _max=(typeof max==="number"&&max>0)?max:15;
+      return rows.length?rows.slice(0,_max):null;
     }catch(e){ return null; }
   };
   /* Yrkesområde (enställig kod): aggregera de treställiga gruppernas annons- och kompetensräkningar innan specialiseringskvoten beräknas. */
   window.__aggAreaAnt=function(code,SRC){ var AN=window.YRKE_ANT||{},A=String(code),occ={},ans={}; Object.keys(AN).forEach(function(g){ if(g.length!==3||g.slice(0,A.length)!==A)return; var a=AN[g]||{},y; for(y in a)ans[y]=(ans[y]||0)+a[y]; var s=(SRC&&SRC[g])||{},c; for(c in s){ var dst=occ[c]=occ[c]||{},yy; for(yy in s[c])dst[yy]=(dst[yy]||0)+s[c][yy]; } }); return {occData:occ,ans:ans}; };
   window.__kompSpecFor=function(code){ var f=parseInt((window.KOMP_META&&window.KOMP_META.berikning_fran)||"2020",10); var KA=window.YRKE_KOMP_ANT||{},AN=window.YRKE_ANT||{},occData,ans; if(String(code).length<3){ var agg=window.__aggAreaAnt(code,KA); occData=agg.occData; ans=agg.ans; } else { occData=KA[code]; ans=AN[code]; } return window.__specRows(occData, window.NAT_KOMP||{}, ans, window.__natAdsByYear?window.__natAdsByYear():{}, f); };
-  window.__traitSpecFor=function(code){ var f=parseInt((window.KOMP_META&&window.KOMP_META.berikning_fran)||"2020",10); var TA=window.YRKE_TRAIT||{},AN=window.YRKE_ANT||{},occData,ans; if(String(code).length<3){ var agg=window.__aggAreaAnt(code,TA); occData=agg.occData; ans=agg.ans; } else { occData=TA[code]; ans=AN[code]; } return window.__specRows(occData, window.__natTrait(), ans, window.__natAdsByYear?window.__natAdsByYear():{}, f); };
+  window.__traitSpecFor=function(code){ var f=parseInt((window.KOMP_META&&window.KOMP_META.berikning_fran)||"2020",10); var TA=window.YRKE_TRAIT||{},AN=window.YRKE_ANT||{},occData,ans; if(String(code).length<3){ var agg=window.__aggAreaAnt(code,TA); occData=agg.occData; ans=agg.ans; } else { occData=TA[code]; ans=AN[code]; } return window.__specRows(occData, window.__natTrait(), ans, window.__natAdsByYear?window.__natAdsByYear():{}, f, 25); };
   window.__renderYrkeSpec=function(){
     try{
       var d=(typeof yrkeState!=="undefined")?yrkeState.data:null, code=d&&d.code;
@@ -37744,7 +37756,7 @@ window.__ritaGymOvg = async function(){
 <script src="verktyg_grunddata.js"></script>
 <script>
 (function(){
-  var SEKTIONER={kompetens:"KOMP_DATA", utbildning:"UTB_DATA", bransch:"BRANSCHFC", region:"REGION_SUP", yrke:"YRKE_EDU", yrkeskomp:"YRKE_KOMP", yrkesannons:"YRKE_ANN", yrkesannonslan:"YRKE_ANN_LAN", annons_meta:"ANN_META", yrkeskomp_ant:"YRKE_KOMP_ANT", yrke_ant:"YRKE_ANT", yrke_kom:"YRKE_KOM", samvariation:"SAMVAR", komp_meta:"KOMP_META",nat_komp:"NAT_KOMP",yrke_trait:"YRKE_TRAIT",komp_yrke:"KOMP_YRKE",komp_omr:"KOMP_OMR",komp_lan:"KOMP_LAN",komp_lan_omr:"KOMP_LAN_OMR",lan_ann:"LAN_ANN",lan_ann_kv:"LAN_ANN_KV",yrke_namn3:"YRKE_NAMN3",yrkbr:"YRKBR",nat_komp_kv:"NAT_KOMP_KV",komp_kv_axis:"KOMP_KV_AXIS",nat_ann:"NAT_ANN",nat_ann_kv:"NAT_ANN_KV"};
+  var SEKTIONER={kompetens:"KOMP_DATA", utbildning:"UTB_DATA", bransch:"BRANSCHFC", region:"REGION_SUP", yrke:"YRKE_EDU", yrkeskomp:"YRKE_KOMP", yrkesannons:"YRKE_ANN", yrkesannonslan:"YRKE_ANN_LAN", annons_meta:"ANN_META", yrkeskomp_ant:"YRKE_KOMP_ANT", yrke_ant:"YRKE_ANT", yrke_kom:"YRKE_KOM", samvariation:"SAMVAR", komp_meta:"KOMP_META",nat_komp:"NAT_KOMP",yrke_trait:"YRKE_TRAIT",nat_trait:"NAT_TRAIT",komp_yrke:"KOMP_YRKE",komp_omr:"KOMP_OMR",komp_lan:"KOMP_LAN",komp_lan_omr:"KOMP_LAN_OMR",lan_ann:"LAN_ANN",lan_ann_kv:"LAN_ANN_KV",yrke_namn3:"YRKE_NAMN3",yrkbr:"YRKBR",nat_komp_kv:"NAT_KOMP_KV",komp_kv_axis:"KOMP_KV_AXIS",nat_ann:"NAT_ANN",nat_ann_kv:"NAT_ANN_KV"};
   try{
     /* Datan kommer ur verktyg_grunddata.js, som hämtas strax ovanför. */
     var d=window.__JOBBATLAS||{};
