@@ -6663,6 +6663,14 @@ section.results .vcmp .rapport-matrix-wrap{
         <div class="r-chart" id="regDimWrap" style="height:auto"><div class="msg">Välj ett län för att visa bedömningen.</div></div>
         <p class="r-src" id="regDimSrc"></p>
       </div>
+      <!-- Vad de examinerade gör ett år efter examen, per program i länet. Uppgiften finns
+           bara per län, inte per kommun, så figuren saknar motsvarighet i kommunvyn. -->
+      <div class="r-fig" id="figRegGyEfter">
+        <p class="r-fig-title">Ett år efter gymnasieexamen</p>
+        <p class="r-fig-sub" id="regGyEfterSub">Andel av de examinerade från gymnasieskolan i länet som var etablerade på arbetsmarknaden eller studerade ett år efter examen, per program.</p>
+        <div class="r-chart" id="regGyEfterWrap" style="height:auto"><div class="msg">Välj ett län för att visa uppgiften.</div></div>
+        <p class="r-src" id="regGyEfterSrc"></p>
+      </div>
       </div>
   </section>
 </main>
@@ -7503,6 +7511,21 @@ section.results .vcmp .rapport-matrix-wrap{
         <p class="r-fig-sub" id="gymOvgSub">Andel av de examinerade som påbörjat en eftergymnasial utbildning inom fem år, per utbildningsform.</p>
         <div class="ovg-list" id="gymOvgList"><div class="msg"><div class="spinner"></div>Sammanställer data…</div></div>
         <p class="r-src" id="gymOvgSrc"></p>
+      </div>
+      <!-- Vad de examinerade gör ett år efter examen, per program på riksnivå. Här finns hela
+           fördelningen på sex statusar, till skillnad från länsvyns figur som bara har
+           etablerade och studerande. Könsväxeln står i figuren, som i övriga vyer. -->
+      <h3 class="r-sec" id="secGymEfter">Efter gymnasieexamen</h3>
+      <div class="r-fig" id="figGymStatus">
+        <p class="r-fig-title">Ett år efter gymnasieexamen</p>
+        <p class="r-fig-sub" id="gymStatusSub">Andel av de examinerade per status ett år efter examen, per program. Avser riket.</p>
+        <div class="fc-row"><div class="unit-seg" role="group" aria-label="Kön" id="gymStatusKonSeg">
+          <button type="button" class="unit-btn is-on" data-kon="0">Totalt</button>
+          <button type="button" class="unit-btn" data-kon="1">Kvinnor</button>
+          <button type="button" class="unit-btn" data-kon="2">Män</button>
+        </div></div>
+        <div class="r-chart" id="gymStatusWrap" style="height:auto"><div class="msg"><div class="spinner"></div>Sammanställer data…</div></div>
+        <p class="r-src" id="gymStatusSrc">Skolverket.</p>
       </div>
     </div>
     <div id="usYhResults" style="display:none">
@@ -11760,6 +11783,7 @@ async function loadRegionData(){
        Rekryteringstrycket finns kvar i kommunvyn, som har egna element för det. */
     kor("utbildningsnivå",function(){ if(window.__utbNivaRita)window.__utbNivaRita("reg",regionState.data); });
     kor("gymnasieexamen",function(){ if(window.__gymExamRita)window.__gymExamRita("reg"); });
+    kor("gymnasieexamen efter examen",function(){ if(window.__gyEfterRita)window.__gyEfterRita(); });
     /* Skolverkets bedömning kommer ur inbäddad data och behöver inget SCB-anrop, så den
        ritas oavsett hur det går för figurerna omkring. */
     kor("dimensionering",function(){
@@ -13794,6 +13818,23 @@ function csvAndel(v){ if(v==null||v===""||isNaN(v))return ""; return (Math.round
      använder samma tre läsare, så att en figur ger samma innehåll oavsett vilken väg den
      exporteras. Ordningen är nyckeltal, diagram, listor, alltså den ordning uppgifterna
      står i figuren. */
+  /* Läser en vanlig tabell i figuren: huvudraden och därefter varje rad. Radrubriken
+     tas med som första cell, så att matrisens branscher eller yrken står kvar i filen. */
+  function franTabell(fig){
+    var tab=fig.querySelector(".rapport-matrix,.rapport-table,table");
+    if(!tab)return null;
+    var ut=[];
+    [].slice.call(tab.querySelectorAll("tr")).forEach(function(tr){
+      if(tr.closest("caption"))return;
+      var celler=[].slice.call(tr.children).filter(function(c){ return /^(TH|TD)$/.test(c.tagName); });
+      if(!celler.length)return;
+      var rad=celler.map(function(c){ return txt(c); });
+      if(rad.join("").trim()==="")return;
+      ut.push(rad);
+    });
+    return ut.length>1?ut:null;
+  }
+
   window.__csvFranFigur=function(fig){
     if(!fig)return null;
     var rows=[], titel="", sub="", kalla="";
@@ -13819,6 +13860,14 @@ function csvAndel(v){ if(v==null||v===""||isNaN(v))return ""; return (Math.round
     try{
       var li=franLista(fig);
       if(li&&li.length){ li.forEach(function(r){ rows.push(r); }); rows.push([]); nagot=true; }
+    }catch(e){}
+    /* Tabellfigurer, till exempel jämförelsevyernas matriser med specialiseringskvoter,
+       bar varken kort, diagram eller listor. Knappen sa därför att figuren saknade
+       läsbara uppgifter (september 2026). Nu läses tabellen rad för rad, med huvudraden
+       först. Bildtexten för skärmläsare hoppas över, eftersom den upprepar rubriken. */
+    try{
+      var tab=franTabell(fig);
+      if(tab&&tab.length){ tab.forEach(function(r){ rows.push(r); }); rows.push([]); nagot=true; }
     }catch(e){}
     /* Kartor bar inga rader alls: talen ligger i banornas attribut, inte i kort, diagram
        eller listor. Kvoten skrivs i full precision, och områden utan uppgift tas med som
@@ -29777,20 +29826,21 @@ function renderYrkeJobEd(){
   }
   if(_jfig)_jfig.style.display="";
   _jobEdReset(host); host.innerHTML='<div class="msg"><div class="spinner"></div>Sammanställer utbildningar…</div>'; if(src)src.textContent="";
+  /* Undertexten skrivs för det yrke som just valts, innan hämtningen. Den skrevs tidigare
+     först när träffar kom, så ett yrke utan träffar eller en hämtning som misslyckades lät
+     föregående yrkes namn stå kvar över beskedet att inga utbildningar hittades
+     (september 2026). Yrkesnamnet slutar ofta på en förkortning, till exempel m.fl., och
+     meningen får då inte lägga till en punkt till. */
+  var _jeSubY=(_jfig&&_jfig.querySelector)?_jfig.querySelector(".r-fig-sub"):null;
+  if(_jeSubY)_jeSubY.textContent="Utbildningar vars inneh\u00e5ll b\u00e4st matchar de kompetenser som efterfr\u00e5gas i jobbannonser som avser "
+    +namn+(/\.\s*$/.test(String(namn))?"":".")+" Avser riket.";
   fetchJobEdEducations(namn).then(function(res){
     if((window.yrkeState&&window.yrkeState.code)!==code) return;
     if(!res.list.length){ host.innerHTML='<div class="msg">Inga matchande utbildningar hittades.</div>'; return; }
     var lvlName={grund:"Grundnivå",avancerad:"Avancerad nivå",forsk:"Forskarnivå"};
     host.__jobEdList=res.list; _jobEdRepaint(host);
     if(src)src.textContent="Arbetsförmedlingen, JobEd Connect.";
-    /* Undertexten skrivs h\u00e4r i sin helhet, med yrket namngivet, i st\u00e4llet f\u00f6r att fyllas
-       ur en mall i markupen. Antalet tr\u00e4ffar st\u00e5r inte l\u00e4ngre i n\u00e5gon av texterna; listan
-       visar sj\u00e4lv hur m\u00e5nga av tr\u00e4ffarna som ryms. */
-    var _jeSubY=(_jfig&&_jfig.querySelector)?_jfig.querySelector(".r-fig-sub"):null;
-    /* Yrkesnamnet slutar ofta p\u00e5 en f\u00f6rkortning, till exempel m.fl. Meningen f\u00e5r d\u00e5 inte
-       l\u00e4gga till en punkt till \u2014 f\u00f6rkortningens egen avslutar den. */
-    if(_jeSubY)_jeSubY.textContent="Utbildningar vars inneh\u00e5ll b\u00e4st matchar de kompetenser som efterfr\u00e5gas i jobbannonser som avser "
-      +namn+(/\.\s*$/.test(String(namn))?"":".")+" Avser riket.";
+    /* Undertexten är redan skriven ovanför, innan hämtningen. */
   }).catch(function(){
     if((window.yrkeState&&window.yrkeState.code)!==code) return;
     host.innerHTML='<div class="msg">Uppgiften kunde inte h\u00e4mtas.</div>';
@@ -29827,19 +29877,18 @@ function renderKompJobEd(){
   if(!namn||!code){ host.innerHTML=""; if(src)src.textContent=""; if(fig)fig.style.display="none"; return; }
   if(fig)fig.style.display="";
   _jobEdReset(host); host.innerHTML='<div class="msg"><div class="spinner"></div>Sammanst\u00e4ller utbildningar\u2026</div>'; if(src)src.textContent="";
+  /* Undertexten skrivs för den kompetens som just valts, innan hämtningen, av samma skäl
+     som i yrkesvyn: annars stod föregående kompetens kvar när träffar saknades. */
+  var _jeSub=(fig&&fig.querySelector)?fig.querySelector(".r-fig-sub"):null;
+  if(_jeSub)_jeSub.textContent="Utbildningar vars beskrivna inneh\u00e5ll liknar kompetensen "+namn+". Avser riket.";
   fetchJobEdEducations(namn).then(function(res){
     if((window.kompState&&kompState.code)!==code) return;
     if(!res.list.length){ host.innerHTML='<div class="msg">Inga matchande utbildningar hittades.</div>'; return; }
     var lvlName={grund:"Grundniv\u00e5",avancerad:"Avancerad niv\u00e5",forsk:"Forskarniv\u00e5"};
     host.__jobEdList=res.list; _jobEdRepaint(host);
     if(src)src.textContent="Arbetsf\u00f6rmedlingen, JobEd Connect.";
-    /* Beskrivningen av hur matchningen g\u00f6rs \u00e4r flyttad till analystexten. En uppgift ska
-       st\u00e5 p\u00e5 ett st\u00e4lle, och undertexten beh\u00e5ller det som tolkar figuren: vad listan visar
-       och att den avser riket. */
-    var _jeSub=(fig&&fig.querySelector)?fig.querySelector(".r-fig-sub"):null;
-    if(_jeSub)_jeSub.textContent="Utbildningar vars beskrivna inneh\u00e5ll liknar kompetensen "
-      +((window.kompState&&kompState.code&&typeof kompName==="function")?kompName(kompState.code):"kompetensen")+". "
-      +"Avser riket.";
+    /* Beskrivningen av hur matchningen görs står i analystexten, och undertexten är redan
+       skriven ovanför, innan hämtningen. */
   }).catch(function(){
     if((window.kompState&&kompState.code)!==code) return;
     host.innerHTML='<div class="msg">Uppgiften kunde inte h\u00e4mtas.</div>';
@@ -30553,10 +30602,14 @@ window.utbListFor = function(niva){
     pop.dataset.for=nyckel;
     pop.innerHTML='<button type="button" class="term-close" aria-label="Stäng">&times;</button>'
       +'<b>'+o.rubrik+'</b>'+o.text;
+    /* Stängknappen kopplas medan rutan är i handen. Tidigare hämtades den efter placera(),
+       och hann rutan stängas däremellan, till exempel när vyn ritades om under tiden, var
+       pop redan null och koden kastade ett fel (september 2026). */
+    var _stangKn=pop.querySelector(".term-close");
+    if(_stangKn)_stangKn.addEventListener("click",stang);
     document.body.appendChild(pop);
     ankare=knapp;
     placera();
-    pop.querySelector(".term-close").addEventListener("click",stang);
   }
   /* Ritas vyn om medan rutan är uppe byts knappen ut mot en ny med samma innehåll.
      Rutan hakar då på den nya knappen i stället för att bli hängande. */
@@ -31527,6 +31580,9 @@ window.setupSecNav=function(bodyId){
     var up=document.querySelector("#view-utbstat .us-prog"); if(up)up.style.display=prog?"":"none";
     var _sh=document.getElementById("usStatHead"); if(_sh)_sh.style.display=prog?"none":"";
     var _gr=document.getElementById("usGymResults"); if(_gr)_gr.style.display=gym?"":"none";
+    /* Figuren Ett år efter gymnasieexamen bygger på inbakad riksdata och ritas när
+       gymnasienivån visas. Den behöver varken region eller hämtning. */
+    if(gym&&window.__gymStatusRita){ try{ window.__gymStatusRita(); }catch(e){ if(window.__fel)__fel("gymStatusRita", e); } }
     var _yr=document.getElementById("usYhResults"); if(_yr)_yr.style.display=yh?"":"none";
     var _hr=document.getElementById("usHogResults"); if(_hr)_hr.style.display=hog?"":"none";
     var pr=document.getElementById("usProgResults"); if(pr)pr.style.display=prog?"":"none";
@@ -33309,6 +33365,136 @@ function dold(el){
 </script>
 
 <script>
+/* ===== Ett år efter gymnasieexamen, utbildningsvyns gymnasienivå =====
+   Hela fördelningen på sex statusar per program, på riksnivå, för dem som slutfört med
+   examen läsåret 2021/22. Könsväxeln byter mellan totalt, kvinnor och män. Länsvyns figur
+   visar samma kull men bara etablerade och studerande, eftersom källan där saknar resten. */
+(function(){
+  var _ch=null, _kon=0;
+  var FARG=["#2f6f8f","#7aa2b5","#b9cbd4","#8aa87a","#c3cfb4","#d9cdb4"];
+  function wrap(){ return document.getElementById("gymStatusWrap"); }
+  function msg(t){ var w=wrap(); if(!w)return; w.style.height="auto"; w.innerHTML='<div class="msg">'+t+'</div>'; }
+  window.__gymStatusRita=function(){
+    var G=window.GY_STATUS;
+    if(!G||!G.rader||!G.rader.length){ msg("Uppgiften kunde inte läsas in."); return; }
+    var HOPP={"Yrkesprogram":1,"Högskoleförberedande program":1};
+    var rader=G.rader.filter(function(r){ return !HOPP[r.namn] && r.v[0][_kon]!=null; });
+    /* Samtliga program först, därefter programmen efter andel i etablerad ställning. */
+    var sam=rader.filter(function(r){ return r.namn==="Samtliga program"; })[0];
+    var prog=rader.filter(function(r){ return r.namn!=="Samtliga program"; })
+                  .sort(function(a,b){ return (b.v[0][_kon]||0)-(a.v[0][_kon]||0); });
+    var lista=(sam?[sam]:[]).concat(prog);
+    var C=(typeof Chart!=="undefined")?Chart:null;
+    if(!C){ msg("Diagrammet kunde inte laddas."); return; }
+    var w=wrap(); if(!w)return;
+    w.innerHTML='<canvas id="gymStatusCanvas"></canvas>';
+    w.style.height=Math.max(300, lista.length*30+80)+"px";
+    if(_ch)_ch.destroy();
+    var fmt=function(v){ return (Math.round(v*10)/10).toString().replace(".",",")+"\u00a0%"; };
+    _ch=new C(document.getElementById("gymStatusCanvas"),{
+      type:"bar",
+      data:{labels:lista.map(function(r){ return r.namn; }),
+        datasets:G.status.map(function(namn,i){
+          return {label:namn, data:lista.map(function(r){ return r.v[i][_kon]; }),
+                  backgroundColor:FARG[i], borderRadius:3, maxBarThickness:18};
+        })},
+      options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+        interaction:{mode:"index",axis:"y",intersect:false},
+        plugins:{legend:{display:true,position:"top",align:"start",
+                   labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},
+                 tooltip:{callbacks:{label:function(c){ return c.dataset.label+": "+fmt(c.parsed.x); },
+                   afterBody:function(it){ var r=lista[it[0].dataIndex]; return r&&r.antal?("Antal examinerade: "+r.antal[_kon]):""; }}}},
+        scales:{x:{stacked:true,max:100,ticks:{callback:fmt,font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false}},
+                y:{stacked:true,ticks:{autoSkip:false,font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}}
+    });
+    var sub=document.getElementById("gymStatusSub");
+    if(sub)sub.textContent="Andel av de examinerade per status ett år efter examen, per program. "
+      +(_kon===1?"Avser kvinnor. ":(_kon===2?"Avser män. ":""))+"Avser riket, avgångsläsåret "+(G.lasar||"")+".";
+    try{ window.__gymStatusSenaste={kon:_kon, lista:lista}; }catch(e){}
+  };
+  document.addEventListener("click", function(e){
+    var b=e.target&&e.target.closest?e.target.closest("#gymStatusKonSeg .unit-btn"):null;
+    if(!b)return;
+    [].slice.call(document.querySelectorAll("#gymStatusKonSeg .unit-btn")).forEach(function(k){ k.classList.toggle("is-on", k===b); });
+    _kon=parseInt(b.getAttribute("data-kon"),10)||0;
+    window.__gymStatusRita();
+  });
+})();
+</script>
+<script>
+/* ===== Ett år efter gymnasieexamen, länsvyn =====
+   Skolverkets uppgift om vad ungdomar gör ett år efter gymnasieexamen, per län och program,
+   avgångsläsåret 2021/22. Två andelar redovisas i källan, etablerade och studerande. Resten
+   upp till hundra är osäker eller svag ställning eller varken arbete eller studier, och den
+   delen räknas fram här. Riksvärdena kommer ur den nationella tabellen, där summan av de sex
+   statusarna är hundra, så studerande där är högskolestudier plus övriga studier.
+
+   Uppgiften finns bara per län. Kommunvyn har därför ingen motsvarande figur. */
+(function(){
+  var _ch=null, _senaste=null;
+  function msg(t){ var w=document.getElementById("regGyEfterWrap"); if(!w)return;
+    w.style.height="auto"; w.innerHTML='<div class="msg">'+t+'</div>'; }
+  function versal(s){ return String(s||"").charAt(0).toUpperCase()+String(s||"").slice(1); }
+  /* Bladnamnen i källan är avhuggna vid trettio tecken. De skrivs ut i klartext. */
+  var NAMN={"Fordons- och transportprogramme":"Fordons- och transportprogrammet",
+            "Handels- och administrationspro":"Handels- och administrationsprogrammet",
+            "Restaurang- och livsmedelsprogr":"Restaurang- och livsmedelsprogrammet"};
+  function pnamn(p){ return NAMN[p]||p; }
+  window.__gyEfterRita=function(){
+    var G=window.GY_EFTER;
+    var kod=(typeof regionState!=="undefined" && regionState.code)||"";
+    if(kod==="00")kod="";
+    if(!G||!G.lan){ msg("Uppgiften kunde inte läsas in."); return; }
+    if(!kod){ msg("Välj ett län för att visa uppgiften."); return; }
+    var L=G.lan[kod];
+    if(!L){ msg("Uppgiften saknas för länet."); return; }
+    var namn=(typeof regionName==="function")?regionName(kod):kod;
+    /* Samtliga program först, därefter programmen efter andel etablerade. Summeringarna
+       yrkesprogram och högskoleförberedande program utelämnas, eftersom de skulle stå
+       bland de enskilda programmen och räknas två gånger av läsaren. */
+    var HOPP={"Samtliga program":1,"Yrkesprogram":1,"Högskoleförberedande program":1};
+    var rader=Object.keys(L).filter(function(p){ return !HOPP[p] && L[p][1]!=null && L[p][2]!=null; })
+      .map(function(p){ return {p:p, ant:L[p][0], et:L[p][1], st:L[p][2]}; })
+      .sort(function(a,b){ return b.et-a.et; });
+    var sam=L["Samtliga program"];
+    if(sam && sam[1]!=null && sam[2]!=null) rader.unshift({p:"Samtliga program", ant:sam[0], et:sam[1], st:sam[2], sam:true});
+    if(!rader.length){ msg("Uppgiften saknas för länet."); return; }
+    var C=(typeof Chart!=="undefined")?Chart:null;
+    if(!C){ msg("Diagrammet kunde inte laddas."); return; }
+    var wrap=document.getElementById("regGyEfterWrap"); if(!wrap)return;
+    wrap.innerHTML='<canvas id="regGyEfterCanvas"></canvas>';
+    wrap.style.height=Math.max(260, rader.length*30+70)+"px";
+    if(_ch)_ch.destroy();
+    var fmt=function(v){ return (Math.round(v*10)/10).toString().replace(".",",")+"\u00a0%"; };
+    var ovrigt=function(r){ return Math.max(0, Math.round((100-r.et-r.st)*10)/10); };
+    _ch=new C(document.getElementById("regGyEfterCanvas"),{
+      type:"bar",
+      data:{labels:rader.map(function(r){ return versal(pnamn(r.p)); }),
+        datasets:[
+          {label:"Etablerade", data:rader.map(function(r){return r.et;}), backgroundColor:PETROL, borderRadius:4, maxBarThickness:18},
+          {label:"Studerande", data:rader.map(function(r){return r.st;}), backgroundColor:(window.__AMR_FARGROLLER&&__AMR_FARGROLLER.referens)||"#9bb7c4", borderRadius:4, maxBarThickness:18},
+          {label:"Övrigt", data:rader.map(ovrigt), backgroundColor:(window.__AMR_FARGROLLER&&__AMR_FARGROLLER.referensLjus)||"#e4dac4", borderRadius:4, maxBarThickness:18}
+        ]},
+      options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+        interaction:{mode:"index",axis:"y",intersect:false},
+        plugins:{legend:{display:true,position:"top",align:"start",
+                   labels:{boxWidth:10,boxHeight:10,font:{family:"Inter",size:11},color:"#1a1a1a"}},
+                 tooltip:{callbacks:{label:function(c){ return c.dataset.label+": "+fmt(c.parsed.x); },
+                   afterBody:function(it){ var r=rader[it[0].dataIndex]; return r&&r.ant?("Antal examinerade: "+r.ant):""; }}}},
+        scales:{x:{stacked:true,max:100,ticks:{callback:fmt,font:{family:"Inter",size:11}},grid:{color:RUTNAT},border:{display:false}},
+                y:{stacked:true,ticks:{autoSkip:false,font:{family:"Inter",size:11}},grid:{display:false},border:{display:false}}}}
+    });
+    var sub=document.getElementById("regGyEfterSub");
+    if(sub)sub.textContent="Andel av de examinerade från gymnasieskolan i "+namn+" som var etablerade på arbetsmarknaden eller studerade ett år efter examen, per program. "
+      +"Övrigt är osäker eller svag ställning, eller varken arbete eller studier. Avgångsläsåret "+(G.lasar||"")+".";
+    var s=document.getElementById("regGyEfterSrc");
+    if(s)s.textContent="Skolverket.";
+    _senaste={kod:kod, namn:namn, rader:rader};
+    try{ window.__gyEfterSenaste=_senaste; }catch(e){}
+  };
+})();
+</script>
+<script>
 /* ===== Examinerade per gymnasieprogram i läns- och kommunvyn =====
    Samma stapeltyp som i utbildningsvyn, men med riket som skuggad referensstapel som ligger
    halvt förskjuten bakom den lokala stapeln. Regionen hämtas ur tabellens B-serie, alltså
@@ -33758,12 +33944,21 @@ B["Kompetenser som samvarierar"]=B["Kompetensnätverk"]=B["Kompetenser som samva
     var _metod="Sammanst\u00e4llningen baseras p\u00e5 underlag fr\u00e5n Arbetsf\u00f6rmedlingens tj\u00e4nst "
       +"JobEd Connect som j\u00e4mf\u00f6r utbildningarnas kursplaner och l\u00e4randem\u00e5l med de "
       +"kompetenser som f\u00f6rekommer i jobbannonserna.";
+    /* Andra stycket är ett förbehåll om matchningen (september 2026). Utan det kan en
+       utbildning som delar många kompetenser med yrket läsas som en väg dit, fast den
+       leder till ett annat yrke, till exempel tandläkarprogrammet under tandhygienister. */
+    var _forbehall="Matchningen \u00e4r maskinell och bygger p\u00e5 \u00f6verlappet mellan utbildningarnas "
+      +"inneh\u00e5ll och kompetenserna i jobbannonserna. Beh\u00f6righetskrav och formella krav f\u00f6r "
+      +"yrket, till exempel legitimation, ing\u00e5r inte. D\u00e4rf\u00f6r kan utbildningar som leder till "
+      +"ett annat yrke komma med i listan.";
     if(c.dim==="kompetens"){
       return {rubrik:"Utbildningsv\u00e4gar", stycken:[
-        "Nedan framg\u00e5r utbildningar med koppling till den valda kompetensen "+_pKlar(c.subj.no, c.subj.namn)+" "+_metod]};
+        "Nedan framg\u00e5r utbildningar med koppling till den valda kompetensen "+_pKlar(c.subj.no, c.subj.namn)+" "+_metod,
+        _forbehall]};
     }
     return {rubrik:"Utbildningsv\u00e4gar", stycken:[
-      "Nedan framg\u00e5r utbildningar med koppling till det valda yrket "+_pKlar(c.subj.no, c.subj.namn)+" "+_metod]};
+      "Nedan framg\u00e5r utbildningar med koppling till det valda yrket "+_pKlar(c.subj.no, c.subj.namn)+" "+_metod,
+      _forbehall]};
   };
   
 B["Lönenivå"]=function(c){
@@ -33905,6 +34100,47 @@ B["Lönenivå"]=function(c){
         +""
         +"F\u00f6rst i listan st\u00e5r "+_n[0]+(_n.length>1?(", f\u00f6ljt av "+_n.slice(1).join(" och ")):"")+"."; })()]};
         /* Nivåförbehållet står i undertexten och i etiketten efter figurrubriken, se nivaMarkera. */
+  };
+
+  /* Analystext till figuren Ett år efter gymnasieexamen i länsvyn. Talen läses ur samma
+     data som figuren ritas av, via __gyEfterSenaste, och jämförs med riket. */
+  B["Ett år efter gymnasieexamen"]=function(c){
+    /* Samma rubrik används i två figurer. Utbildningsvyns gymnasienivå visar riket med sex
+       statusar, länsvyn visar länet med etablerade och studerande. Texten väljs efter vilken
+       figur som ritas, alltså efter vyn. */
+    if(c&&c.dim==="utbildning"){
+      var GS=window.GY_STATUS, ST=window.__gymStatusSenaste;
+      if(!GS||!ST||!ST.lista||!ST.lista.length)return null;
+      var kon=["samtliga examinerade","kvinnorna","männen"][ST.kon||0];
+      var sam=ST.lista[0], prog=ST.lista.slice(1);
+      var st2=[];
+      if(sam)st2.push("Av "+kon+" som tog gymnasieexamen l\u00e4s\u00e5ret "+(GS.lasar||"")+" hade "+pct(sam.v[0][ST.kon])+" procent en etablerad st\u00e4llning p\u00e5 arbetsmarknaden ett \u00e5r senare, medan "
+        +pct((sam.v[3][ST.kon]||0)+(sam.v[4][ST.kon]||0))+" procent studerade.");
+      if(prog.length>1){
+        var h=prog[0], l=prog[prog.length-1];
+        st2.push("H\u00f6gst andel med etablerad st\u00e4llning har "+kurs(h.namn)+", med "+pct(h.v[0][ST.kon])+" procent, och l\u00e4gst "+kurs(l.namn)+", med "
+          +pct(l.v[0][ST.kon])+" procent. D\u00e4r \u00e4r studier i st\u00e4llet det vanliga.");
+      }
+      st2.push("Osäker och svag ställning avser arbete med låg eller ojämn inkomst. Uppgiften avser en avgångskull och status ett år efter examen.");
+      return {rubrik:"Ett \u00e5r efter gymnasieexamen", stycken:st2};
+    }
+    var S=window.__gyEfterSenaste, G=window.GY_EFTER;
+    if(!S||!G||!S.rader||!S.rader.length)return null;
+    var sam=S.rader.filter(function(r){return r.sam;})[0];
+    var prog=S.rader.filter(function(r){return !r.sam;});
+    var riksSam=(G.riket&&G.riket["Samtliga program"])||null;
+    var st=[];
+    if(sam&&riksSam){
+      st.push("Av dem som tog gymnasieexamen i "+S.namn+" var "+pct(sam.et)+" procent etablerade p\u00e5 arbetsmarknaden ett \u00e5r senare och "
+        +pct(sam.st)+" procent studerade. I riket var motsvarande andelar "+pct(riksSam[0])+" och "+pct(riksSam[1])+" procent.");
+    }
+    if(prog.length>1){
+      var h=prog[0], l=prog[prog.length-1];
+      st.push("Skillnaden mellan programmen \u00e4r stor. H\u00f6gst andel etablerade har "+kurs(h.p)+", med "+pct(h.et)+" procent, och l\u00e4gst har "
+        +kurs(l.p)+", med "+pct(l.et)+" procent. \u00d6vrigt i figuren \u00e4r os\u00e4ker eller svag st\u00e4llning, eller varken arbete eller studier.");
+    }
+    st.push("Uppgiften avser en avg\u00e5ngskull, l\u00e4s\u00e5ret "+(G.lasar||"")+", och status ett \u00e5r efter examen. Program med f\u00e4rre \u00e4n tio examinerade redovisas inte i k\u00e4llan.");
+    return {rubrik:"Ett \u00e5r efter gymnasieexamen", stycken:st};
   };
 
   B["Yrken i branschen"]=function(c){
@@ -35072,7 +35308,10 @@ function _gruppText(c, matt){
       if(window.__applySecNav && el.parentNode) window.__applySecNav(el.parentNode);
     });
   };
-  var VYER={kompBody:"kompetens",yrkeBody:"yrke",branschBody:"bransch",regionBody:"region",kommunBody:"kommun",utbBody:"utbildning"};
+  /* Utbildningsvyns gymnasienivå ligger i en egen behållare, usGymResults, utanför utbBody
+     som rymmer prognoserna. Figurerna där fick därför aldrig någon analystext. Behållaren
+     läses nu som utbildningsvyn, så att figurer med en byggare får sin text (september 2026). */
+  var VYER={kompBody:"kompetens",yrkeBody:"yrke",branschBody:"bransch",regionBody:"region",kommunBody:"kommun",utbBody:"utbildning",usGymResults:"utbildning"};
   Object.keys(VYER).forEach(function(bid){
     var body=document.getElementById(bid); if(!body)return;
     var t=null;
@@ -37760,7 +37999,7 @@ window.__ritaGymOvg = async function(){
 <script src="verktyg_grunddata.js"></script>
 <script>
 (function(){
-  var SEKTIONER={kompetens:"KOMP_DATA", utbildning:"UTB_DATA", bransch:"BRANSCHFC", region:"REGION_SUP", yrke:"YRKE_EDU", yrkeskomp:"YRKE_KOMP", yrkesannons:"YRKE_ANN", yrkesannonslan:"YRKE_ANN_LAN", annons_meta:"ANN_META", yrkeskomp_ant:"YRKE_KOMP_ANT", yrke_ant:"YRKE_ANT", yrke_kom:"YRKE_KOM", samvariation:"SAMVAR", komp_meta:"KOMP_META",nat_komp:"NAT_KOMP",yrke_trait:"YRKE_TRAIT",nat_trait:"NAT_TRAIT",komp_yrke:"KOMP_YRKE",komp_omr:"KOMP_OMR",komp_lan:"KOMP_LAN",komp_lan_omr:"KOMP_LAN_OMR",lan_ann:"LAN_ANN",lan_ann_kv:"LAN_ANN_KV",yrke_namn3:"YRKE_NAMN3",yrkbr:"YRKBR",nat_komp_kv:"NAT_KOMP_KV",komp_kv_axis:"KOMP_KV_AXIS",nat_ann:"NAT_ANN",nat_ann_kv:"NAT_ANN_KV"};
+  var SEKTIONER={kompetens:"KOMP_DATA", utbildning:"UTB_DATA", bransch:"BRANSCHFC", region:"REGION_SUP", yrke:"YRKE_EDU", yrkeskomp:"YRKE_KOMP", yrkesannons:"YRKE_ANN", yrkesannonslan:"YRKE_ANN_LAN", annons_meta:"ANN_META", yrkeskomp_ant:"YRKE_KOMP_ANT", yrke_ant:"YRKE_ANT", yrke_kom:"YRKE_KOM", samvariation:"SAMVAR", komp_meta:"KOMP_META",nat_komp:"NAT_KOMP",yrke_trait:"YRKE_TRAIT",nat_trait:"NAT_TRAIT",gy_efter:"GY_EFTER",gy_status:"GY_STATUS",komp_yrke:"KOMP_YRKE",komp_omr:"KOMP_OMR",komp_lan:"KOMP_LAN",komp_lan_omr:"KOMP_LAN_OMR",lan_ann:"LAN_ANN",lan_ann_kv:"LAN_ANN_KV",yrke_namn3:"YRKE_NAMN3",yrkbr:"YRKBR",nat_komp_kv:"NAT_KOMP_KV",komp_kv_axis:"KOMP_KV_AXIS",nat_ann:"NAT_ANN",nat_ann_kv:"NAT_ANN_KV"};
   try{
     /* Datan kommer ur verktyg_grunddata.js, som hämtas strax ovanför. */
     var d=window.__JOBBATLAS||{};
