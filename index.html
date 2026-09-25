@@ -6840,7 +6840,7 @@ section.results .vcmp .rapport-matrix-wrap{
       <!-- Se motsvarande ordning i länsvyn. -->
         <div class="r-fig">
           <p class="r-fig-title">Specialisering i efterfrågan</p>
-          <p class="r-fig-sub">Specialiseringskvot per kompetens i länet. Kvoten jämför kompetensens andel av länets samtliga kompetensomnämnanden med motsvarande andel i riket. Talet före kvoten är antalet annonser i länet som kvoten bygger på. Uppgiften avser länet, eftersom kompetenser inte redovisas per kommun.</p>
+          <p class="r-fig-sub" data-nivakalla="lanet">Specialiseringskvot per kompetens i länet. Kvoten jämför kompetensens andel av länets samtliga kompetensomnämnanden med motsvarande andel i riket. Talet före kvoten är antalet annonser i länet som kvoten bygger på.</p>
           <div class="lq-list" id="kompLqListKom"></div>
           <div class="lq-scale"><span>Under 1,0</span><span>1,0</span><span>Över 1,0</span></div>
           <p class="r-src" id="srcKompLqKom"></p>
@@ -6866,19 +6866,19 @@ section.results .vcmp .rapport-matrix-wrap{
            så kommunvyn visar sitt läns tal. Undertexten säger det. -->
       <div class="r-fig" id="figLorKom">
         <p class="r-fig-title">Lediga jobb och matchning</p>
-        <p class="r-fig-sub" data-amn="Lediga jobb per 100 personer i arbetskraften och per arbetslös, jämfört med riket. Avser {Q}. Avser {L}, eftersom lediga jobb redovisas per län och inte per kommun.">Lediga jobb per 100 personer i arbetskraften och per arbetslös, jämfört med riket. Avser senaste kvartalet. Avser kommunens län, eftersom uppgiften inte redovisas per kommun.</p>
+        <p class="r-fig-sub" data-nivakalla="lanet" data-amn="Lediga jobb per 100 personer i arbetskraften och per arbetslös, jämfört med riket. Avser {Q}.">Lediga jobb per 100 personer i arbetskraften och per arbetslös, jämfört med riket. Avser senaste kvartalet.</p>
         <div class="kpi-row" id="kpiRowLorKom"></div>
         <p class="r-src" id="srcLorKom"></p>
       </div>
       <div class="r-fig" id="figBaroBarKom">
         <p class="r-fig-title">Antal yrken per bedömt rekryteringsläge</p>
-        <p class="r-fig-sub" data-amn="Antal av Arbetsförmedlingens barometeryrken per bedömt läge, i {L} och i riket. Avser {L}, eftersom barometern redovisas per län och inte per kommun." id="baroBarSubKom">Antal av Arbetsförmedlingens barometeryrken per bedömt läge, i länet och i riket.</p>
+        <p class="r-fig-sub" data-nivakalla="lanet" data-amn="Antal av Arbetsförmedlingens barometeryrken per bedömt läge, i länet och i riket." id="baroBarSubKom">Antal av Arbetsförmedlingens barometeryrken per bedömt läge, i länet och i riket.</p>
         <div class="r-chart" style="height:260px"><canvas id="cBaroBarKom"></canvas></div>
         <p class="r-src" id="srcBaroBarKom"></p>
       </div>
       <div class="r-fig" data-ejrapport="1" data-ejexport="1">
         <p class="r-fig-title">Rekryteringsläge för efterfrågade yrken</p>
-        <p class="r-fig-sub" id="bristSubKom" data-amn="Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt. Avser {L}, eftersom läget bedöms per län och inte per kommun.">Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt. Avser kommunens län, eftersom uppgiften inte redovisas per kommun.</p>
+        <p class="r-fig-sub" id="bristSubKom" data-nivakalla="lanet" data-amn="Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt.">Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt.</p>
         <div class="brist-list" id="bristListKom"></div>
         <p class="r-src" id="srcBristKom"></p>
       </div>
@@ -6888,13 +6888,13 @@ section.results .vcmp .rapport-matrix-wrap{
       <!-- Se motsvarande uppdelning i länsvyn. -->
       <div class="r-fig" id="figVarselKom">
         <p class="r-fig-title">Varsel om uppsägning över tid</p>
-        <p class="r-fig-sub" data-amn="Antal personer som omfattats av varsel om uppsägning per år. Avser {L}, eftersom varsel registreras per län och inte per kommun. Ett varsel är en anmälan till Arbetsförmedlingen och behöver inte leda till uppsägning." id="varselKomSub">Antal personer som omfattats av varsel om uppsägning per år. Avser kommunens län, eftersom varsel registreras per län och inte per kommun. Ett varsel är en anmälan till Arbetsförmedlingen och behöver inte leda till uppsägning.</p>
+        <p class="r-fig-sub" data-nivakalla="lanet" data-amn="Antal personer som omfattats av varsel om uppsägning per år. Ett varsel är en anmälan till Arbetsförmedlingen och behöver inte leda till uppsägning." id="varselKomSub">Antal personer som omfattats av varsel om uppsägning per år. Ett varsel är en anmälan till Arbetsförmedlingen och behöver inte leda till uppsägning.</p>
         <div class="r-chart" id="varselKomChartWrap" style="height:240px"><canvas id="varselKomCanvas"></canvas></div>
         <p class="r-src" id="varselKomSrc"></p>
       </div>
       <div class="r-fig" id="figVarselKomTab" style="margin-top:18px">
         <p class="r-fig-title">Varsel per bransch</p>
-        <p class="r-fig-sub" data-amn="Fördelningen av de varslade på bransch i {L}, med förändring mot föregående år. Avser länet, eftersom varsel registreras per län och inte per kommun." id="varselKomTabSub">Fördelningen av de varslade på bransch i kommunens län, med förändring mot föregående år.</p>
+        <p class="r-fig-sub" data-nivakalla="lanet" data-amn="Fördelningen av de varslade på bransch i länet, med förändring mot föregående år." id="varselKomTabSub">Fördelningen av de varslade på bransch i länet, med förändring mot föregående år.</p>
         <div id="varselKomWrap"><div class="msg">Välj en kommun för att visa länets varsel.</div></div>
         <p class="r-src" id="varselKomTabSrc"></p>
       </div>
@@ -6996,7 +6996,7 @@ section.results .vcmp .rapport-matrix-wrap{
            att platsutbudet bör göra, medan figurerna ovanför visar utfallet. -->
       <div class="r-fig" id="figKomDim">
         <p class="r-fig-title">Skolverkets bedömning av platsutbudet</p>
-        <p class="r-fig-sub" data-amn="Skolverkets bedömning av om antalet utbildningsplatser per gymnasieprogram behöver öka, minska eller vara oförändrat. Avser {L}, eftersom planeringsunderlaget redovisas per län och inte per kommun." id="komDimSub">Skolverkets bedömning av om antalet utbildningsplatser per gymnasieprogram behöver öka, minska eller vara oförändrat. Planeringsunderlaget avser länet som helhet, inte kommunen.</p>
+        <p class="r-fig-sub" data-nivakalla="lanet" data-amn="Skolverkets bedömning av om antalet utbildningsplatser per gymnasieprogram behöver öka, minska eller vara oförändrat." id="komDimSub">Skolverkets bedömning av om antalet utbildningsplatser per gymnasieprogram behöver öka, minska eller vara oförändrat.</p>
         <div id="komDimLegend" class="gymdim-legend"></div>
         <div class="r-chart" id="komDimWrap" style="height:auto"><div class="msg">Välj en kommun för att visa länets bedömning.</div></div>
         <p class="r-src" id="komDimSrc"></p>
@@ -7354,14 +7354,23 @@ section.results .vcmp .rapport-matrix-wrap{
       <div class="r-grid2" style="margin-top:18px">
         <div class="r-fig">
           <p class="r-fig-title">Specialisering i efterfrågan</p>
-          <p class="r-fig-sub" data-amn="Kompetensens andel av annonserna i {S} jämfört med kompetensens andel av samtliga jobbannonser. Över 1,0 betyder att kompetensen utgör en större andel i branschen än i riket, under 1,0 en mindre andel. Urvalet omfattar de femton mest efterfrågade kompetenserna i branschen. Avser riket.">Skattad kompetensandel i branschen jämförd med kompetensens andel av samtliga jobbannonser, uttryckt som specialiseringskvot. Branschens andel beräknas ur yrkesgruppernas kompetensandelar vägda efter branschens yrkessammansättning. Över 1,0 betyder att kompetensen utgör en större andel i branschen än i riket, under 1,0 en mindre andel. Urvalet omfattar de femton mest efterfrågade kompetenserna i branschen.</p>
+          <!-- Urvalet beskrevs som "de femton mest efterfrågade kompetenserna i branschen".
+               Det är den högra figurens urval. deriveBranschKompSpec behåller i stället de
+               kompetenser vars skattade andel av branschens annonser är minst 1,5 procent och
+               visar de femton av dem som har högst kvot — de utmärkande, inte de vanligaste.
+               Mallen var dessutom en äldre kopia utan ordet skattad och utan härledningen, och
+               eftersom mallen skriver över den statiska texten var det den läsaren såg. De två
+               lydelserna är nu samma text, så att de inte kan glida ifrån varandra igen. -->
+          <p class="r-fig-sub" data-amn="Skattad kompetensandel i {S} jämförd med kompetensens andel av samtliga jobbannonser i riket, uttryckt som specialiseringskvot. Andelen i branschen skattas ur yrkesgruppernas kompetensandelar, vägda efter branschens yrkessammansättning. Över 1,0 betyder att kompetensen utgör en större andel i branschen än i riket, under 1,0 en mindre andel. Urvalet omfattar de kompetenser som skattas till minst 1,5 procent av branschens annonser, och figuren visar de femton med högst kvot. Avser riket.">Skattad kompetensandel i branschen jämförd med kompetensens andel av samtliga jobbannonser i riket, uttryckt som specialiseringskvot. Andelen i branschen skattas ur yrkesgruppernas kompetensandelar, vägda efter branschens yrkessammansättning. Över 1,0 betyder att kompetensen utgör en större andel i branschen än i riket, under 1,0 en mindre andel. Urvalet omfattar de kompetenser som skattas till minst 1,5 procent av branschens annonser, och figuren visar de femton med högst kvot. Avser riket.</p>
           <div class="lq-list" id="kompSpecB"></div>
           <div class="lq-scale"><span>Under 1,0</span><span>1,0</span><span>Över 1,0</span></div>
           <p class="r-src" id="srcBKompSpec"></p>
         </div>
         <div class="r-fig">
           <p class="r-fig-title">Mest efterfrågade kompetenser</p>
-          <p class="r-fig-sub" data-amn="De kompetenser som oftast efterfrågas i jobbannonserna i {S}, som andel av samtliga jobbannonser i branschen. Avser riket.">Skattad efterfrågan på kompetenser i branschen. Yrkesgruppernas kompetensandelar i jobbannonserna vägs samman efter branschens yrkessammansättning. Figuren visar de femton högsta.</p>
+          <!-- Samma sak här: mallen saknade att talet är skattat och skrev över den statiska
+               texten som sade det. Lydelserna är nu samma. -->
+          <p class="r-fig-sub" data-amn="Skattad andel av jobbannonserna i {S} som nämner kompetensen, vägd efter branschens yrkessammansättning. Figuren visar de femton högsta. Avser riket.">Skattad andel av jobbannonserna i branschen som nämner kompetensen, vägd efter branschens yrkessammansättning. Figuren visar de femton högsta. Avser riket.</p>
           <div class="kreg-list" id="kompListB"></div>
           <p class="r-src" id="srcBKomp"></p>
         </div>
@@ -10802,8 +10811,12 @@ function renderKommunSpec(){
   var enhetY=d._komYrkeReal?"sysselsatta":"anställda";
   /* Avgränsningen stod i källraden. Den beskriver vad figuren omfattar och läggs därför
      till undertexten, som renderLqOne skriver. */
-  var subYExtra=d._komYrkeReal?" Avser \u00e5ldern 20\u201365 \u00e5r i kommunen."
-    :(d._yrkeLanReal?(" Avser "+(d.lanName||"l\u00e4net")+", eftersom yrke inte redovisas p\u00e5 kommunniv\u00e5."):"");
+  /* Figuren visar kommunens egna tal när de finns och länets när de saknas. Nivån är
+     alltså villkorad och deklareras av renderaren, i stället för att stå som en mening i
+     texten; nivåpasset skriver "Avser <länsnamn>." och sätter etiketten Länsnivå. */
+  var subYExtra=d._komYrkeReal?" Avser \u00e5ldern 20\u201365 \u00e5r i kommunen.":"";
+  (function(){ var _sy=document.getElementById("lqSubKom");
+    if(_sy)_sy.setAttribute("data-nivakalla", d._yrkeLanReal?"lanet":""); })();
   renderLqOne({list:d.lqYrke,isY:true,scope:scopeY,code:code,titleId:"lqTitleKom",subId:"lqSubKom",srcId:"srcLqKom",listId:"lqListKom",linkBransch:false,enhet:enhetY,src:srcY,subExtra:subYExtra});
   renderLqOne({list:d.lqBransch,isY:false,scope:"kommunen",code:code,titleId:"lqBrTitleKom",subId:"lqBrSubKom",srcId:"srcLqBrKom",listId:"lqBrListKom",linkBransch:false,src:srcB,subExtra:""});
 }
@@ -10927,7 +10940,7 @@ function renderKommunBrist(){
     var _kex=_kbitar.length?("Bland de f\u00f6ljda yrkena "+_kbitar.join(", medan det ")+"."):"";
     __anaBrist(document.getElementById("figBaroBarKom")||document.getElementById("bristListKom").closest(".r-fig"),_bc,["yrke","yrken"],d.lanName||"",_kex);
   }
-  var sub=document.getElementById("bristSubKom"); if(sub)sub.textContent="Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt. Avser "+d.lanName+", eftersom uppgiften inte redovisas per kommun.";
+  var sub=document.getElementById("bristSubKom"); if(sub)sub.textContent="Arbetsförmedlingens bedömning av möjligheterna till arbete på ett till fem års sikt.";
   /* Omgången anges, som i stapelfigurens källrad, så att läsaren ser vilken utgåva av
      barometern uppgifterna kommer ur. */
   var sb=document.getElementById("srcBristKom");
@@ -10941,7 +10954,8 @@ function renderKommunKomp(){
   if(!kompDataMatt()){ wrap.innerHTML=' <div class="msg">Kompetensuppgifterna kunde inte l\u00e4sas in. Kontrollera att filen verktyg_kompetensdata.js ligger i samma mapp som verktygsfilen.</div> '.trim();
     var _ks=document.getElementById("srcKompRegKom"); if(_ks)_ks.textContent=""; return; }
   var rows=regionKompRows(d._lanData).slice(0,8);
-  var sub=document.getElementById("kompRegSubKom"); if(sub)sub.textContent="De kompetenser som oftast n\u00e4mns i jobbannonserna i "+d.lanName+", r\u00e4knat som antal annonser. En kompetens räknas en gång per annons. Länstal används, eftersom kompetenserna i annonserna bara redovisas per län och inte per kommun."+((typeof __annonsPeriodMening==="function")?__annonsPeriodMening():"");
+  var sub=document.getElementById("kompRegSubKom"); if(sub)sub.setAttribute("data-nivakalla","lanet");
+      if(sub)sub.textContent="De kompetenser som oftast n\u00e4mns i jobbannonserna i "+d.lanName+", r\u00e4knat som antal annonser. En kompetens räknas en gång per annons."+((typeof __annonsPeriodMening==="function")?__annonsPeriodMening():"");
   var max=Math.max.apply(null,[1].concat(rows.map(function(r){return r.val;})));
   wrap.innerHTML=rows.map(function(r){var w=Math.max(6,r.val/max*100).toFixed(1);var safe=String(r.namn).replace(/"/g,"&quot;");/* Talen är räknade ur kompetensdatan per län, inte skattade. Ungefärtecknet sa motsatsen
      mot undertexten och är borttaget (september 2026). */
@@ -13376,13 +13390,12 @@ function renderKompLqList(d, listId, srcId, saknasData, omrNamn){
      inte i texten, som bara sa hur många av hur många. Perioden skrivs ut med samma
      hjälpare som övriga annonsfigurer. */
   var _lqOmr=omrNamn||null;
-  /* Visar figuren ett annat områdes tal än vyns — kommunvyn visar länets, eftersom
-     kompetenser inte redovisas per kommun — läggs skälet till sist i undertexten, i den
-     lydelse nivåpasset känner igen. Passet stryker meningen, skriver den på nytt och
-     märker figuren med Länsnivå. */
-  var _lqNiva=(_lqOmr&&(typeof __amnOrd==="function"||window.__amnOrd))
-    ? (" Avser "+_lqOmr+", eftersom kompetenser inte redovisas p\u00e5 kommunniv\u00e5.")
-    : "";
+  /* Visar figuren ett annat områdes tal än vyns — kommunvyn visar länets — deklareras
+     nivån med data-nivakalla. Nivåpasset skriver då "Avser <länsnamn>." sist i
+     undertexten och märker figuren med Länsnivå. Skälet stod tidigare som en mening i
+     löptexten, enbart för att passet skulle känna igen den. */
+  var _lqNiva="";
+  if(_lqSub)_lqSub.setAttribute("data-nivakalla", _lqOmr?"lanet":"");
   if(_lqSub)_lqSub.textContent=(_lqOmr
     ? ("Specialiseringskvot per kompetens i "+_lqOmr+". Talet f\u00f6re kvoten \u00e4r antalet annonser i omr\u00e5det som kvoten bygger p\u00e5.")
     : (window.__amnFyll?window.__amnFyll("Specialiseringskvot per kompetens i {O}. Talet f\u00f6re kvoten \u00e4r antalet annonser i omr\u00e5det som kvoten bygger p\u00e5."):"Specialiseringskvot per kompetens. Talet f\u00f6re kvoten \u00e4r antalet annonser i l\u00e4net som kvoten bygger p\u00e5."))
@@ -16022,12 +16035,10 @@ window.VARSEL={"ar":[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021
        Den står nu i undertexten. */
     if(sub)sub.textContent="Antal av Arbetsförmedlingens barometeryrken per bedömt läge"
       +(kod?(", i "+(cfg.omrNamn||"länet")+" och i riket."):" i riket.")
-      /* Meningen "Bedömningen görs per län, så talen avser länsnivå och inte kommunen."
-         stod här och sade samma sak som nivåpasset säger med sin etikett och sin fasta
-         mening. Den är struken. Lydelsen nedan är den som passet känner igen: passet
-         stryker den och skriver "Avser länet." samt sätter etiketten Länsnivå, som på
-         vyns övriga länsfigurer. Utan en känd lydelse hade figuren blivit omärkt. */
-      +(cfg.lanTal?(" Avser "+(cfg.omrNamn||"l\u00e4net")+", eftersom barometern redovisas per l\u00e4n och inte per kommun."):"")
+      /* Att figuren visar länstal deklareras med data-nivakalla på undertexten i
+         uppmärkningen. Nivåpasset skriver "Avser <länsnamn>." och sätter etiketten
+         Länsnivå. Tidigare stod skälet som en mening i texten, enbart för att passet
+         skulle känna igen den lydelsen. */
       /* Att barometern bara täcker ett urval av yrken påverkar hur talen ska läsas, och
        sades tidigare bara som ett antal utan att urvalet nämndes. */
       +" Arbetsf\u00f6rmedlingen bed\u00f6mer ett urval av yrken, f\u00f6r n\u00e4rvarande "+nR+" yrken enligt SSYK"
@@ -16110,17 +16121,17 @@ window.VARSEL={"ar":[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021
       +". Ett varsel \u00e4r en anm\u00e4lan om planerad upps\u00e4gning och beh\u00f6ver inte leda till upps\u00e4gning."
       +" Talen avser inkomna och p\u00e5b\u00f6rjade \u00e4renden, exklusive felregistrerade och \u00e5tertagna."
       +" Arbetsf\u00f6rmedlingen bytte anm\u00e4lningssystem i oktober 2019, s\u00e5 j\u00e4mf\u00f6relser \u00f6ver den tidpunkten b\u00f6r g\u00f6ras med f\u00f6rsiktighet."
-      /* Markupens platsh\u00e5llare sade att figuren visar l\u00e4net, men renderaren skrev \u00f6ver
-         den utan att s\u00e4ga det. Kommunvyns figur stod d\u00e4rmed om\u00e4rkt bland sex andra
-         l\u00e4nsfigurer. Lydelsen nedan \u00e4r den nivåpasset k\u00e4nner igen: passet stryker den och
-         skriver "Avser l\u00e4net." samt s\u00e4tter etiketten L\u00e4nsniv\u00e5. */
-      +(cfg.lanTal?" L\u00e4nstal anv\u00e4nds, eftersom varsel registreras per l\u00e4n och inte per kommun.":"");
+      /* Att figuren visar länstal deklareras med data-nivakalla på undertexten i
+         uppmärkningen. Nivåpasset skriver "Avser <länsnamn>." och sätter etiketten
+         Länsnivå. Tidigare stod skälet som en mening i texten, enbart för att passet
+         skulle känna igen den lydelsen. */
+      ;
     /* Meningen om vad förändringen jämförs med är borttagen: kolumnrubriken säger numera
        Förändring 2024–2025 och bär alltså båda årtalen. */
     if(tabSub)tabSub.textContent="Varslade per bransch i "+omrNamn
       +" \u00e5r "+d.ar[iN]+"."
       +" Sedan systembytet i oktober 2019 bygger branschindelningen p\u00e5 f\u00f6retagets branschkod."
-      +(cfg.lanTal?" L\u00e4nstal anv\u00e4nds, eftersom varsel registreras per l\u00e4n och inte per kommun.":"");
+      ;
     /* K\u00e4llraden anger k\u00e4llan, som i branschvyn. Vad talen omfattar och vad systembytet
        inneb\u00e4r st\u00e5r i undertexterna: avgr\u00e4nsningen av \u00e4renden och f\u00f6rsiktigheten vid
        j\u00e4mf\u00f6relser h\u00f6r till b\u00e5da figurerna, medan branschindelningen bara r\u00f6r tabellen. */
@@ -19087,8 +19098,10 @@ function renderUtbYrken(){
 }
 /* ===== Lön i de yrken utbildningen leder till =====
    Utbildningsgrupperna bär med sig sina vanligaste yrken (fyrställig SSYK) ur SCB:s
-   Regionala trender och prognoser. SCB publicerar medianlön på yrkesgruppsnivå
-   (tresiffrig SSYK), så vi grupperar dit och hämtar med samma funktion som yrkesvyn
+   Regionala trender och prognoser. Talen hämtas på yrkesgruppsnivå (tresiffrig SSYK) med
+   samma funktion som yrkesvyn använder, så att lönen för ett och samma yrke blir identisk
+   i de två vyerna. SCB publicerar medianlön även på fyrställig nivå; valet av tresiffrig
+   nivå är alltså gjort för jämförbarhetens skull och inte av brist på uppgifter.
    använder. Därmed blir talen identiska mellan vyerna. Saknas uppgiften visas den inte. */
 var _utbLon3={};
 async function utbLonForSsyk3(s3){
@@ -19140,7 +19153,7 @@ function renderUtbStruktur(){
      alltså inte. Den bär både en vag källa och tre meningar metodtext, och ska rättas om
      nivån någon gång öppnas igen. */
   if(src)src.textContent=nagon
-    ? "SCB. Lönen avser den yrkesgrupp på tresiffrig nivå som yrket tillhör, eftersom SCB publicerar medianlön på den nivån. Yrkena är de vanligaste bland de examinerade enligt Regionala trender och prognoser från SCB 2025. Avser riket."
+    ? "SCB. Lönen avser den yrkesgrupp på tresiffrig nivå som yrket tillhör. Yrkena är de vanligaste bland de examinerade enligt Regionala trender och prognoser från SCB 2025. Avser riket."
     : "SCB. Uppgiften kunde inte hämtas och visas därför inte.";
   const rows=g.map(function(x){ return [x.namn,(x.lon!=null)?(nf.format(x.lon)+" kr/mån"):"saknas"]; });
   rows.push(["Utbildningsnivå",d.niva||"–"]);
@@ -22551,7 +22564,7 @@ function buildUtbRegionMenu(){
       +" Bland yrkesomr\u00e5dena har "+rdLow(topY[0].name)+" h\u00f6gst kvot ("+fmt2(topY[0].lq)+")"
       +(topY[1]?(", f\u00f6ljt av "+rdLow(topY[1].name)+" ("+fmt2(topY[1].lq)+")"):"")+"."
       +(botY[0]?(" L\u00e4gst kvot har "+rdLow(botY[0].name)+" ("+fmt2(botY[0].lq)+")."):"")]);
-    blocks.push(["fig",{title:"Yrkesspecialisering mot riket",sub:"Specialiseringskvot per yrkesområde i det län kommunen tillhör. Över 1,0 betyder att yrkesområdet utgör en större andel av sysselsättningen i länet än i riket. Under 1,0 är andelen mindre. Avser "+d.lanName+", eftersom yrke inte redovisas på kommunnivå.",id:"rapportYrkeBar",source:"SCB."}]);
+    blocks.push(["fig",{title:"Yrkesspecialisering mot riket",sub:"Specialiseringskvot per yrkesområde i det län kommunen tillhör. Över 1,0 betyder att yrkesområdet utgör en större andel av sysselsättningen i länet än i riket. Under 1,0 är andelen mindre. Avser "+d.lanName+".",id:"rapportYrkeBar",source:"SCB."}]);
     if(_lqBSaknas){ blocks.push(["p","Uppgift om branschspecialisering saknas i underlaget f\u00f6r kommunen."]); }
     else blocks.push(["p", (_lqYSaknas?(_specDef+" "):"")
       +"Bland branscherna har "+rdLow(topB[0].name)+" h\u00f6gst kvot ("+fmt2(topB[0].lq)+")."
@@ -23127,6 +23140,21 @@ function buildUtbRegionMenu(){
         ]);
       blocks.push(["fig",{title:"Yrken i branschen",sub:"De \u00e5tta yrkesgrupper som syssels\u00e4tter flest i "+d.name+", som andel av branschens anst\u00e4llda.",id:"rapportYrkenBar",source:"SCB. Avser riket."}]);
     }
+    /* Avsnittet Efterfrågan i jobbannonser — annonsintensiteten och de två
+       kompetensfigurerna — stod utan analystext: byggaren hade inget avsnitt för
+       annonserad efterfrågan och kartan inget ankare. Läns- och kommunvyn har ett
+       avsnitt för samma två figurer, och rubriken är densamma här, så att samma
+       innehåll heter samma sak i alla tre vyerna.
+
+       Första stycket säger vad talen beskriver: efterfrågan som arbetsgivarna
+       formulerar den, inte vad de anställda kan. Det andra säger varför talen är
+       skattade. Jobbannonser bär ingen näringsgrenskod, så branschens efterfrågan
+       kan inte läsas av direkt; den vägs fram ur yrkesgruppernas annonser. Det
+       antagande vägningen vilar på skrivs ut, eftersom det är avgörande för hur
+       talen ska läsas och inte framgår av figurerna. */
+    blocks.push(["h2","Efterfrågade kompetenser"]);
+    blocks.push(["p","I jobbannonser anger arbetsgivarna vilka kompetenser de söker. Figurerna beskriver alltså efterfrågan som den formuleras i annonserna, inte vad de som redan arbetar i branschen kan."]);
+    blocks.push(["p","Jobbannonser bär ingen näringsgrenskod, så efterfrågan kan inte läsas av direkt per bransch. Talen är skattade: för varje yrkesgrupp räknas hur stor andel av gruppens annonser som nämner en kompetens, och andelarna vägs samman efter branschens yrkessammansättning enligt SCB:s yrkesregister. Skattningen förutsätter att en yrkesgrupp annonserar likadant oavsett vilken bransch den finns i."]);
     blocks.push(["h2","Geografisk fördelning"]);
     if(top.length){
       blocks.push(["p","Kartorna visar specialiseringskvoter per l\u00e4n och kommun. \u00d6ver 1,0 betyder att branschen utg\u00f6r en st\u00f6rre andel i l\u00e4net \u00e4n i riket, under 1,0 en mindre andel. H\u00f6gst kvot har "+rdList(top.map(function(x){return x.name+" ("+fmt2(x.lq)+")";}),3)+"."]);
@@ -23175,7 +23203,7 @@ function buildUtbRegionMenu(){
       if(_lgs.length>1){
         _lp+=" Utbildningen leder också till "+_lgs.slice(1).map(function(x){return rdLow(x.namn)+", med "+rdNum(x.lon)+" kronor i månaden";}).join(", och ")+".";
       }
-      _lp+=" Lönen avser yrkesgruppen på tresiffrig nivå, eftersom SCB publicerar medianlön på den nivån. Den beskriver därmed löneläget i de yrken utbildningen leder till, inte de examinerades egna löner.";
+      _lp+=" Lönen avser yrkesgruppen på tresiffrig nivå. Den beskriver därmed löneläget i de yrken utbildningen leder till, inte de examinerades egna löner.";
       blocks.push(["p",_lp]);
       blocks.push(["table",{corner:"Yrkesgrupp",cols:["Medianlön, kr/mån"],
         rows:_lgs.map(function(x){return {name:x.namn,cells:[{text:rdNumC(x.lon)}]};}),
@@ -24388,6 +24416,10 @@ window.__BRANSCH_MAP={
   /* Branschens struktur och yrkessammansättning står sida vid sida i samma figur och
      delar därför rubrik. Ankaret är den vänstra av dem. */
   "Yrkesstruktur":"Yrken i branschen",
+  /* Ankaret är den vänstra av de två kompetensfigurerna. Den ligger i ett tvåspaltigt
+     rutnät, så texten hamnar ovanför båda — och under annonsintensiteten, som bär sin
+     egen undertext. */
+  "Efterfrågade kompetenser":"Specialisering i efterfrågan",
   "Geografisk fördelning":"Län"            /* specialiseringskartan, som inleder geografiavsnittet */
 };
 window.__UTB_MAP={
@@ -30577,13 +30609,29 @@ window.utbListFor = function(niva){
   function fyllElement(el){
     var nu=el.textContent;
     /* En renderare har skrivit över texten sedan förra ifyllningen. Då äger renderaren
-       elementet, och den statiska mallen ska inte skriva tillbaka gammal text. */
-    if(el.__amnUt!=null && nu!==el.__amnUt && el.dataset && el.dataset.amn){
+       elementet, och den statiska mallen ska inte skriva tillbaka gammal text.
+
+       Två pass äger undertexten: mallen här och nivåpasset nedan, som lägger till eller tar
+       bort nivåmeningen efter att mallen fyllts. Nivåpassets utskrift sparas i data-nivaut.
+       Räknades den som en renderares skrivning släpptes mallen redan vid andra varvet, och
+       undertexten frös i det ord som råkade gälla vid sidladdningen — verktyget öppnar i
+       kompetensvyn, så sjutton mallar stod kvar med "kompetensen" i läns-, kommun-, yrkes-,
+       bransch- och utbildningsvyn. Nivåpassets egen text räknas därför som modulens egen. */
+    var eget=(el.getAttribute&&el.getAttribute("data-nivaut"));
+    if(el.__amnIn!=null && nu!==el.__amnUt && nu!==eget && el.dataset && el.dataset.amn){
       try{ delete el.dataset.amn; }catch(e){}
     }
     if(el.dataset && el.dataset.amn){
       var ny=fyll(el.dataset.amn);
-      if(ny!==nu)el.textContent=ny;
+      /* Jämförelsen görs mot mallens förra utfall och inte mot elementets text: texten har
+         nivåpasset redan hunnit ändra, och en jämförelse mot den hade skrivit tillbaka
+         nivåmeningen vid varje varv. Observatören hade då utlöst nästa varv, i en kedja
+         utan slut. Ändras utfallet — ett nytt ämnesnamn, en ny vy — släpps nivåpassets
+         sparade grundlydelse, så att den räknas om ur den nya texten. */
+      if(ny!==el.__amnIn){
+        el.textContent=ny; el.__amnIn=ny;
+        el.removeAttribute("data-nivabas"); el.removeAttribute("data-nivaut");
+      }
       el.__amnUt=el.textContent;
       return;
     }
@@ -30622,19 +30670,21 @@ window.utbListFor = function(niva){
     /\s*(?:Uppgifterna|Underlaget|Uppgiften|L\u00f6nerna)\s+avser\s+(?:hela\s+)?riket\.\s*/gi,
     /\s*Avser\s+riket\.\s*/gi
   ];
-  /* Nivån läses ur undertexten, och mönstren fångade bara två av de formuleringar som
-     används. Sex figurer i kommunvyn sade i klartext att de visar länet — lediga jobb och
-     matchning, rekryteringsläget, båda varselfigurerna och de två om gymnasiets
-     planeringsunderlag — utan att få vare sig etikett eller nivåmening, eftersom deras
-     lydelse inte fanns bland mönstren. De två sista mönstren fångar de vändningarna.
-     Mönstret för "Avser …, eftersom …" är prövat mot samtliga undertexter i filen och
-     träffar bara de avsedda meningarna. */
-  var NIVA_LANET=[
-    /\s*L\u00e4nstal anv\u00e4nds[^.]*\.\s*/gi,
-    /\s*Lediga jobb redovisas per l\u00e4n[^.]*\.\s*/gi,
-    /\s*Avser\s+[^.]*?,\s*eftersom\s+[^.]*\.\s*/gi,
-    /\s*Planeringsunderlaget avser\s+[^.]*?\s+som helhet, inte\s+[^.]*\.\s*/gi
-  ];
+  /* Länsnivån lästes tidigare ur undertextens egen text, med mönster som matchade en
+     mening där figuren själv förklarade varför den visar länet i stället för kommunen.
+     Den ordningen hade två problem. Meningen fanns bara för att passet skulle känna igen
+     den — en intern signal som stod i läsarens text, i en formulering ingen hade valt för
+     läsarens skull — och mönstren kunde bitas av varandra: det som fångade lediga jobb åt
+     upp senare ledet av helmeningen, och kvar blev en avhuggen sats följd av nivåmeningen.
+     Ett av mönstren träffade dessutom vilken mening som helst av formen "X avser Y,
+   eftersom Z", oavsett om den hade med nivå att göra eller inte.
+
+     Nivån deklareras nu med attributet data-nivakalla på undertexten, satt i uppmärkningen
+     för de figurer som alltid visar länstal och av renderaren för dem som gör det villkorat.
+     Ingen text behöver bära signalen, och inget mönster kan råka träffa en mening som inte
+     är en nivåmening. Riksnivån läses fortfarande ur texten: "Avser riket." står i
+     figurerna av eget värde. */
+  var NIVA_LANET=[];
   function nivaValdFor(fig){
     try{
       var vy=fig.closest?fig.closest("main.view"):null;
@@ -30675,11 +30725,31 @@ window.utbListFor = function(niva){
       var t=nu;
       var r=NIVA_RIKET.some(function(x){ x.lastIndex=0; return x.test(t); });
       var l=NIVA_LANET.some(function(x){ x.lastIndex=0; return x.test(t); });
-      kalla=r?"riket":(l?"lanet":"");
+      /* Deklarationen väger över den avlästa nivån. Står det data-nivakalla på
+         undertexten är det figurens byggare som talar, och den vet bättre än en
+         mönstermatchning mot löptext. Ett tomt värde betyder uttryckligen ingen
+         nivåmärkning, vilket en villkorad figur behöver kunna säga när den för en gångs
+         skull visar kommunens egna tal. */
+      var dekl=sub.getAttribute("data-nivakalla");
+      kalla=(dekl!=null)?dekl:(r?"riket":(l?"lanet":""));
       NIVA_RIKET.concat(NIVA_LANET).forEach(function(x){ x.lastIndex=0; t=t.replace(x," "); });
+      /* Ett vävt förbehåll tas tillbaka till sin ursprungliga lydelse. Passet antecknade
+         både vad det skrev och vad det skrev över, så bytet är omvändbart och grunden
+         går att räkna om exakt även ur passets egen utskrift. Utan det blev den vävda
+         meningen en del av grunden, och nästa körning lade nivåmeningen efter den:
+         "Avser länet senaste kvartalet. Avser Kronobergs län." */
+      var vav=sub.getAttribute("data-nivavav"), vavUr=sub.getAttribute("data-nivavavur");
+      if(vav && vavUr && t.indexOf(vav)>=0) t=t.replace(vav, vavUr);
       /* Ett kvarstående besked om saknad uppgift ur en äldre skrivning räknas inte som grund. */
       var not=sub.getAttribute("data-saknasnot");
       if(not && t.indexOf(not)>=0) t=t.replace(not," ");
+      /* Passets egen nivåmening ur en tidigare körning räknas inte heller som grund.
+         Utan detta staplades meningarna när grundlydelsen räknades om ur en text som
+         passet självt hade skrivit: "Avser länet. Avser Kronobergs län." Meningen
+         sparas i data-nivamening av undertextSkriv, på samma sätt som beskedet om
+         saknad uppgift sparas i data-saknasnot. */
+      var nivM=sub.getAttribute("data-nivamening");
+      if(nivM && t.indexOf(nivM)>=0) t=t.replace(nivM," ");
       bas=t.replace(/\s+/g," ").trim();
       sub.setAttribute("data-nivabas",bas); sub.setAttribute("data-nivaslag",kalla);
     }
@@ -30687,7 +30757,10 @@ window.utbListFor = function(niva){
   }
   function undertextSkriv(fig, sub, visa){
     var g=undertextGrund(sub);
-    var nivaOrd=(visa==="riket")?"riket":((visa==="lanet")?"l\u00e4net":"");
+    /* Länet namnges. "Avser länet." lämnar läsaren att själv hålla reda på vilket län
+       kommunen ligger i, och en figur som sparas eller skrivs ut bär inga väljare med sig.
+       Saknas namnet av någon anledning står det generiska ordet kvar. */
+    var nivaOrd=(visa==="riket")?"riket":((visa==="lanet")?(kommunLan()||"l\u00e4net"):"");
     var mening=nivaOrd?("Avser "+nivaOrd+"."):"";
     var bas=g.bas;
     /* Grundtexten slutar ofta med ett eget förbehåll om tid — "Avser år 2025." — och nivåns
@@ -30696,6 +30769,7 @@ window.utbListFor = function(niva){
        och nivåmeningen utgår. Formerna räknas upp uttryckligen: en okänd lydelse lämnas som
        den är och får nivåmeningen efter sig som förut, hellre än att sättas ihop till något
        som inte går att läsa. */
+    var _vavPar=null;
     if(nivaOrd&&bas){
       var _vavd=null;
       var _m;
@@ -30705,9 +30779,18 @@ window.utbListFor = function(niva){
         _vavd="Avser "+nivaOrd+" senaste kvartalet.";
       else if((_m=bas.match(/(^|\s)Avser perioden ([^.]+)\.\s*$/)))
         _vavd="Avser "+nivaOrd+" under perioden "+_m[2]+".";
-      if(_vavd){ bas=bas.slice(0, bas.length-_m[0].length).replace(/\s+$/,"")+" "+_vavd; mening=""; }
+      if(_vavd){ bas=bas.slice(0, bas.length-_m[0].length).replace(/\s+$/,"")+" "+_vavd; mening="";
+                 _vavPar=[_vavd, _m[0].replace(/^\s+/,"")]; }
     }
     var not=sub.getAttribute("data-saknasnot")||"";
+    /* Vad passet lägger till eller byter ut antecknas, så att nästa omräkning av
+       grundlydelsen kan ta tillbaka det. Exakt en av de två formerna gäller åt gången,
+       och den som inte gäller städas bort, så att ingen gammal anteckning kan bita. */
+    if(mening) sub.setAttribute("data-nivamening", mening);
+    else sub.removeAttribute("data-nivamening");
+    if(_vavPar){ sub.setAttribute("data-nivavav", _vavPar[0]);
+                 sub.setAttribute("data-nivavavur", _vavPar[1]); }
+    else { sub.removeAttribute("data-nivavav"); sub.removeAttribute("data-nivavavur"); }
     var vill=[bas, mening, not].filter(Boolean).join(" ").replace(/\s+/g," ").trim();
     if((sub.textContent||"")!==vill) sub.textContent=vill;
     sub.setAttribute("data-nivaut", vill);
@@ -41431,7 +41514,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
     if(_y2.topp) ut.push(p((_y2.antalTopp===1?"Yrkesområdet ":"Yrkesområdena ")+_y2.topp
       +" utgör en större andel av "+_yEnh+" i "+_yOmr
       +" än i riket"+(_y2.botten?(", medan "+_y2.botten+" utgör en mindre andel"):"")+"."
-      +(_yLan?(" Avser "+_yOmr+", eftersom yrke inte redovisas på kommunnivå."):"")
+      +(_yLan?(" Avser "+_yOmr+"."):"")
       ,"Specialisering inom yrkesområden","Yrkesspecialisering",
       _forstNamn(d.lqYrke), d.yrkeAr||null));
     var _ftg=num(k.ftgReg,1);
