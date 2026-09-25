@@ -5841,6 +5841,15 @@ body #navRail .viewnav-btn:not(.active){color:#2e2e2e}
   font:400 var(--ts-rubrik)/1 var(--font-ui)!important;color:var(--ink);
   background:#fff;border:1px solid var(--line);border-radius:8px;
 }
+/* Taket på 200 px sattes för sorteringsväljarna i utbildningslistan, vars alternativ är korta
+   ("Bäst matchning", "Namn A–Ö"). Samma klass bär figurernas egna kontroller, och där är
+   alternativen långa: utbildningsområdet "Lantbruk, djurvård, trädgård, skog och fiske" är 43
+   tecken och klipptes mitt i ordet. Komponentlagret säger redan max-width:100% för just de
+   kontrollerna, men undantagslagret vann över det. Regeln upprepas därför här, scopad till
+   fc-row, så att sorteringsväljarna behåller sitt tak. Rullisten har width:auto och växer
+   alltså till sitt bredaste alternativ. fc-row är inte flex, så etikett och rullist bryts
+   naturligt på smala skärmar. */
+.fc-row .jobed-sort{max-width:100%}
 .jobed-item{
   background:var(--paper);border:1px solid var(--line);
   border-radius:10px;padding:11px 13px;
@@ -5875,7 +5884,18 @@ body #navRail .viewnav-btn:not(.active){color:#2e2e2e}
    bredare skärmar. */
 @media (min-width:861px){
   body>header{flex-wrap:nowrap;height:auto}
-  body>header .hdr-search{min-width:0;flex:1 1 auto}
+  body>header .hdr-search{min-width:0;flex:1 1 auto;order:2}
+  /* Ordningen i sidhuvudet stod bara i @media (max-width:900px), där order:3 sattes för att
+     sökfältet skulle brytas ned på egen rad. Över 900 px fanns ingen ordning alls, och då gav
+     DOM-ordningen brand, sökfält, knappar — alltså Skapa rapport till höger om sökrutan.
+     Ordningen anges därför uttryckligen för alla bredder där huvudets sökfält syns.
+
+     Värdena var dock omkastade mot den avsikten: sökfältet fick 3 och knapparna 2, så Skapa
+     rapport hamnade mellan varumärket och sökrutan på varje bredd från 861 px och uppåt.
+     Under 861 px syntes det inte, eftersom sökfältet då ligger i navigeringslisten och inte
+     i huvudet. Sökfältet har nu 2 och knapparna 3, vilket ger samma ordning som DOM:en. */
+  body>header .brand-text{order:1}
+  body>header .hdr-exports{order:3}
   body>header .brand-text{min-width:0}
 }
 }
