@@ -1538,7 +1538,8 @@ main.view>aside .us-stat>.block>/* Rubriken som ligger först i ett block fick f
   }
   .tabledd-btn:hover{background:linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,253,253,.99) 100%);}
   .tabledd-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  [data-target]:focus-visible,[data-koppling]:focus-visible,[data-narl]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  /* Fokusregeln gällde tre attribut som alla hörde till klicknavigering mellan vyer.
+     Ingen av dem sätts längre någonstans i filen, så regeln är borttagen. */
   #tableBtnText{flex:1}
   .tabledd-caret{color:var(--ink-soft);font-size:var(--ts-text);margin-top:2px}
   .tabledd.open .tabledd-caret{transform:rotate(180deg)}
@@ -2291,7 +2292,7 @@ main.view>aside .us-stat>.block>/* Rubriken som ligger först i ett block fick f
   /* Samma sak för rader med två kort. */
   .kpi-row.kpi-2{grid-template-columns:repeat(2,minmax(0,1fr))}
   .kpi{position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 17px;box-shadow:0 1px 1px rgba(22,56,74,.04),0 2px 7px -4px rgba(22,56,74,.10);display:flex;flex-direction:column;min-width:0}
-  .kpi .v{font:800 var(--ts-display)/1.05 var(--font-content);color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.015em;min-width:0;overflow-wrap:break-word} .kpi .v .u{font-size:var(--fig-rubrik);font-weight:600;color:var(--ink-soft);margin-left:2px;letter-spacing:0}
+  .kpi .v{font:800 var(--ts-display)/1.05 var(--font-content);color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.015em;min-width:0;overflow-wrap:break-word} .kpi .v .u{display:inline-block;white-space:nowrap;font-size:var(--fig-rubrik);font-weight:600;color:var(--ink-soft);margin-left:2px;letter-spacing:0}
   /* En enhet som är ett ord, som "av 144", behöver ett ordmellanrum. Procenttecknet ska
      däremot sitta tätt intill siffran. */
   /* Marginalen är ersatt av ett blanksteg i markupen, som både separerar och ger
@@ -2835,9 +2836,9 @@ body[data-view="method"] .method-doc,body[data-view="ladda"] .method-doc{padding
   .mapbox{display:flex;justify-content:center;margin:4px 0 10px}
   .lanmap{position:relative;flex:0 0 auto}
   .lanmap-svg{height:300px;width:auto;display:block}
-  .lanmap-path{stroke:#fff;stroke-width:.8;cursor:pointer;transition:fill .25s var(--ease),stroke .12s,stroke-width .12s;outline:none}
+  .lanmap-path{stroke:#fff;stroke-width:.8;transition:fill .25s var(--ease),stroke .12s,stroke-width .12s}
   .lanmap-path.hl{stroke:#382f23;stroke-width:1.6}
-  .lanmap-path:focus-visible{stroke:#382f23;stroke-width:1.8}
+  /* Fokusmarkeringen utgick med länkrollen: ytorna går inte att fokusera. */
   .lanmap-tip{position:absolute;transform:translate(-50%,calc(-100% - 8px));background:#382f23;color:#fff;font:600 var(--ts-etikett)/1.3 var(--font-ui);padding:4px 9px;border-radius:7px;pointer-events:none;white-space:nowrap;z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.18)}
   .geo-wrap .lq-list{flex:1 1 auto;min-width:0}
   .lanmap-legend{margin-top:10px}
@@ -6865,7 +6866,7 @@ section.results .vcmp .rapport-matrix-wrap{
       <!-- Samma figur som i länsvyn. SCB redovisar lediga jobb per län, inte per kommun,
            så kommunvyn visar sitt läns tal. Undertexten säger det. -->
       <div class="r-fig" id="figLorKom">
-        <p class="r-fig-title">Lediga jobb och matchning</p>
+        <p class="r-fig-title">Lediga jobb</p>
         <p class="r-fig-sub" data-nivakalla="lanet" data-amn="Lediga jobb per 100 personer i arbetskraften och per arbetslös, jämfört med riket. Avser {Q}.">Lediga jobb per 100 personer i arbetskraften och per arbetslös, jämfört med riket. Avser senaste kvartalet.</p>
         <div class="kpi-row" id="kpiRowLorKom"></div>
         <p class="r-src" id="srcLorKom"></p>
@@ -10960,7 +10961,7 @@ function renderKommunKomp(){
   wrap.innerHTML=rows.map(function(r){var w=Math.max(6,r.val/max*100).toFixed(1);var safe=String(r.namn).replace(/"/g,"&quot;");/* Talen är räknade ur kompetensdatan per län, inte skattade. Ungefärtecknet sa motsatsen
      mot undertexten och är borttaget (september 2026). */
   var meta=nf.format(r.val)+" annonser";
-    return '<div class="kreg-row" data-koppling="'+safe+'" role="link" tabindex="0" title="Öppna '+safe+' i kompetensvyn"><div class="kreg-top"><span class="kreg-name">'+r.namn+' <span aria-hidden="true" style="opacity:.45;font-size:.85em">→</span></span><span class="kreg-meta">'+meta+'</span></div><div class="kreg-bar"><span class="kreg-fill" data-w="'+w+'"></span></div></div>';}).join("");
+    return '<div class="kreg-row"><div class="kreg-top"><span class="kreg-name">'+r.namn+'</span><span class="kreg-meta">'+meta+'</span></div><div class="kreg-bar"><span class="kreg-fill" data-w="'+w+'"></span></div></div>';}).join("");
   var src=document.getElementById("srcKompRegKom"); if(src)src.textContent="Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.";
   requestAnimationFrame(function(){document.querySelectorAll("#kompRegListKom .kreg-fill").forEach(function(f){f.style.width=f.dataset.w+"%";});});
   var _lk=(typeof kompLive==="function")?kompLive():null; renderKompLqList(d._lanData,"kompLqListKom","srcKompLqKom",!((window.KOMP_REG&&window.KOMP_REG.competences)||(_lk&&_lk.competences)),d.lanName);
@@ -11184,13 +11185,19 @@ function svPlatta(tx, ty, nm, fs, anchor){
   return '<rect x="'+px.toFixed(1)+'" y="'+(ty-fs*0.92).toFixed(1)+'" width="'+b.toFixed(1)
        +'" height="'+h.toFixed(1)+'" rx="3" fill="#faf7f0" opacity="0.88"/>';
 }
-function svLabel(x,y,r,name,center,side,ang,smal){
-  /* Etikettbudgeten. Den var tjugo tecken på den breda ytan, och namn som Administrativa
-     uppgifter kapades till "Administrativa uppg…". Ringen ligger 200 punkter från mitten på
-     en 960 punkter bred yta, så marginalen utåt är omkring 280 punkter medan trettio tecken
-     i grad tolv tar knappt 200. Budgeten är höjd så att de ryms. Den smala ytan har bara
-     omkring 80 punkters marginal och lämnas orörd: där kapas långa namn redan idag, och en
-     höjning hade skjutit ut plattan utanför ritytans kant. */
+function svLabel(x,y,r,name,center,side,ang,smal,W,maxB,ly){
+  /* Etikettbudgeten på den breda ytan: ringen ligger 200 enheter från mitten på en 960
+     enheter bred yta, så marginalen utåt är omkring 280 medan trettio tecken i grad tolv
+     tar knappt 200. Budgeten rymmer därmed namn som Administrativa uppgifter utan att
+     kapa dem.
+
+     Den smala ytan har inte den marginalen. Där är ritytan 620 enheter bred och ringen
+     ligger 230 ut, så en nod längst ut åt sidan har ett fyrtiotal enheter kvar till
+     kanten medan fjorton tecken i grad nitton behöver ett drygt hundratal. Etiketterna
+     hamnade utanför ritytan och klipptes av behållarens overflow:hidden. Grenen för smal
+     skärm lägger därför etiketten över eller under noden, där höjden räcker, och räknar
+     budgeten ur avståndet till närmaste sidokant. Noder nära toppen och botten får då
+     plats med längre namn än de längst ut åt sidorna, vilket är just där utrymmet finns. */
   var max=center?(smal?22:30):(smal?14:28);
   var nm=svEsc(name.length>max?name.slice(0,max-1)+"\u2026":name);
   var fs=center?(smal?23:13):(smal?19:12);
@@ -11198,7 +11205,23 @@ function svLabel(x,y,r,name,center,side,ang,smal){
     var cy2=(y+r+17);
     return svPlatta(x,cy2,nm,fs,"middle")+'<text x="'+x+'" y="'+cy2.toFixed(1)+'" text-anchor="middle">'+nm+'</text>';
   }
-  var ca=Math.cos(ang), sa=Math.sin(ang), d=r+11;
+  var ca=Math.cos(ang), sa=Math.sin(ang);
+  if(smal){
+    /* Höjden och det vågräta utrymmet räknas fram av anroparen, som ser alla noder på en
+       gång. Här ritas bara det som beslutats: etiketten centrerad över eller under noden,
+       kapad till den budget utrymmet medger. */
+    var _ty=(typeof ly==="number")?ly:(y+(r+10+((sa<0)?0:fs))*((sa<0)?-1:1));
+    /* Namnet är redan kapat av anroparen när placeringen räknades fram; faller det av
+       någon anledning bort kapas det här ur kantavståndet, som förut. */
+    var _nm;
+    if(typeof maxB==="string"){ _nm=svEsc(maxB); }
+    else { var _b=Math.max(60,2*(Math.min(x,(W||620)-x)-6));
+           var _m=Math.max(6,Math.floor((_b-9)/(fs*0.56)));
+           _nm=svEsc(name.length>_m?name.slice(0,_m-1)+"\u2026":name); }
+    return svPlatta(x,_ty,_nm,fs,"middle")
+         +'<text x="'+x.toFixed(1)+'" y="'+_ty.toFixed(1)+'" text-anchor="middle">'+_nm+'</text>';
+  }
+  var d=r+11;
   var tx=x+d*ca, ty=y+d*sa;
   var anchor=(ca>0.34)?"start":((ca<-0.34)?"end":"middle");
   var dy=(anchor==="middle")?(sa<0?-2:11):4;
@@ -11224,9 +11247,12 @@ function buildSamvarSVG(focus,info){
   var items=info.items, nA=info.nA;
   var maxN=nA; items.forEach(function(it){ if(it.nB&&it.nB>maxN)maxN=it.nB; });
   var maxStr=0; items.forEach(function(it){ if(it.strength>maxStr)maxStr=it.strength; }); if(maxStr<=0)maxStr=1;
-  /* Noderna skalas upp lika mycket som ritytan smalnar, så att de behåller sin storlek på
-     skärmen i stället för att krympa med spalten. */
-  var _nodSkala=_smal?1.35:1;
+  /* Noderna skalades upp 1,35 gånger på smal skärm, så att de behöll sin storlek på
+     skärmen i stället för att krympa med spalten. Förstoringen gjorde den största
+     cirkeln 114 enheter bred på en yta som är 620, alltså nära en femtedel av bredden,
+     och tog utrymmet från etiketterna: grannodernas cirklar ritades över texten. Skalan
+     är sänkt så att cirklarna och namnen får plats bredvid varandra. */
+  var _nodSkala=_smal?1.05:1;
   function rad(n){ var base=(n&&maxN>0)?Math.sqrt(n/maxN):0; return (12+30*base)*_nodSkala; }
   var cR=rad(nA);
   /* Marginalen utåt rymmer etiketterna. På den stående ytan finns mer höjd att ta av, så
@@ -11265,19 +11291,87 @@ function buildSamvarSVG(focus,info){
       svg+='<line class="sv-edge-bg" x1="'+pos[a].x.toFixed(1)+'" y1="'+pos[a].y.toFixed(1)+'" x2="'+pos[b2].x.toFixed(1)+'" y2="'+pos[b2].y.toFixed(1)+'" stroke-width="'+bw+'" stroke-opacity="'+bop+'"><title>'+svEsc(pos[a].it.name)+' och '+svEsc(pos[b2].it.name)+': f\u00f6rekommer tillsammans i '+svPct(frac)+' av annonserna</title></line>';
     }
   }
-  svg+='<g class="sv-node sv-center"><circle cx="'+cx+'" cy="'+cy+'" r="'+cR.toFixed(1)+'" fill="var(--rubrik)" stroke="#fff" stroke-width="2"/><title>'+svEsc(focus)+': n\u00e4mns i '+nf.format(nA)+' annonser</title>'+svLabel(cx,cy,cR,focus,true,0,0,_smal)+'</g>';
+  svg+='<g class="sv-node sv-center"><circle cx="'+cx+'" cy="'+cy+'" r="'+cR.toFixed(1)+'" fill="var(--rubrik)" stroke="#fff" stroke-width="2"/><title>'+svEsc(focus)+': n\u00e4mns i '+nf.format(nA)+' annonser</title>'+svLabel(cx,cy,cR,focus,true,0,0,_smal,W)+'</g>';
+  /* Etiketterna låg tidigare rakt ut åt sidan från noden. På den smala ytan finns inte
+     den bredden: en nod längst ut åt höger har ett fyrtiotal enheter kvar till kanten
+     medan namnet behöver ett drygt hundratal, så texten klipptes av behållarens kant.
+     De ligger nu centrerade över eller under noden i stället, där höjden räcker.
+
+     Placeringen sker i två steg. Först får varje etikett en budget ur avståndet till
+     närmaste sidokant, med ett tak, och kapas till den. Sedan läggs de ut en i taget,
+     och den som krockar med en redan lagd skjuts ett snäpp längre ut från ringen tills
+     den står fri. Höjden räcker till det: ringen tar 460 av ritytans 760 enheter.
+
+     Ett enklare varannan-mönster prövades först och höll inte. Femton noder är ett udda
+     antal, så den första och den sista fick samma behandling och hamnade i samma band,
+     och på ringens sidor står grannarna nästan rakt över varandra — där separerar en
+     lodrät förskjutning dem inte alls. */
+  if(_smal){
+    var _fs=19, _steg=_fs*1.5, _tak=17*_fs*0.56+9;
+    pos.forEach(function(p){
+      var kant=2*(Math.min(p.x,W-p.x)-6);
+      var b=Math.max(58,Math.min(kant,_tak));
+      var m=Math.max(6,Math.floor((b-9)/(_fs*0.56)));
+      p.namnKort=(p.it.name.length>m)?p.it.name.slice(0,m-1)+"\u2026":p.it.name;
+      p.plattB=p.namnKort.length*_fs*0.56+9;
+      p.utRikt=(Math.sin(p.ang)<0)?-1:1;
+      p.ly=p.y+(p.r+10+((p.utRikt<0)?0:_fs))*p.utRikt;
+    });
+    /* Mittnodens etikett ligger redan under mitten och räknas med bland de lagda. Noderna
+       själva räknas också med: en etikett som hamnar under en grannods cirkel blir
+       överritad, eftersom cirklarna ritas i tur och ordning efter etiketterna. En nod
+       upptar en ruta lika bred som sin diameter. */
+    var _lagda=[{x:cx,b:22*23*0.56+9,y:cy+cR+17},{x:cx,b:2*cR,y:cy,hog:2*cR}];
+    pos.forEach(function(q){ _lagda.push({x:q.x,b:2*q.r,y:q.y,hog:2*q.r}); });
+    var _krock=function(x,b,y){
+      for(var q=0;q<_lagda.length;q++){
+        var L=_lagda[q];
+        var lodratt=((L.hog||_steg)+_steg)/2;
+        if(Math.abs(L.y-y)<lodratt && Math.abs(L.x-x)<(L.b+b)/2+8) return true;
+      }
+      return false;
+    };
+    pos.forEach(function(p){
+      /* Några snäpp utåt, sedan lika många inåt, och alltid innanför ritytan. Utan gräns
+         trycktes den översta etiketten ut över kanten, och en etikett som vandrar långt
+         från sin nod går inte att para ihop med rätt cirkel. Hittas ingen fri plats får
+         den stå på sin grundplats: överlappande text är bättre än text på fel ställe. */
+      var _inne=function(v){ return v>_fs && v<H-_fs; };
+      var y=p.ly, n=0;
+      while((!_inne(y)||_krock(p.x,p.plattB,y)) && n<4){ y+=_steg*p.utRikt; n++; }
+      if(!_inne(y)||_krock(p.x,p.plattB,y)){
+        y=p.ly; n=0;
+        while((!_inne(y)||_krock(p.x,p.plattB,y)) && n<4){ y-=_steg*p.utRikt; n++; }
+      }
+      if(!_inne(y)) y=Math.min(H-_fs-2,Math.max(_fs+2,p.ly));
+      p.ly=y;
+      _lagda.push({x:p.x,b:p.plattB,y:y});
+    });
+  }
   pos.forEach(function(p){
     var sN=p.it.strength/maxStr, fill=svMix(sN), right=Math.cos(p.ang)>=0;
     svg+='<g class="sv-node">'+
       '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+p.r.toFixed(1)+'" fill="'+fill+'" stroke="#fff" stroke-width="2"/>'+
       '<title>'+svEsc(p.it.name)+': '+svEsc(svTipText(p.it,focus))+'</title>'+
-      svLabel(p.x,p.y,p.r,p.it.name,false,right?1:-1,p.ang,_smal)+'</g>';
+      svLabel(p.x,p.y,p.r,p.it.name,false,right?1:-1,p.ang,_smal,W,p.namnKort,p.ly)+'</g>';
   });
   svg+='</svg>';
   return svg;
 }
 function renderSamvar(){
   var focus=samvarState.focus; if(!focus) return;
+  /* Ringen rymmer färre namn på en smal skärm. Femton noder med etiketter kring en ring
+     på en yta som är 620 enheter bred gör att cirklar och namn konkurrerar om samma
+     utrymme, och en etikett som trängs undan hamnar till slut intill fel cirkel. Bilden
+     visar därför de tio starkaste sambanden på smal skärm.
+
+     Begränsningen gäller bara ritningen. Listan under figuren bygger på samma urval och
+     är lodrät, så där finns inget utrymmesproblem: den visar alla femton med exakta tal
+     oavsett skärmbredd, och inget underlag försvinner ur vyn. */
+  var _netBredd=0;
+  try{ var _nb=document.getElementById("samvarNet"); if(_nb)_netBredd=_nb.clientWidth||0; }catch(e){}
+  if(!_netBredd){ try{ _netBredd=window.innerWidth||960; }catch(e){ _netBredd=960; } }
+  var _kRing=(_netBredd<620)?Math.min(10,samvarState.k):samvarState.k;
   var info=svNeighbors(focus,samvarState.k,samvarState.mode);
   var net=document.getElementById("samvarNet");
   if(!info||!info.items.length){
@@ -11322,7 +11416,9 @@ function renderSamvar(){
       var ns=document.getElementById("samvarNetSub"); if(ns)ns.textContent="De kompetenser som oftast n\u00e4mns i samma jobbannonser som "+focus+", allts\u00e5 de starkaste sambanden."
         +(_sperKv?(" Avser perioden "+_sperKv+"."):"")
         +" Avser riket.";
-  if(net)net.innerHTML=buildSamvarSVG(focus,info);
+  /* Ringen får sitt eget, eventuellt kortare urval; listan nedan behåller hela info. */
+  var _ringInfo=(_kRing<info.items.length)?{nA:info.nA,items:info.items.slice(0,_kRing)}:info;
+  if(net)net.innerHTML=buildSamvarSVG(focus,_ringInfo);
   /* Ritytan väljs efter spaltens bredd, så den måste väljas om när bredden ändras. Utan det
      satt en stående ritning kvar efter att telefonen vänts, och en liggande efter att ett
      fönster smalnats. Bara ett byte mellan smalt och brett ritar om; en storleksändring inom
@@ -12044,10 +12140,11 @@ function lqAntalHtml(n,enhet){
    att öppna i kompetensvyn. */
 function _kompRadAttr(namn){
   var safe=String(namn).replace(/"/g,"&quot;");
-  var kan=(typeof kompKeyForName==="function") && kompKeyForName(namn);
-  return { safe:safe,
-    attr: kan?(' data-koppling="'+safe+'" role="link" tabindex="0" title="Öppna '+safe+' i kompetensvyn" style="cursor:pointer"'):"",
-    pil: kan?' <span aria-hidden="true" style="opacity:.45;font-size:.85em">→</span>':"" };
+  /* Raderna bar en länkmarkering och en pil som öppnade kompetensvyn. Verktyget länkar
+     inte vidare mellan vyer, så båda är borta. Funktionen behålls: anroparna använder
+     safe för attributvärden, och attr och pil är tomma så att anropsställena kan stå
+     orörda. */
+  return { safe:safe, attr:"", pil:"" };
 }
 function mangdLista(rader, rubrik){
   if(!rader||!rader.length) return "";
@@ -12641,8 +12738,8 @@ function renderKompLon(){
       /* Urvalet ar KOMP_YRKE[kod].top, som bar hogst femton yrken. Etiketterna sa "i
          yrken som efterfragar X" och lovade darmed hela yrkesbredden; antalet skrivs
          nu ut. Kort tva avser samma urval och sager "dessa yrken". */
-      {cls:"accent",v:nf.format(Math.round(L.lon)),u:"kr/m\u00e5n",l:"Viktad medianl\u00f6n i de "+L.rader.length+" yrken med flest annonser d\u00e4r "+_kNamnL+" n\u00e4mns",
-       d:(ref&&ref.lon!=null)?neutralJmf(L.lon,ref.lon,"kr/m\u00e5n","samtliga annonser",0):""},
+      {cls:"accent",v:nf.format(Math.round(L.lon)),u:"kr/m\u00e5n",l:"Viktat genomsnitt av medianlönerna i de "+L.rader.length+" yrken med flest annonser där "+_kNamnL+" n\u00e4mns",
+       d:(ref&&ref.lon!=null)?neutralJmf(L.lon,ref.lon,"kr/m\u00e5n","genomsnittet i samtliga annonser",0):""},
       /* Kortet Andel av efterfrågan i yrken över rikets medianlön är borttaget. Talet
          beräknas fortfarande som L.andelOver, eftersom analystexten under rubriken Lönenivå
          använder det i sin andra mening. */
@@ -12655,10 +12752,12 @@ function renderKompLon(){
     if(ctx){
       if(typeof Chart==="undefined"){ var w=ctx.closest(".r-chart"); if(w)w.innerHTML='<div class="msg" style="height:100%">Diagrammet visas n\u00e4r sidan k\u00f6rs med n\u00e4tuppkoppling.</div>'; }
       else{
-        /* De tio yrken som väger tyngst i efterfrågan, sorterade efter lön. Färgen visar om
-           yrket betalar över eller under annonserna i stort. */
-        var topp=L.rader.slice().sort(function(a,b){return b.antal-a.antal;}).slice(0,10)
-                  .sort(function(a,b){return b.lon-a.lon;});
+        /* Diagrammet kapades vid de tio mest annonserade yrkena medan korten och
+           analystexten räknade på hela urvalet. Det högst betalda yrket kunde därför stå
+           på kortet utan att finnas som stapel: en läsare letade efter talet i figuren
+           och hittade det inte. Samma urval gäller nu överallt. Färgen visar om yrket
+           betalar över eller under brytpunkten nedan. */
+        var topp=L.rader.slice().sort(function(a,b){return b.lon-a.lon;});
         /* Lönediagrammets ruta har fast höjd i markupen och sätts om efter hur många rader
            etiketterna behöver, av samma skäl som i de två diagrammen intill. */
         try{ var _lr = ctx.closest(".r-chart");
@@ -12722,7 +12821,13 @@ function renderKompLon(){
 }
 
 
-function rdLowSafe(s){ s=String(s||""); return s?(s.charAt(0).toLowerCase()+s.slice(1)):"\u2013"; }
+/* Gemenaliseringen tog första bokstaven utan undantag, så "IT-chefer" blev "iT-chefer".
+   Samma regel som rdLowRa: bär första ordet en versal efter sin inledande bokstav är det
+   en förkortning, och namnet lämnas som det är. */
+function rdLowSafe(s){ s=String(s||""); if(!s)return "\u2013";
+  var m=s.match(/^[^A-Za-z\u00C0-\u024f]*([A-Za-z\u00C0-\u024f]+)/);
+  if(m&&/[A-Z\u00C0-\u00DE]/.test(m[1].slice(1)))return s;
+  return s.charAt(0).toLowerCase()+s.slice(1); }
 
 /* Läns- och kommunvyns figur. Samma funktion, olika id:n. */
 /* Delas av läns- och kommunvyn. Gapen är den enda skillnaden som betyder något analytiskt:
@@ -13362,7 +13467,7 @@ function renderKompLqList(d, listId, srcId, saknasData, omrNamn){
     var safe=String(x.namn).replace(/"/g,"&quot;");
     /* Ingen stapel kapas längre, eftersom skalan följer listans eget spann. Pilen som
        markerade kapade värden hör därför inte hemma här. */
-    return _pre+'<div data-koppling="'+safe+'" role="link" tabindex="0" title="Öppna '+safe+' i kompetensvyn" style="cursor:pointer"><div class="lq-top"><span class="lq-name">'+x.namn+' <span aria-hidden="true" style="opacity:.45;font-size:.85em">→</span></span>'+lqAntalHtml(x.regVal,"annonser")+'<span class="lq-val" style="color:'+col+'">'+fmt2(x.lq)+'</span></div><div class="lq-track"><span class="mid"></span><span class="lq-fill '+(over?"over":"under")+'" data-w="'+w+'"></span></div></div>';}).join("");
+    return _pre+'<div><div class="lq-top"><span class="lq-name">'+x.namn+'</span>'+lqAntalHtml(x.regVal,"annonser")+'<span class="lq-val" style="color:'+col+'">'+fmt2(x.lq)+'</span></div><div class="lq-track"><span class="mid"></span><span class="lq-fill '+(over?"over":"under")+'" data-w="'+w+'"></span></div></div>';}).join("");
   /* Knappen ligger sist i listan och fäller ut resten. Den skrivs bara när något är dolt
      eller när allt redan visas, så den försvinner när listan är kortare än tjugo poster.
      Klicket sätter märket på listelementet och ritar om, alltså samma väg som alla andra
@@ -13408,8 +13513,8 @@ function renderKompLqList(d, listId, srcId, saknasData, omrNamn){
     +((typeof __annonsPeriodMening==="function")?__annonsPeriodMening():"");
   var lid=listId;
   requestAnimationFrame(function(){document.querySelectorAll("#"+lid+" .lq-fill").forEach(function(f){f.style.width=f.dataset.w+"%";});});
-  if(!L.__lqbound){ L.__lqbound=true; var h=function(e){ if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return; var t=e.target.closest("[data-koppling]"); if(t){ if(e.type==="keydown")e.preventDefault(); if(typeof gotoKompetens==="function")gotoKompetens(t.getAttribute("data-koppling")); } };
-    L.addEventListener("click",h); L.addEventListener("keydown",h); }
+  /* Listan öppnade kompetensvyn vid klick eller Enter. Verktyget länkar inte vidare
+     mellan vyer, så lyssnarna är borttagna. */
 }
 /* ===== Lediga jobb och rekryteringsbehov (LOR) via PxWebApi v2 =====
    v1 (api.scb.se/OV0104/v1/doris) slutar fungera vid årsskiftet 2026/2027.
@@ -13555,14 +13660,13 @@ function renderRegionKomp(){
   const max=Math.max(1,...rows.map(r=>r.val));
   wrap.innerHTML=rows.map(r=>{const w=Math.max(6,r.val/max*100).toFixed(1); const safe=String(r.namn).replace(/"/g,"&quot;");
     const meta=nf.format(r.val)+" annonser";   /* se kommentaren i kommunvyns motsvarighet */
-    return '<div class="kreg-row" data-koppling="'+safe+'" role="link" tabindex="0" title="Öppna '+safe+' i kompetensvyn"><div class="kreg-top"><span class="kreg-name">'+r.namn+' <span aria-hidden="true" style="opacity:.45;font-size:.85em">→</span></span><span class="kreg-meta">'+meta+'</span></div><div class="kreg-bar"><span class="kreg-fill" data-w="'+w+'"></span></div></div>';}).join("");
+    return '<div class="kreg-row"><div class="kreg-top"><span class="kreg-name">'+r.namn+'</span><span class="kreg-meta">'+meta+'</span></div><div class="kreg-bar"><span class="kreg-fill" data-w="'+w+'"></span></div></div>';}).join("");
   const src=$("#srcKompReg");
   /* Källraden bär källan. Att uppgiften saknas står i undertexten, se saknasNot. De två
      grenarna för riket och län gav dessutom samma sträng, så prövningen saknade verkan. */
   if(src){ src.textContent="Arbetsf\u00f6rmedlingen, Historiska platsannonser och JobAd Enrichments.";
     saknasNot(src, real?"":"Uppgiften saknas."); }
-  if(!wrap.__bound){ wrap.__bound=true; const h=e=>{ if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return; const t=e.target.closest("[data-koppling]"); if(t){ if(e.type==="keydown")e.preventDefault(); if(typeof gotoKompetens==="function")gotoKompetens(t.getAttribute("data-koppling")); } };
-    wrap.addEventListener("click",h); wrap.addEventListener("keydown",h); }
+  /* Samma sak här: lyssnarna som öppnade kompetensvyn är borttagna. */
   requestAnimationFrame(()=>{document.querySelectorAll("#kompRegList .kreg-fill").forEach(f=>{f.style.width=f.dataset.w+"%";});});
   renderKompLqList(d,"kompLqList","srcKompLq",!real);
 }
@@ -17411,8 +17515,8 @@ window.renderLanMap=function(containerId,regions,level,komRegions){
   function fillFor(code){ var r=lqVarde(code); if(!r) return 'url(#'+monsterId+')'; var v=r.lq;
     if(v<0.80) return '#bd5a34'; if(v<0.90) return '#d4885d'; if(v<0.95) return '#eab991';
     if(v<=1.05) return '#e9efe9'; if(v<=1.10) return '#a9ceb6'; if(v<=1.25) return '#5fa37d'; return '#2f7d57'; }
-  var svgLbl=KOM?('Kommunkarta: per kommun, m\u00f6rkare f\u00e4rg betyder h\u00f6gre kvot'):'L\u00e4nskarta, klickbara l\u00e4n';
-  var P=M.paths, out='<svg class="lanmap-svg" viewBox="'+M.viewBox+'" preserveAspectRatio="xMidYMid meet" role="'+(KOM?'img':'group')+'" aria-label="'+svgLbl.replace(/"/g,'&quot;')+'">';
+  var svgLbl=KOM?('Kommunkarta: per kommun, m\u00f6rkare f\u00e4rg betyder h\u00f6gre kvot'):'L\u00e4nskarta: per l\u00e4n, m\u00f6rkare f\u00e4rg betyder h\u00f6gre kvot';
+  var P=M.paths, out='<svg class="lanmap-svg" viewBox="'+M.viewBox+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+svgLbl.replace(/"/g,'&quot;')+'">';
   /* Mönstret för ytor utan uppgift. En enfärgad yta läses som ett värde på skalan, och den
      gamla grå tonen var dessutom nästan identisk med neutralbandets färg, så en kommun utan
      uppgift såg ut att ligga i nivå med riket. Diagonala streck kan inte förväxlas med
@@ -17482,14 +17586,16 @@ window.renderLanMap=function(containerId,regions,level,komRegions){
     var _mKod=(typeof window.__valdRegionKod==="function")?window.__valdRegionKod():"";
     var _mNamn=(_mKod&&typeof lanFullName==="function")?lanFullName(_mKod):"";
     sub.textContent=_mBas+(m.length?(KOM?(' Kommunerna i '+(_mNamn||'det valda l\u00e4net')+' \u00e4r markerade.'):(' '+(_mNamn||'Det valda l\u00e4net')+' \u00e4r markerat.')):''); } })();
-  if(!KOM){ el.querySelectorAll('.lanmap-path').forEach(function(p){ p.setAttribute('tabindex','0'); p.setAttribute('role','link'); p.setAttribute('aria-label',p.getAttribute('data-info')+'. Öppna i regionvyn'); }); }
+  /* Ytorna bar tabindex, role="link" och en etikett som slutade "Öppna i regionvyn".
+     Kartorna länkar inte längre vidare, så märkningen är borttagen: en yta som inte går
+     att aktivera ska varken kunna fokuseras eller utge sig för att vara en länk. Kartan
+     har kvar sitt namn på svg-elementet, och talen ligger som attribut på varje yta för
+     hovringstexten och för nedladdningen. */
   if(!el._lanBound){ el._lanBound=true;
     var pathAt=function(t){ return t&&t.closest?t.closest('.lanmap-path'):null; };
     el.addEventListener('mouseover',function(e){ var p=pathAt(e.target); if(!p)return; var tip=el.querySelector('.lanmap-tip'); if(tip){tip.textContent=p.getAttribute('data-info');tip.hidden=false;} p.classList.add('hl'); });
     el.addEventListener('mouseout',function(e){ var p=pathAt(e.target); if(!p)return; var tip=el.querySelector('.lanmap-tip'); if(tip)tip.hidden=true; p.classList.remove('hl'); });
     el.addEventListener('mousemove',function(e){ if(!pathAt(e.target))return; var tip=el.querySelector('.lanmap-tip'); if(!tip)return; var b=el.getBoundingClientRect(); tip.style.left=(e.clientX-b.left)+'px'; tip.style.top=(e.clientY-b.top)+'px'; });
-    el.addEventListener('click',function(e){ var p=pathAt(e.target); if(!p)return; var c=p.getAttribute('data-code'); if(c&&window.gotoRegionByCode)window.gotoRegionByCode(c); });
-    el.addEventListener('keydown',function(e){ var p=pathAt(e.target); if(!p)return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); var c=p.getAttribute('data-code'); if(c&&window.gotoRegionByCode)window.gotoRegionByCode(c); } });
   }
 };
 (function(){ document.addEventListener('click',function(e){
@@ -20905,13 +21011,9 @@ function gotoKompetens(name){
   else if(document.getElementById("ddKompText")){document.getElementById("ddKompText").textContent=(KOMP_NAMN[key]?KOMP_NAMN[key].namn:key);}
   if(typeof loadKompData==="function"){VC.kompetens.sel=[kompState.code];vcRender("kompetens");}
 }
-(function bindKompLinks(){
-  ["#kompListY","#kompListB","#kompRegListKom"].forEach(sel=>{
-    const c=document.querySelector(sel); if(!c)return;
-    c.addEventListener("click",e=>{const t=e.target.closest("[data-koppling]");if(t)gotoKompetens(t.getAttribute("data-koppling"));});
-    c.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const t=e.target.closest("[data-koppling]");if(t){e.preventDefault();gotoKompetens(t.getAttribute("data-koppling"));}});
-  });
-})();
+/* bindKompLinks band klick och Enter på kompetenslistorna i yrkes-, bransch- och
+   kommunvyn till kompetensvyn. Verktyget länkar inte vidare mellan vyer, så funktionen
+   är borttagen. gotoKompetens finns kvar: sökträffar och delningslänkar använder den. */
 
 
 /* ===== Korslänkning från kompetensvyn till yrkes- och branschvyn ===== */
@@ -20979,16 +21081,12 @@ function gotoBranschByCode(code){
   if(typeof loadBranschData==="function"){VC.bransch.sel=[branschState.code];vcRender("bransch");}
   focusViewTitle("bransch");
 }
-(function bindKompTargets(){
-  function handler(e){
-    if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;
-    const t=e.target.closest("[data-target]"); if(!t)return;
-    if(e.type==="keydown")e.preventDefault();
-    const kind=t.getAttribute("data-target"), code=t.getAttribute("data-code");
-    if(kind==="yrke")gotoYrkeByCode(code); else if(kind==="bransch")gotoBranschByCode(code);
-  }
-  ["yrkenListK"].forEach(id=>{const c=document.getElementById(id); if(!c)return; c.addEventListener("click",handler); c.addEventListener("keydown",handler);});
-})();
+/* bindKompTargets, bindUtbTargets och bindGeoTargets band klick och Enter på attributet
+   data-target till yrkes-, bransch-, utbildnings-, läns- och kommunvyn. Attributet sätts
+   inte längre någonstans i filen — kontrollerat i webbläsaren: noll element bär det — så
+   lyssnarna var utan verkan. De är borttagna tillsammans med den övriga klicknavigeringen
+   mellan vyer. Uppslagsfunktionerna gotoYrkeByCode och de andra finns kvar: sökträffar och
+   delningslänkar använder dem. */
 
 
 /* ===== Korslänkning till utbildningsvyn ===== */
@@ -21043,15 +21141,6 @@ function gotoUtbByCode(code){
 }
 /* Sökningen behöver dem: den ligger i en annan modul. */
 try{ window.gotoUtbByCode=gotoUtbByCode; }catch(e){ __fel("exportUtb", e); }
-(function bindUtbTargets(){
-  function handler(e){
-    if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;
-    const t=e.target.closest('[data-target="utbildning"]'); if(!t)return;
-    if(e.type==="keydown")e.preventDefault();
-    gotoUtbByCode(t.getAttribute("data-code"));
-  }
-  ["eduListY","eduListK"].forEach(id=>{const c=document.getElementById(id); if(!c)return; c.addEventListener("click",handler); c.addEventListener("keydown",handler);});
-})();
 
 
 /* ===== Korslänkning: län -> regionvyn, branschens yrken -> yrkesvyn ===== */
@@ -21280,7 +21369,10 @@ window.gotoKommunByCode=gotoKommunByCode;
     "Sysselsättningsgrad per grupp":"utrikes födda inrikes kön jämförelse grupper klyfta sysselsättning",
     "Arbetslöshet per grupp":"utrikes födda inrikes kön jämförelse grupper klyfta arbetslöshet arbetslösa",
     "Matchad förvärvsgrad":"matchning rätt yrke överutbildning utbildningsmatchning",
+    /* Samma figur heter olika i de två vyerna: länsvyn har kvar den längre rubriken,
+       kommunvyn heter bara Lediga jobb. Nyckeln är rubriken, så båda behövs. */
     "Lediga jobb och matchning":"vakanser lediga tjänster matchning beveridge",
+    "Lediga jobb":"vakanser lediga tjänster matchning beveridge",
     "Befolkning efter åldersgrupp":"demografi ålder befolkning framskrivning prognos",
     "Tidslinje för de tre åldersgrupperna":"befolkning ålder unga arbetsföra äldre framskrivning tidsserie",
     "Försörjningskvot över tid":"demografisk försörjningsbörda beroendekvot unga äldre",
@@ -21629,19 +21721,6 @@ window.gotoKommunByCode=gotoKommunByCode;
   };
 })();
 
-(function bindGeoTargets(){
-  function handler(e){
-    if(e.type==="keydown"&&e.key!=="Enter"&&e.key!==" ")return;
-    const t=e.target.closest("[data-target]"); if(!t)return;
-    if(e.type==="keydown")e.preventDefault();
-    const kind=t.getAttribute("data-target"), code=t.getAttribute("data-code");
-    if(kind==="region")gotoRegionByCode(code);
-    else if(kind==="yrke")gotoYrkeByCode(code);
-    else if(kind==="bransch")gotoBranschByCode(code);
-    else if(kind==="kommun")gotoKommunByCode(code);
-  }
-  ["lqList","lqBrList","lqListY","lqListB","lqListK","yrkenListB","bristList","yrkenListU","lqListKom","lqBrListKom","bristListKom","peerListKom","peerArbListKom","yrkeKomAnn"].forEach(id=>{const c=document.getElementById(id); if(!c)return; c.addEventListener("click",handler); c.addEventListener("keydown",handler);});
-})();
 
 
 /* ===== Regional nedbrytning: yrkesvyn ===== */
@@ -23338,21 +23417,24 @@ function buildUtbRegionMenu(){
          såg ut att vara samma sak. Kategorierna heter nu samma sak i text och figur, och
          summan skrivs ut som en summa.
 
-         Subjektet upprepas i varje mening som bär ett tal. Tidigare stod en mening om
-         samtliga annonser mitt i en uppräkning som i övrigt gällde den valda kompetensen,
-         och de följande talen lästes därför lätt som om de också avsåg samtliga. */
-      var _urval="annonserna som efterfr\u00e5gar "+kurs(d.name)+(_kvOmrT?(" i "+_kvOmrT):"");
-      var _t="Yrkena i annonserna delas in efter kvalifikationsniv\u00e5 enligt yrkesstandarden SSYK.";
-      _t+=" Av "+_urval+" avser "+rdP1(_K.gym.andel)+" procent yrken med krav p\u00e5 gymnasial kompetens, "
-        +rdP1(_K.hog4.andel)+" procent yrken med krav p\u00e5 f\u00f6rdjupad h\u00f6gskolekompetens, "
-        +rdP1(_K.hog3.andel)+" procent yrken med krav p\u00e5 h\u00f6gskolekompetens och "
+         Lydelsen nedan är Jonas egen (25 september 2026). Subjektet namnges i de två
+         meningar som binder talen till urvalet, den första och den näst sista, medan
+         uppräkningen däremellan hänger på den första. Den avslutande meningen om
+         samtliga annonser i riket står sist, efter uppräkningen, så att inget tal i
+         uppräkningen kan läsas som om det gällde riket. */
+      var _urvalA="annonser där kompetensen "+kurs(d.name)+" efterfrågas"+(_kvOmrT?(" i "+_kvOmrT):"");
+      var _urvalB="annonserna där "+kurs(d.name)+" efterfrågas"+(_kvOmrT?(" i "+_kvOmrT):"");
+      var _t="De yrken som jobbannonser avser kan delas in efter kvalifikationsnivå enligt yrkesstandarden SSYK.";
+      _t+=" Av "+_urvalA+" avser "+rdP1(_K.gym.andel)+" procent yrken med krav på gymnasial kompetens.";
+      _t+=" "+rdP1(_K.hog4.andel)+" procent avser yrken med krav på fördjupad högskolekompetens, "
+        +rdP1(_K.hog3.andel)+" procent yrken med krav på högskolekompetens och "
         +rdP1(_K.kort.andel)+" procent yrken utan formella utbildningskrav.";
       /* Uppräkningen täcker fyra av figurens sex nivåer. Utan de två sista summerar talen
          inte till hundra, och en läsare som lägger ihop dem saknar en dryg procent. De
          skrivs därför ut när de tillsammans når en tiondels procent. */
       var _ovr=((_K.chef&&_K.chef.andel)||0)+((_K.mil&&_K.mil.andel)||0);
       if(_ovr>=0.05) _t+=" Chefsyrken och milit\u00e4ra yrken utg\u00f6r tillsammans "+rdP1(_ovr)+" procent.";
-      _t+=" De tv\u00e5 h\u00f6gskoleniv\u00e5erna utg\u00f6r tillsammans "+rdP1(_K.hogskola)+" procent av "+_urval+"."
+      _t+=" De tv\u00e5 h\u00f6gskoleniv\u00e5erna utg\u00f6r tillsammans "+rdP1(_K.hogskola)+" procent av "+_urvalB+"."
         +" Motsvarande andel f\u00f6r samtliga jobbannonser i riket \u00e4r "+rdP1(_R.hogskola)+" procent.";
       /* Tunt underlag i länet sägs i texten, inte bara i figurens undertext. Saknas länet
          helt visas riket, och det sägs. */
@@ -23749,7 +23831,7 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
       {label:"Yrkesgrupp med flest annonser där kompetensen efterfrågas",niva:"riket",period:function(){return __annonsPeriod();},text:true,get:function(d){ return (d.yrken&&d.yrken.length)?String(d.yrken[0]):null; }},
       /* Lönekartan bär sitt årtal ur SCB-svaret. Saknas kartan saknas också talen i
          raden, och då står den allmänna formuleringen kvar. */
-      {label:"Viktad medianl\u00f6n i yrken d\u00e4r kompetensen efterfr\u00e5gas",niva:"riket",period:function(){try{var m=window.__lonMap;if(m&&m.ar)return String(m.ar);}catch(e){}return "senaste år";},unit:"kr/mån",enhetIRubrik:false,get:function(d){
+      {label:"Viktat genomsnitt av medianlönerna i yrken där kompetensen efterfrågas",niva:"riket",period:function(){try{var m=window.__lonMap;if(m&&m.ar)return String(m.ar);}catch(e){}return "senaste år";},unit:"kr/mån",enhetIRubrik:false,get:function(d){
         /* Vägd medianlön i de yrken som efterfrågar kompetensen. Kräver SCB-kartan, som
            hämtas till lönefiguren. Saknas den lämnas raden tom i stället för att gissa. */
         try{ var L=(typeof kompLon==="function")?kompLon(d.code, window.__lonMap||null):null;
@@ -24480,6 +24562,9 @@ window.__KOMMUN_MAP={
   "Specialisering inom yrken och branscher":"Specialisering inom yrkesområden",
   "Jämförelse med kommuner i samma län":"Sysselsättningsgrad bland länets kommuner",
   "Efterfrågade kompetenser":"Mest efterfrågade kompetenser",
+  /* Länsvyn har ett avsnitt om lediga jobb ovanför figuren. Kommunbyggaren skrev samma
+     text men saknade ankare, så den nådde aldrig vyn. Ankaret pekar på kommunvyns rubrik. */
+  "Lediga jobb":"Lediga jobb",
   /* Samma sak som i länsvyn: figurerna har egna analystexter. */
 };
   /* Analysvyernas jämförelse använder samma motor som rapportvyn, men får inte se ut som en
@@ -29574,24 +29659,10 @@ window.__renderKompOpts=function(q){
                +"Kvoten jämför andelen av l\u00e4nets annonser i kompetensunderlaget d\u00e4r kompetenserna n\u00e4mns med motsvarande andel i riket.",
                "Högst kvot har "+(LN2[_hl.kod]||_hl.kod)+", "+fmt2(_hl.lq)+"."]);
           }
-          /* Raderna i kvotlistorna bär data-target, men delegeringen bindGeoTargets kopplas
-             vid sidladdning mot en fast lista av id:n. Kombinationslägets listor byggs långt
-             senare och fanns inte då, så länsraderna såg klickbara ut utan att vara det.
-             Behållaren får därför en egen delegering, en gång per behållare. */
-          try{
-            if(host&&!host.__maalBundet){
-              host.__maalBundet=true;
-              var _maal=function(ev){
-                if(ev.type==="keydown"&&ev.key!=="Enter"&&ev.key!==" ")return;
-                var t=ev.target.closest?ev.target.closest("[data-target]"):null; if(!t)return;
-                if(ev.type==="keydown")ev.preventDefault();
-                var slag=t.getAttribute("data-target"), kod=t.getAttribute("data-code");
-                if(slag==="yrke"&&typeof gotoYrkeByCode==="function")gotoYrkeByCode(kod);
-                else if(slag==="region"&&typeof gotoRegionByCode==="function")gotoRegionByCode(kod);
-              };
-              host.addEventListener("click",_maal); host.addEventListener("keydown",_maal);
-            }
-          }catch(e){}
+          /* Kombinationslägets listor fick en egen delegering på data-target, eftersom
+             bindGeoTargets kopplades vid sidladdning mot en fast lista av id:n och dessa
+             listor byggs senare. Attributet sätts inte längre någonstans, så både
+             delegeringen och den fasta kopplingen är borttagna. */
         }
       }catch(e){ if(window.__fel)__fel("kombinationslägets yrkes- och länsfigurer",e); }
     }
@@ -31492,6 +31563,13 @@ window.setupSecNav=function(bodyId){
          Pillren står kvar för desktop. Rubriken hör till väljaren och visas därför
          bara där den syns, alltså på mobil. */
       function _sekNamn(o){ return o.el.textContent.trim().replace(/[<>]/g,""); }
+      /* Namnet måste stå före sin första användning. Deklarationen låg tolv rader längre
+         ned, och eftersom var hissas till funktionens början var variabeln undefined när
+         _valtNamn läste den: knappen skrev ordet undefined, medan listan under den, som
+         byggs efter deklarationen, visade rätt namn. Det syntes bara när översiktsavsnittet
+         var valt, alltså i kombinationsläget, där avsnittet har ett eget namn och därför
+         inte växlas bort automatiskt. */
+      var _oversiktNamn=String(body.getAttribute("data-oversikt")||"\u00d6versikt").replace(/[<>]/g,"");
       var _valtNamn=(cur==="snabb"&&harOversikt)?_oversiktNamn:(function(){
         for(var q=0;q<headings.length;q++){ if(String(headings[q].idx)===String(cur)) return _sekNamn(headings[q]); }
         return harOversikt?_oversiktNamn:_sekNamn(headings[0]);
@@ -31504,7 +31582,6 @@ window.setupSecNav=function(bodyId){
       /* Samma namn som pillret använder, och samma villkor. Översikt byggdes här utan villkor, så i mobilväljaren
          och i panelens avsnittslista stod alternativet kvar även i vyer där avsnittet är tomt
          — och ett klick ledde då ingenstans. */
-      var _oversiktNamn=String(body.getAttribute("data-oversikt")||"\u00d6versikt").replace(/[<>]/g,"");
       if(harOversikt)html+='<div class="tabledd-opt'+(cur==="snabb"?" selected":"")+'" role="option" tabindex="0" data-sec="snabb">'+_oversiktNamn+'</div>';
       headings.forEach(function(o){ html+='<div class="tabledd-opt'+(String(o.idx)===String(cur)?" selected":"")+'" role="option" tabindex="0" data-sec="'+o.idx+'">'+_sekNamn(o)+'</div>'; });
       html+='</div></div>';
@@ -31525,7 +31602,10 @@ window.setupSecNav=function(bodyId){
           aside.appendChild(toc);
         }
         var t='<div class="panel-title">Avsnitt</div><nav class="sec-toc" role="navigation" aria-label="Avsnitt i rapporten">';
-        if(harOversikt)t+='<button type="button" class="sec-toc-btn" data-sec="snabb">\u00d6versikt</button>';
+        /* Förteckningen skrev alltid Översikt, medan pillret och väljaren på smal skärm
+           använder det namn behållaren anger med data-oversikt. Samma avsnitt hette därför
+           Utveckling och nyckeltal på två ställen och Översikt på ett. */
+        if(harOversikt)t+='<button type="button" class="sec-toc-btn" data-sec="snabb">'+_oversiktNamn+'</button>';
         headings.forEach(function(o){ t+='<button type="button" class="sec-toc-btn" data-sec="'+o.idx+'">'+o.el.textContent.trim().replace(/[<>]/g,"")+'</button>'; });
         t+='</nav>';
         /* Panelen byggdes om vid varje anrop, och anropen kommer många gånger i sekunden så
@@ -31634,11 +31714,25 @@ window.setupSecNav=function(bodyId){
           var oppen=_dd.classList.toggle("open");
           _ddBtn.setAttribute("aria-expanded", oppen?"true":"false");
         });
-        document.addEventListener("click",function(ev){
-          if(!ev.target.closest||!ev.target.closest("#"+barId+"-dd")){
-            _dd.classList.remove("open"); _ddBtn.setAttribute("aria-expanded","false");
-          }
-        });
+        /* Lyssnaren som stänger listan vid klick utanför kopplades om varje gång raden
+           byggdes, och den gamla togs aldrig bort. Raden byggs om varje gång vyn ritas, så
+           lyssnarna växte utan tak — i kombinationsläget med flera hundra i sekunden — och
+           varje klick på sidan fick gå igenom allihop. Den kopplas nu en gång för hela
+           sidan, på samma sätt som panelförteckningens lyssnare, och stänger varje öppen
+           väljare utom den man klickade i. Hur många gånger raden byggs om spelar då ingen
+           roll. */
+        if(!window.__secDdLyssnar){
+          window.__secDdLyssnar=1;
+          document.addEventListener("click",function(ev){
+            var inne=(ev.target&&ev.target.closest)?ev.target.closest(".sec-dd"):null;
+            [].slice.call(document.querySelectorAll(".sec-dd.open")).forEach(function(d){
+              if(d===inne)return;
+              d.classList.remove("open");
+              var bt=d.querySelector(".tabledd-btn");
+              if(bt)bt.setAttribute("aria-expanded","false");
+            });
+          });
+        }
         _dd.querySelectorAll(".tabledd-opt").forEach(function(o){
           o.addEventListener("click",function(){
             _dd.querySelectorAll(".tabledd-opt").forEach(function(x){ x.classList.toggle("selected", x===o); });
@@ -34936,8 +35030,11 @@ B["Lönenivå"]=function(c){
     /* Meningen upprepade undertexten, som redan anger att talen avser kommunens län och
        varför. */
     st.push("Lediga jobb redovisas mot två olika baser. Per 100 i arbetskraften visar hur många lediga jobb som finns i förhållande till alla som arbetar eller söker arbete. Per arbetslös visar hur många lediga jobb som går på varje arbetslös, det vill säga hur många som konkurrerar om varje ledigt jobb. Båda talen avser senaste kvartalet och jämförs med riket.");
-    return {rubrik:"Lediga jobb och matchning", stycken:st};
+    return {rubrik:(_kom?"Lediga jobb":"Lediga jobb och matchning"), stycken:st};
   };
+  /* Kommunvyns figur heter bara Lediga jobb. Registret slår upp på rubriken, så samma
+     byggare registreras under båda lydelserna; vilken vy den körs i avgör den själv. */
+  B["Lediga jobb"]=B["Lediga jobb och matchning"];
   /* Diagrammen som jämför ett område med riket lägger rikets serie först, så att dess
      skuggade staplar hamnar bakom områdets. Prosan läste serie noll och beskrev därför
      rikets fördelning oavsett vilket område som valts: samma program och samma andel stod
@@ -35727,8 +35824,20 @@ function _gruppText(c, matt){
     var body=document.getElementById(bid); if(!body)return;
     var t=null;
     new MutationObserver(function(muts){
-      var egna=muts.every(function(mu){ return [].slice.call(mu.addedNodes).concat([].slice.call(mu.removedNodes))
-        .every(function(n){ return n.nodeType!==1||(n.classList&&n.classList.contains("vy-analys")); }); });
+      /* Passet ritar om analystextblocken. Därefter sätter termmodulen tillbaka sina
+         term-knappar i dem och platshållarmodulen skriver om texten — båda inuti blocken,
+         men ingen av dem är ett .vy-analys-element. Filtret såg bara sådana element som
+         egna, så de två andras ändringar räknades som främmande och schemalade ett nytt
+         pass. Varvet tog 420 millisekunder och började om i det oändliga: verktyget ritade
+         om sig fem gånger i sekunden i en vy som stod stilla, omkring 650 DOM-ändringar per
+         sekund, vilket räcker för att ett gränssnitt på en telefon ska sluta svara.
+         Allt som händer inne i ett analystextblock räknas därför som eget. */
+      var egna=muts.every(function(mu){
+        var t=mu.target, el=(t&&t.nodeType===1)?t:(t&&t.parentElement);
+        if(el&&el.closest&&el.closest(".vy-analys"))return true;
+        return [].slice.call(mu.addedNodes).concat([].slice.call(mu.removedNodes))
+          .every(function(n){ return n.nodeType!==1||(n.classList&&n.classList.contains("vy-analys")); });
+      });
       if(egna)return;
       clearTimeout(t); t=setTimeout(function(){ window.__figProsaRun(bid,VYER[bid]); },420);
     }).observe(body,{childList:true,subtree:true});
@@ -40976,7 +41085,16 @@ var UNDERLAG = [
           return !!((k.textContent||"").trim() || k.querySelector("img,canvas,svg,table"));
         });
         if(_alla + (_pre?1:0) < 2) return;
-        n=Math.max(_alla + (_pre?1:0), 2);
+        /* Översikt avgör om navet ska finnas, men inte hur många avsnitt det byggdes för.
+           Stämpeln som setupSecNav sätter räknar bara rubriker, så när Översikt räknades
+           med också här kunde de två talen aldrig bli lika i en kropp med en enda rubrik.
+           Läkningen byggde då om navet varje bildruta, och ombyggnaden väckte svepet som
+           kallar hit igen — sextio ombyggnader i sekunden, utan att något blev bättre. Så
+           såg det ut i kombinationsläget, som har en rubrik och en översikt med innehåll.
+           Talet ska vara detsamma som stämpeln, alltså antalet rubriker. Det är bara
+           prövningen på raden ovanför, om navet över huvud taget ska finnas, som ska
+           räkna med översiktsavsnittet. */
+        n=(_alla>=2)?_alla:n;
       }
       var toc=document.getElementById(id+"-toc");
       var bar=document.getElementById(id+"-secbar");
@@ -42009,9 +42127,9 @@ try{ window._sumOm=_sumOm; }catch(e){}
             :(' <span class="sum-jmf">Det är '+tal(Math.abs(_d),0)+" procent "+(_d>0?"högre":"lägre")+" än medianen för samtliga yrken.</span>");
         }
       }catch(e){}
-      ut.push(p("Den viktade medianl\u00f6nen i yrken d\u00e4r kompetensen efterfr\u00e5gas \u00e4r <b>"+_lon
+      ut.push(p("Det viktade genomsnittet av medianlönerna i yrken där kompetensen efterfrågas är <b>"+_lon
         +" kronor</b> i månaden."+_lj,"Lönenivå",
-        "Viktad medianlön", _lon+"\u00a0kr", (_L&&_L.ar)||null, avserRiket(d)));
+        "Viktat genomsnitt av medianlönerna", _lon+"\u00a0kr", (_L&&_L.ar)||null, avserRiket(d)));
     }
     /* Yrkespunkten. Här stod tidigare två punkter: en som räknade upp de tre vanligaste
        yrkena, och en som sa hur stor del av annonserna de bär. Den första byggde på d.yrken,
@@ -42283,7 +42401,7 @@ try{ window._sumOm=_sumOm; }catch(e){}
     bransch:["Branschen syssels","Det motsvarar","Andelen kvinnor i branschen",
       "60 till 64 år","Branschen utgör en",
       "största yrket i branschen","kompetens som oftast efterfr"],
-    komp:["Under","efterfrågades i","viktade medianlönen","efterfrågas oftast i yrkena",
+    komp:["Under","efterfrågades i","viktade genomsnittet av medianlönerna","efterfrågas oftast i yrkena",
       "Efterfrågan på kompetensen finns till","ligger närmast","vanligaste utbildningsbakgrunderna"]
   };
   /* Påhittad data, en uppsättning per byggare. Fälten är desamma som byggarna läser. */
