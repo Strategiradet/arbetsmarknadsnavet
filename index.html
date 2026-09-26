@@ -22,19 +22,799 @@ window.VISA_ANNONSANTAL = true;
 /* Namnen på de valbara kompetenserna, uttagna ur den färdiga datan. De ligger här för att
    kompetensväljaren ska gå att fylla direkt vid start. Tidigare stod den på "Hämtar…" tills
    kompetensfilen landat, alltså trettiosju megabyte senare, och bytte då text medan
-   välkomstrutan låg över. Namnen är arton kilobyte och kostar ingenting.
+   välkomstrutan låg över. Namnen är knappt åttio kilobyte, drygt en procent av filen.
    Ordningen är den viktiga: listan är sorterad efter hur ofta kompetensen nämns i annonserna,
    eftersom menyn visar de fyrtio vanligaste innan man söker. En osorterad lista gjorde att
-   rutan lovade de vanligaste men visade fyrtio godtyckliga.
+   rutan lovade de vanligaste men visade fyrtio godtyckliga. Sorteringen är __kompTotals,
+   samma mått som menyn sorterar på när datan väl finns, så ordningen är densamma före och
+   efter laddningen.
 
-   Listan är låst till golvet KOMPETENS_GOLV. Ändras golvet, eller underlaget, måste den tas
-   ut på nytt och sorteras om mot nat_komp i kompetensdatafilen. */
-window.__KOMP_VALBARA = ["Körkort", "Försäljning", "Sjukvård", "Arbetslivserfarenhet", "Barn", "Verktyg", "Teknik", "Dokumentation", "Datorvana", "Personuppgifter", "Kommunikation", "Ledarskap", "Ekonomi", "Miljö", "Undervisning", "Office", "Omsorg", "Data", "Administration", "Högskoleutbildning", "Gymnasieutbildning", "Egen bil", "Arbetsmiljö", "Design", "Säkerhet", "Insatser", "Truckkort", "Lager", "Nätverk", "Administrativa uppgifter", "Samverkan", "Resor", "Eftergymnasial utbildning", "El", "Språkkunskaper", "Felsökning", "Kundservice", "Reparationer", "Kontroll", "Material", "Utvecklingsarbete", "Inköp", "Ungdomar", "Drift", "Excel", "Mat", "Svenskt medborgarskap", "Handledning", "Industri", "Logistik", "Energi", "Projektledning", "Personalansvar", "Städning", "Budget", "Innovation", "Utrustning", "Rekrytering", "Butik", "Styrdokument", "Analys", "Fordon", "Kundrelationer", "Forskning", "Leverantörer", "Förbättringsarbete", "Förskola", "Automation", "Omvårdnad", "Psykiatri", "Transport", "Behandling", "Matlagning", "Montering", "Rådgivning", "Rapportering", "Hälsa", "Problemlösning", "Performance", "Rör", "Installation", "Lärarlegitimation", "Beställningar", "Primärvård", "Funktionsnedsättning", "Myndigheter", "Äldreomsorg", "Anläggning", "Upphandling", "Hälsovård", "Regelverk", "Assistans", "Kollektivavtal", "Restaurang", "Ledning", "Mekanik", "Lss", "Feedback", "Pedagogik", "Redovisning", "God fysik", "Förändringsarbete", "Bilar", "Ritningar", "Programmering", "Högskoleexamen", "Affärssystem", "Träning", "Kompetensutveckling", "Samordning", "Hjälpmedel", "Regler", "Verksamhetsutveckling", "Kultur", "Sales", "Ritningsläsning", "Socialt arbete", "Vidareutbildning", "Akademisk examen", "Personlig hygien", "Registerkontroll", "Artificial Intelligence/Artificiell intelligens/AI", "Matematik", "Myndighetsutövning", "Elektronik", "Kvalitetsarbete", "Förvaltning", "Gymnasiet", "Integration", "Finska", "Coaching/Coachning", "Truckkörning", "SAP, applikationsplattform", "Compliance", "Juridik", "Vårdavdelning/Mottagning", "Tvätt", "Säkerhetsskydd", "Socialtjänst", "Digitalisering", "Högskola", "Hemtjänst", "Truck", "Python, programmeringsspråk", "Konstruktion", "Kök", "Tillverkning", "Infrastruktur", "Socionomexamen", "Organisationer", "Arbetsledning", "Budgetansvar", "Teknisk utbildning", "Beredskap", "Personlig omvårdnad", "Kvalitetskontroll", "Skötsel", "Handläggning", "Universitetsutbildning", "It-kunskaper", "Musik", "Autism", "Tester", "Systemvana", "Specialistutbildning", "Tekniska lösningar", "Schemaläggning", "Vägledning", "Research", "Rekryteringstjänster", "Läkemedel/Sjukvårdsprodukter", "YKB", "Akutsjukvård", "Datorkunskaper", "Styrning", "Hållbarhet", "Gdpr", "Verksamhetsområden", "Gymnasieexamen", "It-system", "Monitor, affärssystem", "Hemsjukvård", "Kundbemötande", "Lag", "Lokalvård", "Journalsystem", "Azure", "Påklädning", "Kvalitetssäkring", "Lastning", "Säkerhetsprövning", "Svetsning", "Marknadsföring/Marknadskommunikation", "Tillgänglighet", "Utredning", "Agile", "Fastigheter", "Förändringsledning", "Verkstad", "Teamarbete", "Examensbevis", "Arbetsmiljöansvar", "If", "Acceptance and Commitment Therapy/ACT", "Access, databashanterare", "Byggbranschen", "Geografiskt område", "Helhetsansvar", "Försvarsmakten", "Event", "Genomförandeplaner", "Fritidshem", "Kläder/Mode", "Rehabilitering", "Utvecklingsprojekt", "Övervakning", "Ständiga förbättringar/Lean", "Specialistkompetens", "Avklädning", "Servering", "Tunga lyft", "Maskin", "Telefonintervju", "Samiska", "Försäkringar", "Beteendevetenskap", "Kassaarbete", "Maskinteknik", "Implementering", "Lossning", "Datorer", "Systemutveckling", "Hotell", "Barn och ungdom", "Fakturering", "Informationssäkerhet", "Sociala medier", "Hydraulik", "Media", "Grundskolan", "Traverskort", "C-körkort", "Habilitering", "B2b", "Funktionsvariationer", "Serviceyrke", "Marketing", "Mottagningsarbete", "Dryck", "Registrering", "Automotive/Fordonsindustri", "Bank", "Optimering", "Distribution", "Offentlig förvaltning", "Provtagning", "Npf", "Anställningsstöd", "Alternativ och kompletterande kommunikation/AKK", "Java, programmeringsspråk", "Mjukvara", "VVS", "Egenkontroll", "Socialtjänstlagen", "Statistik", "Servicearbete", "Tydliggörande pedagogik", "Telefonrådgivning", "Styrsystem", "Flöden", "Merförsäljning", "CAD", "Kommunal verksamhet", "Underhållsarbete", "Ärendehanteringssystem", "Testning", "Lönsamhet", "Rengöring", "Fastighet", "Ledarerfarenhet", "Reception", "Elkraft", "Chefserfarenhet", "Certifikat", "Skollagen", "Förebyggande underhåll", "Arbetsliv", "Mi", "Vårdcentral", "Projektering", "Affärsutveckling", "Delegering", "Packning", "Kampanjer", "Customer Relationship Management/CRM", "Produktutveckling", "Fordonsbranschen", "Inventering", "Kassa", "SQL, frågespråk", "Social dokumentation", "Vatten", "Omsorgsarbete", "Word", "Kriminalvården", "Utredningsarbete", "Driftsättning", "Detaljhandel", "Kundtjänst", "Backend", "Beslutsunderlag", "Ce-körkort", "Reservdelar", "Läkemedelshantering", "Föreskrifter", "Teknikintresse", "Cloud", "C++, programmeringsspråk", "Livsmedel", "Rekryteringssystem", "Cosmic", "Beredning", "Kandidatexamen", "Värme", "Yrkeshögskoleutbildning", "Teknisk support", "Bokningar", "Verksamhetssystem", "Slutenvård", "Körning", "Entreprenadjuridik", "Go", "Urvalsfrågor", "Instrument", "Tidplaner", "Tvångsvård", "Varumärken", "Hushållssysslor", "C#, programmeringsspråk", "Omvårdnadsarbete", "Idrott", "Doktorsexamen", "Offerter", "Riskhantering/Risk management", "Tillverkningsindustrin", "Yrkeslegitimation", "Personbilar", "B2b-försäljning", "Religion", "Anpassad grundskola", "Sjukhus", "Hårdvara", "Yrkesutbildning", "Lärmiljö", "Kanaler", "Sjukvårdsinsatser", "Kunskapsutveckling", "Kemi", "Verifiering", "Budgetarbete", "Yrkesbevis", "Bokslut", "Tyska", "Lastbilar", "Customer service", "Windows, operativsystem", "Bestämmelser", "Riskbedömningar", "Mätning", "Fysik", "Arbetsmetoder", "Café", "Ci/cd", "Grundskola", "Grundutbildning", "Undersköterskeutbildning", "Frameworks", "Däck", "Avstämningar", "Tunga fordon", "Första hjälpen", "Hemstädning", "Gymnasium", "Arbetsrätt", "It-support", "Fritidsprogrammet", "Omvärldsbevakning", "Fastighetsbranschen", "Säkerhetsföreskrifter", "Ventilation", "Ekonomissystem", "Barntillsyn", "Arbetsgrupp", "Apotek", "It-miljö", "Embedded", "Restaurangbranschen", "Larm", "Allmänmedicin", "Modersmål", "Processindustri", "Verksamhetsansvar", "Anpassning", "Hälsoarbete", "Påfyllning", "Frontend", ".net", "Datavetenskap", "Forefront", "Konsultuppdrag", "Universitetsexamen", "It-säkerhet", "Yrkeshögskola", "Teknikområden", "Säkerhetsarbete", "Prognoser", "Machine learning/Maskininlärning", "Fakturahantering", "Kirurgi", "Riskanalyser", "Personlig utveckling", "Behandlingsarbete", "Systemvetenskap", "Prestanda", "Lärarexamen", "Byggprojekt", "Kravställning", "Teknisk dokumentation", "Arkivering", "Behörigheter", "Crm-system", "Sortiment", "Kalkyler", "Ärendehantering", "Inleveranser", "Lou", "E-handel", "Amazon Web Services (AWS), molnplattform", "Onboarding", "Bild", "Office 365", "Djur", "Sortering", "Resultatansvar", "Familjehem", "Siffror", "Ortopedi", "Leverantörsreskontra", "Mätteknik", "Svenska som andraspråk", "Arkitektur", "Läsa ritningar", "Arbetsredskap", "Jakt", "Orderhantering", "API", "Hantverk", "Kognitiv beteendeterapi", "Kubernetes", "Film", "Epilepsi", "Skolledning", "Ekonomisk uppföljning", "Utleveranser", "Cnc", "Sjukhem/Särskilt boende", "Meänkieli", "Vuxenutbildning", "Gymnasiekompetens", "React", "Energibranschen", "ERP", "Giltigt b-körkort", "Motiverande samtal", "Vidareutveckling", "Skolutveckling", "Va", "Svets", "Motviktstruck", "Automatisering", "Hjullastare", "Samhällsvetenskap", "Produktionsprocesser", "Arbetsverktyg", "Demens", "Renhållning", "Elevhälsa", "Git, versionshanteringssystem", "Uppsökande försäljning", "Workflows", "Ämneskunskaper", "Databaser", "Samhällsbyggnad", "Civilingenjörsexamen", "Fastighetsskötsel", "Powerpoint", "Produktionsmiljö", "Operation", "Statsvetenskap", "Spanska", "Gymnasieskola", "Certifieringar", "Bakgrundskontroll", "Takk", "Bokföring", "Arbetsprocesser", "Medicinering", "Ekonomiarbete", "Öppenvård", "Storkök", "Programmerbart styrsystem/PLC", "Servicebranschen", "Mjukvaruutveckling", "Processutveckling", "JavaScript, programmeringsspråk", "Produktionsteknik", "Tillagning", "Årsredovisning", "Anställningsavtal", "Branscherfarenhet", "Kundreskontra", "Service och underhåll", "Norska", "Deployment", "Vision", "Anbudsarbete", "Jiddisch", "Danska", "Palliativ vård", "Anläggningsprojekt", "Utvecklingsteam", "Ledarskapsutbildning", "Portal", "Sport", "Specialkost", "Romani", "Säkerhetsbranschen", "Släp", "Elektroteknik", "Lagerhållning", "Uthyrning", "Trädgårdsarbete", "Effektivisering", "Förarbevis", "It-vana", "Reglerteknik", "Tandvård", "Mag", "Forskningsprojekt", "Ordrar", "Diabetes", "Datateknik", "Ekonomistyrning", "Lärarutbildning", "Kravhantering", "Löpande bokföring", "Årsbokslut", "Exponering", "Video", "Pneumatik", "Hsl", "Pedagogisk verksamhet", "Posthantering", "Snickeri", "Geriatrik", "Fritids", "Scrum, systemutvecklingsmetod", "Flytt", "Budgetering", "Docker, container-plattform", "Lagarbete", "Biologi", "Barnomsorg", "Dokumenthantering", "Utvecklingsfrågor", "Drogtest", "Sondmatning", "Säljerfarenhet", "Processindustrin", "Lvu", "ADR, styckegods (grundkurs)", "Projektarbete", "Telefonsamtal", "ITIL", "Elinstallationer", "Akutmottagning", "Ingenjörsutbildning", "Handel", "TypeScript, programmeringsspråk", "Stödsystem", "Teknisk fysik", "Månadsbokslut", "Dataanalys", "Säljteam", "Neuropsykiatriska funktionsnedsättningar", "Fortbildning", "Fordonsteknik", "Mässor", "Beräkningar", "Personaladministration", "Friskvård", "Verkstadsarbete", "Tekniska ritningar", "Reklamationer", "Autocad", "Active Directory, programmeringsverktyg", "Kompetensförsörjning", "Ekonomiskt ansvar", "Webb", "Recept", "Brand", "Introduktionsprogram", "Varuplock", "Receptionsarbete", "Farmaci", "Utvecklingsprocesser", "Konfiguration", "Ux", "Utvecklingssamtal", "Diarieföring", "Prognosarbete", "Arbetsmiljöarbete", "Butiksarbete", "Trädgård", "Åtgärdsprogram", "Tillverkningsprocesser", "Hr-arbete", "Näringsliv", "Enterprise", "Networking", "Kommunikationsfärdigheter", "Bevakning", "Materialhantering", "Barnhälsovård/BVC", "Cnc-maskiner", "Ifs", "Revision", "Slipning", "Spel", "Svarvning", "Intensivvård", "Tillverkningsindustri", "Metodutveckling", "Järnväg", "It-infrastruktur", "Ledningssystem", "Vårdplanering", "Egenvård", "Sjukvårdslagen", "Social omsorg", "Anläggningsbranschen", "Bildstöd", "Kontrakt", "Outlook", "Underhållssystem", "Uppgraderingar", "Produktionsplanering", "Erp-system", "Förhandling", "Validering", "Testautomatisering/Test automation", "Byggnation", "Förbättringsprojekt", "Juristexamen", "Web", "Business Intelligence/BI", "Lönehantering", "Analysarbete", "Fräsning", "Bemanningsföretag", "Pro", "Missbruk", "Psykologi", "Dans", "Anläggningsarbeten", "Kundsupport", "Sjuksköterskeuppgifter", "Mekatronik", "Agresso, redovisningssystem", "Skolmiljö", "Fordonsindustrin", "Styrteknik", "Promoting", "Miljöfrågor", "Renovering", "Infrastrukturprojekt", "Produktionsutrustning", "Informationshantering", "Strategiskt arbete", "Slöjd", "Telefonförsäljning", "Vårdutbildning", "Bar", "Betong", "Kvällsarbete", "Ekonomifrågor", "Geografiskt informationssystem/GIS", "Säkerhetsfrågor", "Demensvård", "Franska", "It-branschen", "Mobil", "Arbetsinstruktioner", "Socialpsykiatri", "Förbättringsområden", "Reflektion", "Livsmedelshygien", "Funktionshinder", "Administrativt stöd", "Meka", "Continuous integration/CI", "Vård av äldre", "Masterexamen", "Behovsanalys", "Inredning", "Metodik", "Möbler", "Kollektivtrafik", "Sharepoint", "Växel", "Leverantörsfakturor", "Frukost", "Elteknik", "Insamling", "Telekom", "Scripting", "Sanering", "Arbetsmiljölagstiftning", "Journalföring", "Handlingsplaner", "Tekniska beräkningar/MATLAB", "Gräsklippning", "Investeringsprojekt", "Medarbetarskap", "Cykelvana", "Ögonsjukvård", "Smart, resebokningssystem", "Paketering", "Anestesi", "Löneadministration", "Förskoleklass", "Medicinhantering", "Solidworks", "Informationsvetenskap", "Förvaltningsrätt", "Stödinsatser", "Bokslutsarbete", "Ämnesområden", "Motorer", "Enklare reparationer", "Återvinning", "Förskrivning", "Datasystem", "Försvarsindustrin", "Skjutstativtruck", "Tecken som stöd", "Äldreboende", "Däckskifte", "Internet", "Tekniska kunskaper", "Gmp", "Ensamarbete", "Psykiatrin", "Ekonomiskt bistånd", "Kundärenden", "Markarbeten", "Deltidsarbete", "Serviceinsatser", "Hr-området", "Adhd", "Nykundsbearbetning", "Naturvetenskap", "Förändringsprocesser", "Art", "Entreprenadmaskiner", "Patientsäkerhet", "Manualer", "Forskarutbildning", "Mötesbokning", "À la carte", "Förbrukningsmaterial", "Gjutning", "Systemförvaltning", "Allergi", "Spetskompetens", "Elkonstruktion", "Modellering", "Vård av funktionshindrade", "Protocols", "Teckenspråk", "Förstudier", "Pedagogiskt förhållningssätt", "Rivning", "Kundansvar", "Medarbetarsamtal", "Fortnox, affärssystem", "Skärande bearbetning", "Arbetskläder", "Industriell ekonomi", "Uppackning", "Simulering", "Switchar", "Bilbranschen", "Rekryteringslösningar", "Säkerhetssystem", "Underhållsplaner", "Telefoni", "Tekniska frågor", "Baka", "Funktionshinderområdet", "Truckvana", "Verksamhetsplanering", "Ledarskapserfarenhet", "Cybersäkerhet", "Rekryteringsverktyg", "Elsystem", "Pmo", "Idrott och hälsa", "Inbyggda system/Embedded system", "Fastighetsteknik", "Simulation", "Arbete på väg", "Travers/Lyftanordningar", "Sjuksköterskeutbildning", "Samhällsplanering", "D-körkort", "Nyheter", "Huvudansvar", "Qa", "Omvårdnadsinsatser", "Avvikelsehantering", "Uppbyggnad", "Trä", "Apis", "Böcker/Tidskrifter", "Storage", "Systematiskt arbetsmiljöarbete/SAM", "Historia", "Nattarbete", "Bakning", "Byggteknik", "Neurologi", "Fritidsverksamhet", "Prissättning", "Ekonomiadministration", "Samhällsutveckling", "Prospektering", "Lackering", "Rehab", "Serviceuppdrag", "Magisterexamen", "Samhällsfrågor", "Redovisningsarbete", "Driftsäkerhet", "Golv", "Arabiska", "Studievägledning", "Specialistsjukvård", "Handledarutbildning", "Lärandemiljö", "Industriarbete", "Försäljningsprocessen", "Personalledning", "Privatkunder", "Technical support", "Yrkesvägledning", "Hus", "Felavhjälpning", "Karriärutveckling", "Angular", "Resursplanering", "Photoshop", "Bup", "Kvalitetsstandarder", "Omvårdnadsutbildning", "Växter", "Strykning", "Färg/Kemikalieprodukter/Tapeter", "Digital marknadsföring/Onlinemarknadsföring", "Beredskapstjänstgöring", "Dokumentationsvana", "Devices", "Pålitlighet", "Telemarketing", "Vårdboende", "Kundhantering", "Industribranschen", "Kritiska", "Teknisk försäljning", "Linux, operativsystem", "Kvalitetsfrågor", "Brandlarm", "Företagshälsovård", "Transportbranschen", "Säkerhetslösningar", "HACCP", "Entreprenörskap", "Utbildningsprogram", "Civilingenjörsutbildning", "Säkerhetsrutiner", "Distriktssjukvård", "Sökordsoptimering/SEO", "Kemikalier", "Kockutbildning", "Rondering", "Distansarbete", "Scanning", "Flödesekonomi/Supply chain management/SCM", "Motivationsarbete", "Grävmaskin", "Pedagogisk dokumentation", "Raindance", "Kringutrustning", "Incidenthantering", "Ingenjörsexamen", "Besiktning", "Tjänstgöringsintyg", "Värdskap", "Flyttstädning", "Omsorgsboende", "Google Cloud Platform, molnplattform", "Reparationsarbeten", "Värdegrundsarbete", "Barnpsykiatri/Ungdomspsykiatri", "Balansering", "Produktkunskap", "Elevhälsoarbete", "Operativt ansvar", "Fiber", "Säljteknik", "Demontering", "Användarsupport", "Internmedicin", "Installationsbranschen", "It-lösningar", "Metall", "Urologi", "Interface", "Socialförvaltningen", "Hr-frågor", "Powershell", "Armering", "Socionomutbildning", "Samhällskunskap", "Sallader", "Lantbruk", "Avtalshantering", "B2c", "Solceller", "Elbranschen", "Dataskydd", "Verkstadsmiljö", "Raster", "Stål", "Exchange", "Kaffe", "Systemadministration", "Grundläggande datakunskaper", "Metallslöjd", "Configuration", "Kemiteknik", "Statlig verksamhet", "Publicering", "Hushållsarbete", "Operativsystem", "CSS, stilmall", "Ordinärt boende", "Hållbarhetsfrågor", "Projektplanering", "Systemintegration", "Målning", "Fältarbete", "Pensionsförsäkring", "Stora datamängder", "Kvalitetsutveckling", "Bibliotek", "Träslöjd", "Strategiska frågor", "Remisshantering", "Barnskötarutbildning", "Vaktmästeri", "Annonsering", "Godsmottagning", "Yrkeskompetens", "Sfi", "Ogräsrensning", "Inköpsarbete", "Vårderfarenhet", "Utbetalningar", "Kvällstjänstgöring", "Lödning", "Tidsbokning", "Ledsagning", "Textilslöjd", "Kompetensområden", "Kaffemaskiner", "Utvecklingsområden", "SQL-Server, databashanterare", "Chefskap", "Offertarbete", "Barnsjukvård", "Kontering", "Systemkunskaper", "Kontaktuppgifter", "TV", "Ställverk", "Systemlösningar", "Affärsmannaskap", "Kost", "Bevakningsföretag", "Svarv", "Svetsa", "Konfigurering", "Onkologi", "Kalibrering", "Personalplanering", "Kassavana", "Android, operativsystem", "Utvärderingar", "Rektorsutbildning", "Programmeringsspråk", "Diska", "Livsmedelsbranschen", "Nyproduktion", "Programvara", "Konflikthantering", "Indesign", "Tele", "Skinn/Textilier", "Deklarationer", "Bygg och anläggning", "Brandväggar", "Servrar", "Skrivare", "Höjder", "Kontorsmaterial", "Specialpedagogik", "Skolverksamhet", "Internutbildning", "Fisk", "Förfrågningsunderlag", "HTML, programmeringsspråk", "Logistikbranschen", "Ekonomiområdet", "Kontaktmannaskap", "Kol", "User experience", "Rekryteringsbranschen", "Melior", "Node, exekveringsmiljö", "Entreprenadbranschen", "Moms", "CABAS", "Gymnastik", "Pc", "Förskollärarlegitimation", "Barns lärande", "Astma", "Organisering", "Heroma", "Triagering", "E-commerce", "Terminal", "Finansiering", "Lagervana", "Friluftsliv", "Layout", "Ansvarsförsäkring", "Trafiksäkerhet", "Arbetsmarknadsfrågor", "Utbildningsmaterial", "Fräs", "Studiehandledning", "Kundprojekt", "Lönesamtal", "Internet of things/IoT", "Heltidsarbete", "Cms", "Bilintresse", "Nyutveckling", "Barnverksamhet", "Foto", "Avsyning", "Telefonvana", "Äldrevård", "Backup", "Inbetalningar", "Orderläggning", "Stroke", "Servicedesk", "Verktygsvana", "Ombyggnad", "Ikt", "Bemanningsarbete", "Konsultchefer", "IOS, operativsystem", "Vardagssysslor", "Påbyggnadsutbildning", "Abonnemang", "Dimensionering", "CAN, kommunikationsprotokoll", "Vaccination", "Lekar", "Kardiologi", "Yrkesvana", "Patientarbete", "C-kort", "Erfarenhet av barn", "Arbetslivsfrågor", "Illustrator", "Helhetslösningar", "Skyltning", "Industrivana", "Luftreningssystem", "REST", "Mobiltelefoner", "Hälsocentral", "Försäljningsarbete", "Förskollärarexamen", "Infektion", "Digitalt förarkort", "Open source", "Säljutbildning", "Avtalsskrivning", "Utvecklingsstörning", "Ekonomiavdelning", "Fotboll", "Personalarbete", "MOST, kommunikationsprotokoll", "Backoffice", "Google Analytics", "Läxhjälp", "Kontinuerlig coachning", "Fakturafrågor", "Karriärvägledning", "Försäljningserfarenhet", "Medicinavdelning", "Trygghetsförsäkring", "ITS (internationell spedition)", "Bredband", "Vas", "Företagsresor", "Not", "Säljbranschen", "Client", "Festivaler", "MS Office", "Drifting", "Webbutveckling", "Intellektuell funktionsnedsättning", "Lärplattform", "Windows Server, operativsystem", "Dataskyddsförordningen", "Säkerhetsförsäljning", "Concrete5", "Microsoft windows", "Cafeteria", "Markarbete", "Arkiv", "Försäkring", "Bilen", "Microsoft access", "Reparation", "Telekommunikation", "Deklaration", "Help desk", "Adobe photoshop", "Back office", "Microsoft azure", "Script", "Adobe indesign", "Back end", "Angularjs", "Front end", "Microsoft exchange", "Scanner", "Mobiltelefoni", "Kalkylering", "Switch", "Brandvägg", "Riskanalys",
-  /* Tillvalda september 2026. Båda ligger under golvet — signalteknik 110 annonser per
-     helår, banteknik 27 — men är fackord med tydlig innebörd och bred yrkesspridning:
-     25 respektive 18 yrkesgrupper. Järnvägens ordförråd är splittrat på många smala
-     termer, så volymgolvet sållar bort sektorn trots att den samlade efterfrågan finns. */
-  "Signalteknik","Banteknik"];
+   Listan tas ut med verktygets egna funktioner, körda i webbläsaren mot den laddade datan:
+   kompOverGolv med listan urkopplad avgör urvalet och __kompTotals ordningen. Att räkna om
+   golvet för hand träffar inte rätt. Dels slår KOMPETENS_SAMMANSLAGNING ihop gamla
+   stavningar vid laddning — kompetensfilen har 21 129 poster mot verktygets 21 068 — och ett
+   sammanslaget namn i listan syns då i menyn tills filen landat för att sedan försvinna.
+   Dels dividerar kompOverGolv med antalet år som faktiskt finns i raden och inte med
+   periodens längd, och en kompetens utan något helt år släpps igenom oprövad. Det sista
+   gäller nya namn i taxonomin, som Säkerhetsförsäljning och Concrete5: de finns bara i
+   2026 års data, och eftersom det året är preliminärt och hoppas över återstår inga år att
+   beräkna snittet på.
+
+   Listan är låst till golvet KOMPETENS_GOLV, som sedan 26 september 2026 står på 100. Ändras
+   golvet, eller körs forbered_kompetensdata.py om, måste listan tas ut på nytt: skriptet
+   bygger om datan men rör inte listan, så det är körningen som får dem att glida isär. */
+window.__KOMP_VALBARA = ["Körkort","Försäljning","Arbetslivserfarenhet","Sjukvård","Barn","Datorvana","Teknik","Verktyg",
+  "Kommunikation","Dokumentation","Ekonomi","Egen bil","Office","Administration","Ledarskap","Undervisning",
+  "Miljö","Data","Högskoleutbildning","Gymnasieutbildning","Truckkort","Omsorg","El","Nätverk","Lager",
+  "Design","Administrativa uppgifter","Excel","Eftergymnasial utbildning","Kundservice","Personuppgifter",
+  "Resor","Språkkunskaper","Material","Energi","Arbetsmiljö","Säkerhet","Omvårdnad","Reparationer",
+  "Logistik","Rekrytering","Inköp","Utvecklingsarbete","Insatser","Mat","Industri","Felsökning",
+  "Personalansvar","Ungdomar","Samverkan","Förskola","Handledning","Budget","Projektledning","Drift",
+  "Leverantörer","Fordon","Styrdokument","Kundrelationer","Utrustning","Problemlösning","Städning","Butik",
+  "Analys","Kontroll","Forskning","Hälsa","Montering","Rådgivning","Behandling","Bilar",
+  "Förbättringsarbete","Psykiatri","Transport","Automation","Svenskt medborgarskap","God fysik",
+  "Installation","Innovation","Beställningar","Matlagning","Rör","Vidareutbildning","Redovisning",
+  "Rapportering","Primärvård","Programmering","Lärarlegitimation","Ritningsläsning","Funktionsnedsättning",
+  "Vårderfarenhet","Konsultchefer","Anläggning","Mekanik","Myndigheter","Högskola","Äldreomsorg",
+  "Restaurang","Upphandling","Träning","Affärssystem","Sales","Hälsovård","Försäkringar",
+  "Vårdavdelning/Mottagning","Kollektivavtal","Gymnasiet","Hjälpmedel","CAN, kommunikationsprotokoll",
+  "Feedback","Assistans","Truckkörning","Journalsystem","Coaching/Coachning","Ledning","Lss","Hemsjukvård",
+  "Performance","Kundbemötande","Förändringsarbete","Kompetensutveckling","Högskoleexamen","Elektronik",
+  "Matematik","Registerkontroll","Marknadsföring/Marknadskommunikation","Regler","Specialistutbildning",
+  "Förvaltning","Kultur","YKB","Akademisk examen","Truck","Regelverk","Verksamhetsutveckling",
+  "SAP, applikationsplattform","Myndighetsutövning","Pedagogik","Säljerfarenhet","Finska","Kvalitetsarbete",
+  "It-kunskaper","Datorkunskaper","B2b","Akutsjukvård","Python, programmeringsspråk","Samordning",
+  "Telefonintervju","Socialt arbete","Vårdcentral","Tillverkning","Musik","Arbetsliv","Handläggning",
+  "Budgetansvar","Personlig hygien","Kundtjänst","Konstruktion","Skötsel","Hemtjänst","Arbetsledning",
+  "Personlig utveckling","Gymnasieexamen","Ritningar","Juridik","Tvätt","Schemaläggning",
+  "Ständiga förbättringar/Lean","Infrastruktur","Teknisk utbildning","Kök","Socionomexamen",
+  "Digitalisering","Lastning","Socialtjänst","Byggbranschen","Integration","Research","Fakturering",
+  "Universitetsutbildning","Systemvana","Autism","Organisationer","Tunga lyft","Rekryteringstjänster",
+  "Tester","Rehabilitering","It-system","Barntillsyn","Lag","Registrering","Svetsning","Sociala medier",
+  "Verkstad","Verksamhetsområden","Styrning","Media","Merförsäljning","Beredskap","Tillgänglighet",
+  "Varumärken","Utredning","Kassaarbete","Agile","Azure","Teamarbete","Java, programmeringsspråk",
+  "Vägledning","C-körkort","Arbetsmiljöansvar","Hydraulik","Fritidshem","Fastigheter","Jakt","Marketing",
+  "Idrott","Maskin","Distribution","Datorer","Lokalvård","Läkemedel/Sjukvårdsprodukter","Event","Statistik",
+  "Tekniska lösningar","Servering","Utvecklingsprojekt","Ledarerfarenhet","Bank","Traverskort","Däck",
+  "Mjukvara","Kvalitetskontroll","Kvalitetssäkring","Provtagning","Telefonrådgivning","Grundskolan",
+  "Hotell","Kampanjer","Dryck","Övervakning","Mottagningsarbete","Implementering","Systemutveckling",
+  "Automotive/Fordonsindustri","C#, programmeringsspråk","Lossning","Bokningar","Monitor, affärssystem",
+  "Säkerhetsprövning","Teknisk support","Bokslut","Hållbarhet","Specialistkompetens","Compliance",
+  "Trygghetsförsäkring","VVS","Helhetsansvar","Artificial Intelligence/Artificiell intelligens/AI",
+  "Offerter","Customer Relationship Management/CRM","Genomförandeplaner","Gymnasiekompetens",
+  "Beteendevetenskap","Telefonsamtal","Livsmedel","Egenkontroll","Serviceyrke","Fordonsbranschen","Gdpr",
+  "Säkerhetsskydd","Servicearbete","Underhållsarbete","SQL, frågespråk","Avstämningar","Kanaler",
+  "Lönsamhet","Word","Slutenvård","Reception","C++, programmeringsspråk","Kassa","Teknikintresse",
+  "Packning",".net","Vision","Produktutveckling","CAD","Tyska","Kläder/Mode","Religion","Påklädning",
+  "Utredningsarbete","Ärendehanteringssystem","Förebyggande underhåll","Inventering",
+  "Windows, operativsystem","JavaScript, programmeringsspråk","Maskinteknik","Inleveranser","Projektering",
+  "Sjukhus","Backend","Förändringsledning","Arbetsverktyg","Acceptance and Commitment Therapy/ACT","Not",
+  "Grundskola","Access, databashanterare","Flöden","Certifikat","Leverantörsreskontra","Styrsystem",
+  "Hårdvara","Va","Kommunal verksamhet","Siffror","Omvårdnadsarbete","Fastighet","Beredning",
+  "Offentlig förvaltning","Försvarsmakten","Gymnasium","Orderhantering","Kirurgi","Ämneskunskaper","Norska",
+  "Cloud","Hushållssysslor","Doktorsexamen","Samiska","Fakturahantering","Optimering","Examensbevis",
+  "Yrkesbevis","Reservdelar","Social dokumentation","React","Chefserfarenhet","Driftsättning","Operation",
+  "Tydliggörande pedagogik","Testning","Frontend","Delegering","Mätning","Utleveranser","Vatten",
+  "Socialtjänstlagen","Office 365","Omsorgsarbete","Mi","Elkraft","Arbetsredskap","Npf","Föreskrifter",
+  "Resultatansvar","Verksamhetssystem","It-support","Kandidatexamen","Instrument","Modersmål",
+  "Yrkeshögskola","Fysik","Omvärldsbevakning","Kemi","Hälsoarbete","Customer service","Läkemedelshantering",
+  "Tillverkningsindustrin","Öppenvård","Ce-körkort","Rengöring","Yrkeshögskoleutbildning","Svets",
+  "Kunskapsutveckling","Alternativ och kompletterande kommunikation/AKK","Kundreskontra","Bild",
+  "Branscherfarenhet","Tidplaner","Geografiskt område","Lärarexamen","Avklädning","Cosmic",
+  "Rekryteringssystem","Årsredovisning","Posthantering","Kundsupport","Grundutbildning","Ventilation",
+  "Yrkesutbildning","Arbetsrätt","Löpande bokföring","Entreprenadjuridik","Affärsutveckling",
+  "Fastighetsbranschen","Embedded","Vuxenutbildning","Sortiment","Fritidsprogrammet","Konsultuppdrag",
+  "Informationssäkerhet","Restaurangbranschen","Körning","Vidareutveckling","Sortering","Bokföring",
+  "Personbilar","Arbetsmetoder","Undersköterskeutbildning","Servicebranschen","Arkivering","Film",
+  "Arbetsgrupp","E-handel","Allmänmedicin","Café","Ortopedi","Lastbilar","Brand","Sjukhem/Särskilt boende",
+  "Programmerbart styrsystem/PLC","Danska","Ekonomissystem","Värme","Säljteam","Budgetarbete",
+  "Amazon Web Services (AWS), molnplattform","Verksamhetsansvar","Databaser","Djur","Skollagen","Cnc",
+  "Sport","Arkitektur","Detaljhandel","Prognoser","Motviktstruck","Beslutsunderlag","Teknikområden","Larm",
+  "Kalkyler","Mjukvaruutveckling","Yrkeslegitimation","Behandlingsarbete","Påfyllning","Årsbokslut",
+  "Verifiering","Powerpoint","Svenska som andraspråk","Uppsökande försäljning","Tunga fordon",
+  "Universitetsexamen","Kognitiv beteendeterapi","Ärendehantering","Systemvetenskap","Datavetenskap",
+  "Riskhantering/Risk management","Ekonomiarbete","Webbutveckling","Butiksarbete","Varuplock",
+  "Processindustri","Spanska","Behörigheter","Barn och ungdom","Riskbedömningar","Reklamationer",
+  "Riskanalyser","Skolledning","Läsa ritningar","Handel","Kriminalvården","B2b-försäljning",
+  "Sjukvårdsinsatser","Habilitering","Säljteknik","Personaladministration","Git, versionshanteringssystem",
+  "Storkök","Scrum, systemutvecklingsmetod","Samhällsbyggnad","It-säkerhet","Energibranschen","Däckskifte",
+  "Skolutveckling","Månadsbokslut","Machine learning/Maskininlärning","Geriatrik","Renhållning",
+  "Anpassad grundskola","Exponering","Kravställning","Mätteknik","Demens","Funktionshinder",
+  "Utvecklingsfrågor","Bestämmelser","Receptionsarbete","Crm-system","API","Mässor","Onboarding",
+  "Pneumatik","Läxhjälp","Produktkunskap","Patientsäkerhet","Service och underhåll","Telefonförsäljning",
+  "Active Directory, programmeringsverktyg","Hemstädning","Elevhälsa","Släp","Tekniska kunskaper",
+  "Specialkost","Försäljningserfarenhet","Tillagning","Medicinering","Lärarutbildning","Säkerhetsarbete",
+  "Snickeri","Projektarbete","Lou","Ux","Palliativ vård","Reglerteknik","Ekonomisk uppföljning",
+  "Behovsanalys","ERP","Diabetes","Web","Samhällsvetenskap","It-branschen","Hjullastare",
+  "ADR, styckegods (grundkurs)","Ordrar","ITIL","Ci/cd","MOST, kommunikationsprotokoll","It-miljö",
+  "Motiverande samtal","Akutmottagning","TypeScript, programmeringsspråk","Epilepsi","Civilingenjörsexamen",
+  "Lagarbete","Elinstallationer","Introduktionsprogram","Smart, resebokningssystem","Effektivisering",
+  "Kemikalier","Intensivvård","Byggprojekt","Intellektuell funktionsnedsättning","Fastighetsskötsel",
+  "Abonnemang","Ekonomiskt ansvar","Forskningsprojekt","Leverantörsfakturor","Processindustrin",
+  "Produktionsteknik","Fortbildning","Barnomsorg","Kubernetes","Uthyrning","Psykiatrin",
+  "Ledarskapsutbildning","Frameworks","Prospektering","Barnhälsovård/BVC","Deployment","Automatisering",
+  "Tandvård","Fritids","Manualer","Mötesbokning","Agresso, redovisningssystem","Beräkningar",
+  "Utvecklingssamtal","CSS, stilmall","Teknisk dokumentation","Produktionsprocesser","Hantverk",
+  "Paketering","Sjuksköterskeuppgifter","Förhandling","Arbetsprocesser","Takk","Biologi","Video",
+  "Äldreboende","Datasystem","Ingenjörsutbildning","Skolverksamhet","Art","Pedagogisk dokumentation",
+  "Missbruk","Hsl","Processutveckling","Kundansvar","Sanering","Autocad","Friskvård","Uppgraderingar",
+  "Datateknik","Business Intelligence/BI","It-vana","Verkstadsarbete","Angular","Dans","Photoshop","Mobil",
+  "Bemanningsföretag","ITS (internationell spedition)","Gymnasieskola","Kravhantering","Ekonomistyrning",
+  "Prestanda","Första hjälpen","Bevakning","Löneadministration","Certifieringar","Inredning","Lvu",
+  "Docker, container-plattform","Giltigt b-körkort","Vårdplanering","Miljöfrågor","Lönehantering",
+  "Lärplattform","Statsvetenskap","Säkerhetsföreskrifter","Spel","Forefront","Telefoni","Tekniska frågor",
+  "Validering","Ekonomifrågor","Utvecklingsprocesser","Diarieföring","Försäljningsarbete","TV",
+  "Elektroteknik","Teknisk fysik","Yrkesvägledning","Sondmatning","HTML, programmeringsspråk","Gymnastik",
+  "Outlook","Metodutveckling","Utvecklingsteam","Förarbevis","Trädgård","Franska","Balansering",
+  "Dokumenthantering","Företagshälsovård","Neurologi","Medarbetarsamtal","Gmp","Revision","Bar",
+  "Anpassning","Nyheter","Arabiska","Lagerhållning","Hr-arbete","Återvinning","Frukost","Meka","Telekom",
+  "Kompetensförsörjning","Reparationsarbeten","Pmo","Produktionsmiljö","Ensamarbete","Höjder",
+  "Fordonsindustrin","Sharepoint","Hr-området","Kundärenden","Continuous integration/CI","Ledningssystem",
+  "Kundhantering","Bokslutsarbete","Fräsning","Studievägledning","Budgetering","Rekryteringsbranschen",
+  "Prognosarbete","Analysarbete","Linux, operativsystem","Byggnation","Betong","Försäljningsprocessen",
+  "Privatkunder","Åtgärdsprogram","Förskrivning","B2c","Flytt","Slipning","Anestesi",
+  "Kommunikationsfärdigheter","Administrativt stöd","Anläggningsbranschen","Reflektion",
+  "Pedagogisk verksamhet","Sökordsoptimering/SEO","Kollektivtrafik","Mekatronik","Näringsliv",
+  "Anläggningsprojekt","Apotek","Verkstadsmiljö","Anläggningsarbeten","Tekniska beräkningar/MATLAB",
+  "Geografiskt informationssystem/GIS","Meänkieli","Konfiguration","Tillverkningsprocesser",
+  "Testautomatisering/Test automation","Tillverkningsindustri","Produktionsplanering","Trädgårdsarbete",
+  "Färg/Kemikalieprodukter/Tapeter","À la carte","Säljbranschen","Luftreningssystem","Stödsystem",
+  "Personlig omvårdnad","Huvudansvar","Svarvning","Neuropsykiatriska funktionsnedsättningar","Scripting",
+  "Enterprise","Pro","Digital marknadsföring/Onlinemarknadsföring","Inbyggda system/Embedded system",
+  "Switchar","Arbetsmiljöarbete","Bilbranschen","Socionomutbildning","Järnväg","Förstudier","Social omsorg",
+  "Vårdutbildning","Böcker/Tidskrifter","Kontrakt","Melior","Gräsklippning","Urvalsfrågor","Motorer",
+  "Metodik","Socialpsykiatri","Hälsocentral","Handlingsplaner","Truckvana","Nykundsbearbetning",
+  "Anställningsstöd","Skjutstativtruck","Internet","Investeringsprojekt","Anställningsavtal","Kassavana",
+  "Vård av äldre","Kontinuerlig coachning","Civilingenjörsutbildning","Fortnox, affärssystem",
+  "Industriarbete","Drogtest","Säkerhetsbranschen","Journalföring","Livsmedelshygien","Dataanalys",
+  "Uppackning","Magisterexamen","Gjutning","Slöjd","Naturvetenskap","Fotboll","Förbättringsprojekt",
+  "Insamling","Fiber","Recept","Nattarbete","Allergi","Sfi","Teckenspråk","Forskarutbildning",
+  "Juristexamen","Masterexamen","Tecken som stöd","Säljutbildning","REST","Utbetalningar","Modellering",
+  "Möbler","SQL-Server, databashanterare","Ikt","Exchange","Travers/Lyftanordningar","Omsorgsboende",
+  "Psykologi","Grundläggande datakunskaper","Produktionsutrustning","Indesign","Familjehem",
+  "Felavhjälpning","Lekar","Skärande bearbetning","Fordonsteknik","Rekryteringsverktyg","Solidworks",
+  "Vaccination","Remisshantering","Idrott och hälsa","Storage","Företagsresor","Växel",
+  "Node, exekveringsmiljö","Bakgrundskontroll","Uppbyggnad","Arbetskläder","Spetskompetens","Demensvård",
+  "Deklarationer","Systemförvaltning","Programvara","Kvällsarbete","Affärsmannaskap","Rehab",
+  "Arbetsinstruktioner","Utbildningsprogram","Golv","Stål","Armering","Onkologi","Networking",
+  "Prissättning","Barnsjukvård","Bildstöd","Programmeringsspråk","Resursplanering","Sjukvårdslagen",
+  "Underhållssystem","Besiktning","Säkerhetsfrågor","Serviceinsatser","Urologi","Trä","Renovering",
+  "Internmedicin","Vårdboende","Omvårdnadsinsatser","Kvalitetsfrågor","Bemanningsarbete","Samhällsfrågor",
+  "Ekonomiområdet","Entreprenadmaskiner","Styrteknik","Nyproduktion","Solceller","It-infrastruktur","Ifs",
+  "Android, operativsystem","Pedagogiskt förhållningssätt","Simulering","HACCP","Arbete på väg",
+  "Skinn/Textilier","Strategiskt arbete","Verksamhetsplanering","Medicinavdelning","Lantbruk","Kundprojekt",
+  "Baka","Adhd","Yrkesvana","Bakning","Utvecklingsstörning","Entreprenörskap","Godsmottagning",
+  "Arbetsmarknadsfrågor","Informationsvetenskap","Systemkunskaper","If","Kontering","Moms","Hus","Svetsa",
+  "Kockutbildning","Pc","Elkonstruktion","Ordinärt boende","Annonsering","Servicedesk","Scanning",
+  "Powershell","Hr-frågor","Ledarskapserfarenhet","Infrastrukturprojekt","Elteknik","Verktygsvana","Client",
+  "Kost","Kringutrustning","Informationshantering","Diska","Fakturafrågor","Deltidsarbete",
+  "Transportbranschen","Kontorsmaterial","Telefonvana","Open source","Redovisningsarbete","Stödinsatser",
+  "Ekonomiadministration","Samhällsplanering","Operativsystem","Omvårdnadsutbildning","Kontaktuppgifter",
+  "Materialhantering","Handledarutbildning","Ämnesområden","Kol","Avtalshantering","C-kort",
+  "Industriell ekonomi","Logistikbranschen","Konfigurering","Historia","Egenvård","Portal","It-lösningar",
+  "Bevakningsföretag","Barnskötarutbildning","Byggteknik","Kompetensområden","Serviceuppdrag","Qa",
+  "Äldrevård","Personalledning","Bup","Ombyggnad","Skrivare","Offertarbete","Publicering","Avsyning",
+  "Trafiksäkerhet","Nyutveckling","Avvikelsehantering","Workflows","Samhällsutveckling","Markarbeten",
+  "Servrar","Yrkeskompetens","Ekonomiskt bistånd","Inbetalningar","Tidsbokning","Mobiltelefoner",
+  "Internet of things/IoT","Elbranschen","Dokumentationsvana","Erp-system","Raindance","Svarv",
+  "Barnpsykiatri/Ungdomspsykiatri","Rivning","Växter","Personalarbete","Medicinhantering","Ledsagning",
+  "Förskollärarlegitimation","Brandlarm","Inköpsarbete","Lödning","Barns lärande","Kaffe","Simulation",
+  "Barnverksamhet","Devices","Fastighetsteknik","Fritidsverksamhet","Värdskap","Ställverk","E-commerce",
+  "Förbrukningsmaterial","IOS, operativsystem","User experience","Medarbetarskap","Tele","Backup",
+  "Cnc-maskiner","Beredskapstjänstgöring","Metallslöjd","Förändringsprocesser","Systemlösningar",
+  "Enklare reparationer","Underhållsplaner","Bilintresse","Industrivana","Kvalitetsutveckling",
+  "Brandväggar","Internutbildning","Helhetslösningar","Terminal","Lackering","Friluftsliv",
+  "Specialpedagogik","Säkerhetslösningar","Finansiering","Förvaltningsrätt",
+  "Windows Server, operativsystem","Arbetslivsfrågor","Textilslöjd","Träslöjd","Kalibrering","Chefskap",
+  "Elevhälsoarbete","Orderläggning","Teknisk försäljning","Fräs","Kvällstjänstgöring","Personalplanering",
+  "Rektorsutbildning","Heroma","Astma","Funktionshinderområdet","Flyttstädning","Stroke","Metall",
+  "Vaktmästeri","Sallader","Telemarketing","Rondering","Illustrator","Foto","Interface","Vardagssysslor",
+  "Hållbarhetsfrågor","Samhällskunskap","Bibliotek","Förfrågningsunderlag","Användarsupport",
+  "Ansvarsförsäkring","Google Analytics","Digitalt förarkort","Påbyggnadsutbildning","Entreprenadbranschen",
+  "Studiehandledning","Heltidsarbete","Kaffemaskiner","Festivaler","Bredband","Utvecklingsområden",
+  "Projektplanering","Kardiologi","Vård av funktionshindrade","Organisering","Lönesamtal",
+  "Konflikthantering","D-körkort","Ekonomiavdelning","Ogräsrensning","Fisk","Cms","Skyltning",
+  "Industribranschen","Kemiteknik","Triagering","Utvärderingar","Configuration","Strategiska frågor",
+  "Lagervana","Erfarenhet av barn","Layout","Bygg och anläggning","Utbildningsmaterial","Parker",
+  "Förbättringsområden","Ingenjörsexamen","CABAS","Kontaktmannaskap","Vas","Cykelvana","Patientarbete",
+  "Motivationsarbete","Dimensionering","Tidrapportering","Hushållsarbete","Bilkörning","Värdeskapande",
+  "Förskollärarexamen","Tvångsvård","Connectivity","Demontering",
+  "Pedodonti/Barntandvård, specialistkompetens för tandläkare","Bussar","Socialförvaltningen",
+  "Livsmedelsbranschen","Systemadministration","Högskoleingenjörsutbildning","Infektion",
+  "Produktionsarbete","Systematiska kvalitetsarbete","Backoffice","Alkohol","Funktionsvariationer",
+  "Lönesättning","Flödesekonomi/Supply chain management/SCM","Karriärvägledning","Lönesystem","Målning",
+  "Anbudsarbete","Medicinsk terminologi","Molntjänster","Raster","Lärandemiljö","Elutbildning",
+  "Butikserfarenhet","Wordpress","Fältarbete","Konst","Avtalsskrivning","Returhantering","Storstädning",
+  "Miljöområdet","Protocols","Motion","Färskvaror","Baren","Technical support","Bilvård",
+  "Kommunikationsarbete","Journalsystemet melior","Svensk läkarlegitimation","Tekniska ritningar",
+  "Produktområden","Catering","Personlighetstest","Extraarbete","Finansbranschen",
+  "Psykiska funktionsnedsättningar","Terminer","Gränssnitt","Barngrupp","Säkerhetssystem","Plast",
+  "Sociologi","Trädgårdsskötsel","Bygglagen","Utlastning","Sensorer","Grävmaskin","Korttidsboende",
+  "Marknadsaktiviteter","Journalskrivning","Konsultbranschen","Examensarbete","Transportledning",
+  "Såromläggning","Tung lastbil","Privatliv","Tjänsteförsäljning","Utlämning","Barnidrott","Livserfarenhet",
+  "Vmware","Behandlingsinsatser","Mikrobiologi","Nyhetsbrev","Google Cloud Platform, molnplattform",
+  "Kritiska","Apis","Statlig verksamhet","Vuxentandvård","Supportärenden","Funktionskontroll","Sprit/Vin",
+  "Diskning","Datorsystem","Glas","Arbetsrutiner","Kött","Laboratorium","Livsmedelsindustrin",
+  "Byggprocessen","Föreningar","Bokningssystem","Ventilationssystem",
+  "Utbildningsbevis, mobila arbetsplattformar","Miljöbalken","Elnät","Kvalitetssystem","Helpdesk",
+  "Ordermottagning","Restaurangkök","Koncernredovisning","Plantering","Installationsarbete","Deltidstjänst",
+  "Dokumentationssystem","Investment","Medicinteknik","Avtalsfrågor","Vue","Yrkesskicklighet",
+  "Cnc-styrda maskiner","Ambulanssjukvård","Högskoleingenjörsexamen","PDM/PLM","Miljöarbete",
+  "Organisationsutveckling","Datainsamling","Värdegrundsarbete","Återvinningsmaterial","Betygsättning",
+  "Efterarbete","Elsystem","Tidningar","Stödsamtal","Biblioteksvetenskap","ESA (Elsäkerhetsanvisningarna)",
+  "Radio","Systemintegration","Förhandlingsvana","Hälsoundersökning","Hemkunskap","Personalvetenskap",
+  "Skönhet","Skatt","Utemiljö","Cybersäkerhet","Promoting","Smörgåsar","On-site","Omsorgsförvaltningen",
+  "Datahantering","Familjebehandling/Nätverksarbete","Läkemedelsindustrin","Transmission",
+  "Introduktionsutbildning","Hematologi","Oracle, affärssystem","Lås","Regi","Detaljplaner",
+  "Stora datamängder","Arrangemang","Coachande ledarskap","Aluminium","Finansieringslösningar",
+  "Livsmedelsproduktion","Teater","Ifrs","Förarkort","Sjukförsäkring","Skolmiljö","Ky-utbildning","Farmaci",
+  "Hälsofrågor","Monteringsarbete","Språkutveckling","Bageri","Progress, databashanterare","Elprogrammet",
+  "Sjukvårdsadministration","JIRA, systemutvecklingsverktyg","Fastighetsdrift","Distansarbete",
+  "Sociala frågor","Agilt arbetssätt","Handverktyg","Brandskydd","Deploy","B-behörighet","HLR",
+  "Professionell rådgivning","Delikatess","Tjänstgöringsintyg","Fordonsmekanik","Fartyg","Journalistik",
+  "Marknadsföring/PR","Industrimiljö","Fotografering","Lärmiljö","Reklam","Verksamhetsstyrning",
+  "Incidenthantering","Miljövetenskap","Socialpsykologi","Kabeldragning","Individomsorgen","Beroendevård",
+  "Projektekonomi","Karriärutveckling","Installationsbranschen","Borrning","Kriminologi","Jämställdhet",
+  "Kravspecifikationer","Kursplaner","Logic, styr- och utvecklingsmodell","Dataskyddsförordningen",
+  "Hemmiljö","Värmepumpar","Idrifttagning","Pålitlighet","Beroendeproblematik","Kapning","Dansa",
+  "Passersystem","Grönyteskötsel","Utbildningssektorn","Taxiförarlegitimation","Underhållsprojekt",
+  "Blommor","Röntgen","It-drift","Processledning","House","Sas","Microservices","Ögonsjukvård","Säljarbete",
+  "Hvb","Emballage/Förpackningar","Ryska","Pedagogiska utredningar","Föreningsliv","Snöröjning",
+  "Utbildningsintyg","Pm3","Lösningsfokuserat arbetssätt","Terminalarbete","Informationsteknik",
+  "Psykologisk behandling","Leveransbevakning","Planlagstiftning","Heldygnsvård","Litteratur",
+  "Språkstörning","Resultatuppföljning","Matning","Expertkunskap","Massage","Familjeomsorg","Cisco","Asih",
+  "Processteknik","C-behörighet","Driftsäkerhet","Scada","Sång","Creo","It-arkitektur","Bioteknik",
+  "Utomhuspedagogik","Beskärning","Uppföljningsarbete","Utbildningsförvaltningen","Återrapportering",
+  "Verkstadsvana","Omställningsarbete","Fältförsäljning","Maskinvana","Mechatronics","Restaurangutbildning",
+  "Databas","Kulturskola","Försvarsindustrin","Mission","Optik","Utmanande beteende","Betongarbete",
+  "Hälsosamtal","Avfallshantering","Mätinstrument","Nyinstallationer","Analysverktyg","Forskningsarbete",
+  "Golvvård","Augmented reality/AR","Inbrottslarm","Cyklar","Router","Elmätare","Gruppsykologi",
+  "Mekanisk konstruktion","Lvm","Present","Identifiering","Matsal","Dna","Jourtjänstgöring","Ekg","Odling",
+  "Ramavtal","Modersmålsundervisning","Sekretesslagen","Medicinteknisk utrustning","MAG/MIG-svetsning",
+  "Spring boot","PHP, programmeringsspråk","Taxi","5g","Kanban, systemutvecklingsverktyg","Palliativ",
+  "Varumottagning","Be-körkort","Polska","It-verktyg","Ergonomi","Ritningsunderlag","Plåtbearbetning",
+  "Häckklippning","Transaktioner","Dataskydd","Processförbättringar","Krisberedskap","Elarbeten",
+  "Laboratoriearbete","Sjukvårdsfrågor","Operationssjukvård","Molekylärbiologi","Hr-system","Matintresse",
+  "Kirurgisk vård","Sushi","Hushållsmaskiner/Vitvaror","Konsumentkunskap","Elbehörighet",
+  "Vårddokumentation","Kampanjarbete","Montagearbete","Plocktruck","Hmi","Go","Varuhantering",
+  "Pyramid, affärssystem","Säkerhetsrutiner","Rekryteringsföretag","Kursutveckling","Tvättning",
+  "Pensionsförsäkring","Ip","Personbilsteknik","Financial services","Bockning","Produktionsledning",
+  "Arbetsmiljölagstiftning","It-projekt","Kontoavstämningar","Arbetsmarknad","Verkstadsindustrin",
+  "Internkontroll","Offentlighet","Isolering","Architectures","Microsoft dynamics","Operativt ansvar",
+  "Interventionell röntgen/Radiologi","Skattedeklarationer","APL, programmeringsspråk","Förändringsprojekt",
+  "Fastighetssystem","Virtualisering","Argumentationsteknik","Kommunikationsvetenskap","Energiteknik",
+  "Transportföretag","Hvb-hem","Speciallärarexamen","Pasis","Reklamationshantering","Förvaltningslagen",
+  "Ärendehandläggning","Hållbarhetsarbete","ML, programmeringsspråk","Source","Bemanningsplanering",
+  "Vårdsektorn","Måleri","Projektredovisning","Feature","Pedagogiskt utvecklingsarbete","Product managers",
+  "Simma","Italienska","Kvalitetsuppföljning","Gruppbostad","Tyngre lyft","Tillämpningar","Socialrätt",
+  "Hemvård","Romani","Rörläggning","Gruppverksamhet","Pallar","Mekaniskt arbete","Bröd","Jiddisch",
+  "Inkomstdeklarationer","Kvalitetsstandarder","Hogia, redovisningssystem","Aktivitetsförmåga",
+  "Svetsarbete","Logistikarbete","Omvårdnadshandledning","Bostadsrättsföreningar","Övervakningssystem",
+  "Vuxenpsykiatri","It-intresse","Maträtter","Snickeriarbeten","Godshantering","Episerver",
+  "Skriva på svenska","Energisystem","Ledningsarbete","Elevgrupp","Kassasystem","Personalgrupp",
+  "Laboratoriet","Säsongsarbete","Tekniska specifikationer","Nätverksteknik","Månadsrapportering",
+  "Journalsystemet takecare","Serviceavtal","Fordonsel","Städmaskin","3d-cad","Linux-miljö","Cancer",
+  "Navision","Kontorsarbete","Eht","Stensättning","Strykning","Grundläggande psykoterapiutbildning",
+  "Redovisningsfrågor","Dagligvaruhandel","Målstyrning","Fordonsintresse","TIG-svetsning",
+  "MySQL, databashanterare","Processarbete","Visualisering","Sökmotormarknadsföring/SEM","Medicinsk teknik",
+  "Säljprocesser","Driftansvar","Lantmäteri","Läromedel","Kundmottagning","Produktutbildning","Laser",
+  "Fastighetsbolag","Tracheostomi","Serviceärenden","Offentlighetslagstiftning","Arkivvetenskap","Takecare",
+  "Kundförfrågningar","Elscheman","Konsultverksamhet","Förlossning","Mottagningsverksamhet",
+  "Undervisningserfarenhet","Utvecklingsuppdrag","Hjärtsjukvård","Gymnasieprogram","Registervård",
+  "Maskinkörning","Reumatologi","XML, programmeringsspråk","Konditori","Databashantering",
+  "Ekonomiutbildning","Betygssättning","Sterilarbete","Kalkylarbete","Särskola","Patientbemötande",
+  "Byggmaterial","Köksarbete","Lungmedicin","Livsmedelshantering","It-utrustning","Säkra lyft",
+  "Budgetuppföljning","Fönsterputsning","Restaurangarbete","Hygienrutiner","Eget företagande",
+  "Gruppträning","Sjuksköterskeexamen","Systematiskt arbetsmiljöarbete","Ekonomisk rapportering","Flyg",
+  "Medtech","Ungdomsverksamhet","Socialpsykiatrin","Byggledning","Räddningstjänst","Projektstyrning",
+  "Familjerätt","It-tjänster","Jeeves, affärssystem","Transfusionsmedicin","Projektadministration",
+  "Endokrinologi","Systematiskt arbetsmiljöarbete/SAM","Fordonsutbildning","Yrkeskompetensbevis ykb",
+  "Svenska för invandrare","Operationsavdelning","Rna","Medievetenskap","Simulink","Svagström","Grönsaker",
+  "Samhällsengagemang","Utbildningsverksamhet","Kretskort","Affärsprocesser","Maskinunderhåll",
+  "Analysmetoder","Trimning","Webbplatser","Systemarbete","Digitalt färdskrivarkort","Säkerhetstjänst",
+  "Neuropsykiatri","Kommunikationsteknik","Systemdesign","Gruppbehandling","Utbildningsfrågor","Google Ads",
+  "Alternativ kompletterande kommunikation","Direktförsäljning","Gruppaktiviteter","Iss","Patologi",
+  "Fastighetsekonomi","Sårvård","Konstruktionsarbete","Kundinformation","Maskinbearbetning",
+  "Hörselverksamhet","Elektriska system","Gastroenterologi","Pc-vana","Behandlingsmetoder","Applikation",
+  "Underhåll och reparation","Dövverksamhet","Django","Naturkunskap","Kotlin, programmeringsspråk","Licens",
+  "Produktionsanläggningar","Inventor","Momsdeklarationer","Adl","Sjuksköterskeutbildning","Ansible",
+  "Fastighetsautomation","Rättspsykiatri","Digitala arbetssätt","E-tjänster","Strategisk planering",
+  "Utåtagerande beteende","Provkörningar","Recycling","Efterbearbetning","Hotellbranschen",
+  "Omvårdnadsansvar","It-frågor","Frukt","Dns","Visningar","Bilförsäljning","Mätutrustning",
+  "Nattjänstgöring","Undervisningsmetoder","Elever med särskilda behov","Lss-verksamhet",
+  "Mekaniskt underhåll","Formsättning","Politiskt styrd verksamhet","Telekombranschen","Bildelar",
+  "Eventförsäljning","Kontorsstädning","Reservdelshantering","Hr-administration","Skor","Truckkörkort",
+  "Wifi","Kostnadsuppföljning","Ytbehandling","Medicintekniska produkter","Hudvård","Cam",
+  "Företagsförsäljning","Hyresavtal","Verksamhetsuppföljning","Hälsoadministration","Medicindelegering",
+  "Etik","Larmsystem","Automatiserade tester","Textil","Granskningar","Kundfakturor","Workflow",
+  "SCCM, systemutvecklingsverktyg","Krishantering","Motorsåg","Läsutveckling","Prevention",
+  "Dialektisk beteendeterapi/DBT","Läkemedelsbranschen","Myndighetsarbete","Programming languages",
+  "Livsmedelssäkerhet","Kvalificering","Kravanalys","Moderna språk","Inköpsprocesser","Fordonsprogrammet",
+  "Avtalsuppföljning","Högskolesektorn","Gymnasiesärskola","Innesälj","Configuration Management/CM",
+  "Kontorsmiljö","Barnmedicin","Förflyttningsteknik","Citrix, integrationsplattform","Forskningserfarenhet",
+  "Administrativ erfarenhet","Nationalekonomi","Bilverkstad","Äldreboenden","Förskollärarutbildning",
+  "It-utbildning","Kursansvar","Branschkunskap","Lastmaskin","Projektuppföljning","Ost","Synundersökningar",
+  "Ekologi","Specialistsjukvård","Familjehemsvård","Bostadsanpassning","Urvalstester","Dammsugning",
+  "Ultraljud","Försäkringsbranschen","Clearance","Materialkännedom","Träindustrin","Cad-program",
+  "Specialpedagogexamen","Röjsåg","Skrivutveckling","Momsredovisning","Tjänsteområden",
+  "Systematiskt brandskyddsarbete","Elanläggningar","Arbetsrättsliga frågor","Sjuksköterskelegitimation",
+  "Ridning","Mänskliga rättigheter","Daglig coaching","Psykoterapi","TCP/IP, kommunikationsprotokoll",
+  "Terraform","Kvalitetsledningssystem","Specialpedagogisk kompetens","Sond","Emc","Marin","Openshift",
+  "Big data","Hemelektronik","Informationssystem","Ledningsgruppsarbete","Maskinarbete",
+  "Mark och anläggning","Politik","Systemarkitektur","Streaming","Personalsystem","Läkarmottagning",
+  "Menyplanering","Uppdragsledning","Hemsidor","Fail Mode, Eff Analys or Critical Analys/FMEA",
+  "Kundregister","Nutrition","Eldistribution","PostgreSQL, databashanterare","Systemansvar",
+  "Marknadsanalys","Ce-kort","Geografiskt positionssystem/GPS","Byggarbeten","Damma","Cocktails/Drinkar",
+  "Personalområdet","Ekonomiuppföljning","Periodiseringar","Als","Hotellstädning","Mediebranschen",
+  "Pedagogiskt ledarskap","Kraftnät","Produktionsteam","Ledningsansvar","Produktkännedom","Revit",
+  "Hjärtsvikt","Samtalsmetodik","Klippning","Storhushåll","Enklare matlagning","Ekonomifunktion","Audio",
+  "Väktarutbildning","Avlagd doktorsexamen","Hemarbete","Telefonservice","Datakommunikation",
+  "God kondition","Biomedicin","Avdelningsarbete","Carte","Handledningsprogram","Glass","Qlikview",
+  "Elsäkerhet","Sårbarhetsanalyser","Grafisk design","Lönefrågor","Kontorsservice","Planeringsarbete",
+  "Tools like","Forskningsområden","Lantbruksmaskiner","Dokumentationsarbete","Elkraftsområdet",
+  "Algoritmer","Kantpressning","Lärverktyg","Ansvarsuppgifter","Säljkunskaper","Mekanikkonstruktion",
+  "Varubeställning","Persiska","Solcellsanläggningar","Båtar","Fastighetsfrågor","Manuell svetsning",
+  "Grundläggning","Arbetsplatsintroduktion","Omsorgsutbildning","Samhällsintresse","Livscykelhantering",
+  "Produktinformation","Polering","Handräckning","Serviceteam","Chark","Pizza","Trädgårdsutbildning",
+  "Trafikledning","Kontrollbesiktning","Omvärldsanalys","Kvartalsbokslut","Produktionsutveckling",
+  "Hälsoområdet","Ekonomiprocesser","Spedition","UNIX, operativsystem","Turism","Ledningsuppdrag",
+  "Välfärdsteknik","Gästservice","Farmakologi","Utbildningsbevis","Insulin","Ga","Produktionssystem",
+  "Rapportskrivning","Versionshantering","Luta","Funktionstest","Förarbete","Usability","No-ämnen","Ebr",
+  "Passagesystem","Sjukhusvård","Ledarutbildning","Qc","Funktionsbedömningar","Kostnadskalkyler",
+  "Debugging","ETL","Ledaruppdrag","LAN","Prototyping","Ombyggnadsprojekt","Missbruksproblematik",
+  "Njurmedicin","Kundavtal","Kostnadseffektivitet","Byggnadsställningar","Akutvård","Datamodellering",
+  "Energilösningar","Fastighetsrätt","Takläggning","Avtalsrätt","Tillverkande företag","Superuser","Pbl",
+  "Städuppgifter","Stack","Trappstädning","Automationslösningar","Ungdomsmedicin","Retention",
+  "Butiksförsäljning","Transportbilar","B-kort","Neuropsykiatriska utredningar","Bygglov","Kinesiska",
+  "Biokemi","Arbetsmiljöområdet","Taxilegitimation","Masterdata","Jaga","Automationssystem","Handläggande",
+  "Protein","Mag","Geografi","Distriktssjukvård","Sensors","Lagerverksamhet","Orderadministration",
+  "Verktygsbyten","Arkivarbete","Surfplattor","Robotsvetsning","Kärnkraft","Hjälpmedelsförskrivning",
+  "Specialistsjuksköterskeutbildning","Folkhälsa","Migration","Prototype","Logik","Chefsansvar","Workspace",
+  "Sjukgymnastik","Plattsättning","Dagtidsarbete","Elschema","Guldsmedsvaror/Smycken","Rättsområden",
+  "Vårdverksamhet","Fallskyddsutbildning","Presentationsmaterial","Enligt miljöbalken",
+  "Avtalsförhandlingar","Elskåp","Avrapportering","Högspänning","Garantiärenden","Betongelement",
+  "Missbruksvård","Traverskörning","Ellära","Containrar","Va-området","Konsultbolag","Traktor","Däckbyte",
+  "Verksamhetsprocesser","Bygghandlingar","Kundbearbetning","Redigering","Scripts","Cad-verktyg",
+  "Arbetsfördelning","Molnlösningar","Somaliska","Ekonomiska analyser","Specialistvård",
+  "Arbetslivspsykologi","Storytelling","Byggstädning","Transportplanering","Informationsmaterial",
+  "Servera mat och dryck","Däckmontering","Arcgis","Förvärvad hjärnskada","IT solutions","Leasing",
+  "Geovetenskap","Depression","Verkstadsindustri","Hjärtavdelning","Elmontering","Arbetsbeskrivningar",
+  "Tvätta kläder","Miljölagstiftning","Vaccinering","Informationssökning","Hil","Skyddsronder",
+  "Energieffektivisering","Diskplock","Testverktyg","Fysisk planering","Fixturer","Next-generation",
+  "Bemanningsfrågor","Husmanskost","Bioinformatik","Fastighetsunderhåll","Webb","Heidenhein",
+  "VPN, privat nätverk","Skattefrågor","Fintech","Webbapplikationer","Kontrollmätning",
+  "Ställningsbyggnation","Hälsokontroller","Housekeeping","Processkartläggning","Driftarbete","Turkiska",
+  "Stålkonstruktioner","Jenkins, systemutvecklingsverktyg","Fordonselektronik","Sprinkler","Rock",
+  "Kundfakturering","Beredskapsarbete","Robotprogrammering","Utvecklingsplaner","Mma","Omsorgsboenden",
+  "Utbildningsadministration","Arbetsgivarintyg","Naturvård","Autismspektrum","Propulsion",
+  "Dokumenthanteringssystem","Microsoft sql","Cnc-utbildning","Olycksfallsförsäkring","Kirurgavdelning",
+  "Finansiell rapportering","Lågspänning","Fastighetsservice","Electronic News Gathering/ENG","Kulturliv",
+  "Samtalshantering","Uppdragsutbildning","Arbetsterapeututbildning","Upplockning","Utredningsuppdrag",
+  "Planeringsansvar","Fullt personalansvar","Cybersäkerhet, nätverk","Reläskydd","Routrar","Löneområdet",
+  "Inköpsfrågor","Mobilisering","Lagstiftningar","Byggmaskiner/Anläggningsmaskiner","Schoolsoft",
+  "Energioptimering","Continuous delivery","Samordningsansvar","Servicetjänster","Trygghetslarm",
+  "Lokalfrågor","Bostadsområden","Processutrustning","Yrkesämnen","Anestesisjukvård","3D-modellering",
+  "Miljöskydd","Besöksbokning","Kallkök","Driftoptimering","Översättning","It-utveckling",
+  "Medicinsk dokumentation","Utvecklingsmiljö","Friskola","Egenkontrollprogram","Järnvägsprojekt",
+  "Spackling","Energifrågor","Autismspektrumtillstånd","Truckutbildning","Chefsutbildning","Hud",
+  "Tekniska beskrivningar","Hyresjuridik","Elektronikkonstruktion","Offshore","Infektionsavdelning",
+  "Vattenkraft","Lagersystem","Mongodb","Sakkunskap","Solenergi","Operativt inköp","Beslutsprocesser",
+  "Forskningsmiljö","Studieplaner","Modifieringar","Teknisk förvaltning","Riggning","Digitala medier",
+  "Studieteknik","Maskinutrustning","Rekryteringsarbete","Försvarssektorn","Leveransfrågor","Vikning",
+  "Maskinövervakning","Cnc-teknik","Kursadministration","Sip","Social hållbarhet",
+  "Detaljhandelsförsäljning","Element","Biluthyrning","Montessoripedagogik","Nätstationer","Ångest",
+  "Barn med särskilda behov","Sjunga","Flygplan","Producerande verksamhet","Desktop","Teknisk rådgivning",
+  "Personalärenden","Preventivmedelsrådgivning","Vietnamesiska","Omsorgsprogram","Underhållning",
+  "Vårdprogram","Powerbi","Höghöjdsarbete","Dataprogram","Webbpublicering","Jourverksamhet",
+  "Omsorgsverksamhet","Kylteknik","Visual studio","Formsprutning","Städtjänster","Vårdboenden","Blodtryck",
+  "Automationsutrustning","Hjullastarkort","Finansiell rådgivning","Regulation","Pmi","Tillsynsarbete",
+  "Nyförsäljning","Projektledarutbildning","Företagskultur","Kroppsspråk","Säkerhetsinstruktioner",
+  "Läkarexamen","Arbetslagsarbete","Kommunikationssystem","Gallring","Förnybar energi","Fysisk säkerhet",
+  "Inmätning","Teckenkommunikation","Radar","Krediter","Skolhälsovård","Ändringshantering",
+  "Datoranvändning","Säljorganisation","Maskinkonstruktion","Html5","Messaging","Powertrain","Ukrainska",
+  "Avlastning","Iam","Apache Kafka, streaming-plattform","Retorik","Wireless","Civilexamen","Lönebildning",
+  "Kommunikationsplaner","Krankort","Systemtest","Lasarett","Wms","Sminkning/Make-up",
+  "Materialbeställningar","It-avdelning","Intensivvårdsavdelning","Industrisupport","Distributionskörning",
+  "Version control","Tung industri","Kommunikationsfrågor","Resebokningar","Performance management",
+  "Rotorsaksanalyser","Strukturering","Personec","Leveranssäkerhet","Laboratorieverksamhet",
+  "Projektverksamhet","Entreprenadverksamhet","Modebranschen","Funktionshinderomsorgen","Säljsupport",
+  "Cytostatika","Automationsteknik","Materialvetenskap","Distansundervisning","Träarbete","Godis/Konfektyr",
+  "Varmkök","Neuropsykiatriska diagnoser","Läkemedelsfrågor","Webbsidor","Avvikelserapportering","Elprocad",
+  "Undersköterskeuppgifter","Specialistsjuksköterskeexamen","Asset management","Maskering","Expertstöd",
+  "Färdtjänst","Personalutveckling","Fpga","Korrigeringar","Bakverk","Kylcertifikat","Miljöteknik",
+  "Digitala kunskaper","Pizzor","Catia","Servermiljö","Matrix","Införsäljning","Kylsystem","Teamcenter",
+  "Fritidsliv","Kvalitetsförbättringar","Leveransprecision","Upphandlingsarbete",
+  "Hårdvarunära programmering","Grid","Vvs-branschen","Arbetsgivaransvar","Animation","Butiksekonomi",
+  "Planeringssystem","Dokumentsystem","Månadsavstämningar","Ipma","Prognostisering","Dialys","Revidering",
+  "Mvc","Byggföretag","Skogsbruk","Stålindustrin","Vattenrening","Ledarskapsfrågor","Hubspot",
+  "Installationsprojekt","Klinisk kemi","BASIC, programmeringsspråk","Skidor","Reglersystem",
+  "Konsulttjänster","Projektmodell","Cnc-bearbetning","Skidåkning","Ethernet","Stabsarbete","Golf",
+  "Upphandlingsfrågor","Elbil","Föräldrastöd","Pensioner","Farligt gods","Rekryteringslösningar",
+  "Lösningsarkitektur","Läkemedelsanvändning","Konsolidering","Elektrifiering","Svetsmetoder",
+  "Förskoleverksamhet","Trädgårdsmaskiner","Kurdiska","Data warehouse","Industriteknik",
+  "Försäkringsärenden","Fritidsledarutbildning","Stödfunktion","Hushållsnära tjänster","Luftflödeskontroll",
+  "Integrering","Json","Swift, programmeringsspråk","Attestering","Järnvägsbranschen","Microsoft-miljö",
+  "Materialplanering","Projekteringsledning","Hälsoskydd","Informationssäkerhetsarbete","Driftteknik",
+  "Mekanisk montering","Navigation","Skolkök","Frys","Mångfaldsfrågor","Kamera","Produktfrågor",
+  "Utomhusarbete","Six sigma","Affärsmodell","Sitevision","Städbranschen","Förvaltningsarbete",
+  "Kulturområdet","Filosofi","Värmesystem","Tdd","Sömn","Maskinsäkerhet","Estetiska programmet",
+  "Farligt avfall","Systemsäkerhet","Byggnadskonstruktion","Ätstörningar","Opera","Marknadsmaterial",
+  "Konsultföretag","Kvinnosjukvård","Kundtjänstarbete","Produktionsunderlag",
+  "FaR (Fysisk aktivitet på recept)","Dansutbildning","SOAP, kommunikationsprotokoll","Doors",
+  "Ärendesystem","Eplan","Utbyggnad","Plc-system","Asfalt","Kostnadskontroll","Elcentraler","Drama",
+  "Salladsberedning","Produktionsstyrning","Konceptutveckling","Cissp","Materialförsörjning","Yrkesexamen",
+  "Adas","Budgetprocess","Resursfördelning","Reservdelssystem","Simning","Applikationsutveckling",
+  "Folkbildning","Dammtorkning","Mögel","Dagligvaror","Tv-spel","Utbildningsplanering",
+  "Tillverkningsunderlag","Byggvaror","Kontraktsskrivning","Produktutvecklingsprojekt","Plåtslageri","Ils",
+  "Hotellreception","Autosar","Feedbacksamtal","Förskoleklass","Caféverksamhet","Testmiljöer","Icdp",
+  "Förvaltningsledning","Analytisk kemi","Beställa varor","Industriell verksamhet","Scala, affärssystem",
+  "Byggproduktion","Humaniora","Affärsplaner","Konvertering","Livsmedelsindustri","Återfallsprevention",
+  "Geriatrisk vård","Läsinlärning","Nykundsförsäljning","Gesällbrev","Canvas","Gästbemötande",
+  "Kvalitetsledning","Programverksamhet","Rostfritt stål","Yoga","Dhcp","Jourhem","Ungdomsmottagning",
+  "Elavtal","Testmetoder","Testledning","Förhandsbedömningar","Rf","Project Management Professional/PMP",
+  "Agila arbetsmetoder","Less","Psykiatrisk öppenvård","Färdighetsträning","Läraruppgifter",
+  "Fjärrundervisning","Beroenden","Venprovtagning","Thailändska","Vårdförvaltningen","Ämnesansvar",
+  "Serviceinstallationer","Kundorientering","Fat","Integrationslösningar","Implementationsprojekt",
+  "Schemaläsning","Graphql","Läkarundersökning","Va-arbeten","Jordbruk","Ekosystem","Testarbete",
+  "Heminredning","Testutrustning","Country","Tillredning","Profylax","Aktivitetsbedömningar",
+  "Kommunikationsområdet","Vårdmiljö","Läroplaner","Bildbehandling","Inhämtning","Kostnadsberäkningar",
+  "Marknadsavdelning","Arbetsterapi","Dagvård","Självskadebeteende","Medspeech","Vindkraft","Styckegods",
+  "Läkemedelsproduktion","Egenvårdsprodukter","Regeringsuppdrag","Byggprogrammet","Creative suite",
+  "Redovisningsområdet","Blästring","Injustering","Kommunallagen","Diabetesvård","Lungavdelning",
+  "Individuella genomförandeplaner","Processövervakning","WAN","Informationsmodellering",
+  "Kundkommunikation","Ekonomisk analys","Motorsågskörkort","Vattning","Offerering",
+  "Psykiatrisk problematik","Solcellsmontering/Solcellsmontage","Trafikplanering","Utsättning",
+  "Skrivinlärning","Halkbekämpning","Operationsverksamhet","Förbutik","Expediering","Hvac","Itp",
+  "Nätverkslösningar","Web Content Accessibility Guidelines/WCAG","Infektionssjukvård","Åtgärdsplaner",
+  "Klienthantering","Rättsutredningar","Informatik","Labbmiljö","Streamingtjänster","Eftervård",
+  "Industriprojekt","Projektorganisation","NoSQL, databashanterare","Estetik","Tullhantering",
+  "Konferensservice","Signalbehandling","Pcr","Exploatering","Fritidsgård","Statlig förvaltning","Trading",
+  "Karakterisering","Leverantörsstyrning","Piano","Stadsutveckling","Teknikprogrammet","Plåtarbeten",
+  "Robotik","Libraries","Bi-verktyg","Datorprogram","Obstetrix","Neurologiska sjukdomar",
+  "Produktionsmaskiner","Telesales","Läkemedelsadministrering","Reningsverk","Traversutbildning",
+  "Sakfrågor","Snöskottning","Laboratoriemedicin","Kognitiva funktionsnedsättningar","Marknadsplaner",
+  "Lastbilskörning","Confluence","Nyckelhantering","Vuxnas lärande","Ekonomiskt arbete","Offertskrivning",
+  "Inkoppling","Förbrukningsvaror","Sår","Customer journey","Ethics, styr- och utvecklingsmodell",
+  "Digitaliseringsprojekt","Metallindustrin","Praktisk ProjektStyrning/PPS","Kunskapsområden",
+  "Rehabiliteringsmedicin","Enhetstester","Ekonomisk styrning","Nätverksmiljöer","Akut omhändertagande",
+  "Fackhandel","1st line","Produktionsekonomi","Lagermiljö","Elritningar","Leverantörsutveckling",
+  "ASP.NET, programmeringsspråk","Däckbyten","Baka pizza","Transportbokningar","Entity framework",
+  "Vårdvetenskap","Användbarhet","Brandsäkerhet","Kallskänk","Fastighetsutveckling","Processoptimering",
+  "Fysioterapi","Löneunderlag","Matsäkerhet","Byggindustrin","Kommunikationslösningar","Vikarieanskaffning",
+  "Ms-project","Lärlingsutbildning","Standardisering","Allmänkirurgi","Servering av mat",
+  "Sjuksköterskemottagning","Vårdyrke","Parkskötsel","Uppföljningsansvar","Forskningsmedel",
+  "Projektmetodik","Transportsystem","Fuktsanering","Fibernät","Läkarsekreterarutbildning",
+  "Psykosocialt arbete","Improvisation","Lönerevision","Internkommunikation","Biltvätt",
+  "Påminnelsehantering","Editing","Äldres behov","Tia","Mikrotjänster","Rastverksamhet","Grafana",
+  "Arbetslivsinriktad rehabilitering","Balansräkning","Geriatrisk avdelning","Pakethantering","Gruppboende",
+  "Bildhantering","Omsorgsinsatser","Testdriven utveckling","Industriell automation","Elproduktion",
+  "Primärvårdsarbete","Magicad","It-inriktning","A/b-testing","Kriser","Entreprenadprojekt","Ledaransvar",
+  "Kundservicearbete","Kranbil","Basprogram","Processanläggningar","Dataskyddsfrågor","2nd line",
+  "Mjukvarulösningar","Tjänsteutveckling","Gmu","Geoteknik","Folkhälsovetenskap","Sheets","Skriptspråk",
+  "Rekonditionering","Läkarlegitimation","Bild och form","Nx","Röjning","Medicinsk sekreterarutbildning",
+  "Giltigt truckkort","Dirigering","Primärvårdsrehabilitering","Fritidspedagogexamen","Driftmiljö",
+  "Materialteknik","Bordsservering","Kameraövervakning","Cellodling","Prismärkning","Leveransprojekt",
+  "Plattläggning","Städsystem","Strokevård","Sömnad","Produktkvalitet","Gudstjänster","Kundbokning",
+  "Mailhantering","Affärsjuridik","Säkerhetsklassning","Förrådshantering","Samtalsteknik","Somatisk vård",
+  "Svetsutbildning","Ce-märkning","Mjukvaran","Kriskommunikation","Kommunal förvaltning","Svetslicens",
+  "Serviceerfarenhet","Serviceprotokoll","Backbone","Lönsamhetsansvar","Samhällsbyggnadsområdet",
+  "Diagnostisering","Omvårdnadsprogram","Elevadministration","Yrkesvägledarexamen","Finplanering","Hyper-v",
+  "Modernisering","Webbpubliceringsverktyg","Industriföretag","Testplaner","Underhållsinsatser",
+  "Redovisningssystem","Tandsköterskeexamen","Skurmaskin","Skyddsutrustning","Tårtor/Bakelser",
+  "Unity, spelmotor","Skruvdragare","Fysiologi","Transportprogrammet","Hockey","Hållfasthetsberäkningar",
+  "Protetik","Rörelsenedsättning","Stödassistentutbildning","Pcb","Samhällsvetenskaplig inriktning",
+  "Apputveckling","Grovstädning","Väderförhållanden","Arbetsmarknadsförvaltningen","Serverdrift",
+  "Hemrehabilitering","Läkemedelsbehandling","Processtyrning","Mobila enheter","Hörselnedsättning",
+  "Formgivning","Chefsbefattning","Projektledarerfarenhet","Liftutbildning","Produktionserfarenhet",
+  "Antigen","Speciallärarutbildning","Anläggningskonstruktion","Mätsystem","Säkerhetsteknik","Inköpssystem",
+  "Drivmedel","Legitimation som sjuksköterska","Inlämning","Elasticsearch","Grundkompetens",
+  "Cisco Certified Network Associate/CCNA","Paketsortering","Baristautbildning","Kompetensöverföring",
+  "Lagerstyrning","Show","Kommunikationsstöd","Köksekonomi","Mandarin","Häkte","Formning","Mastercam",
+  "Neurokirurgi","Exploration","Nätverksutrustning","Behovsbedömningar","Profilering","Nätverkskunskaper",
+  "Apparatskåp","Vattenverk","Lagerbranschen","Diskhantering","Vapen","Ekonomiska kalkyler",
+  "Institutionsarbete","Grupphandledning","Stansning","Offertförfrågningar","Industrialisering",
+  "Integrationstester","Medieförsäljning","Driftövervakning","Säkerhetsfokus","Dialysmottagning",
+  "Samisk kultur","Flerfunktionsnedsättning","Ungdomsvård","Serviceverksamhet","Blodprovstagning",
+  "Operatörsunderhåll","Protokollföring","Elkraftteknik","Journaldokumentation","Produktionsverksamhet",
+  "Användargränssnitt","Samtalsbehandling","Bash, programmeringsspråk","Planeringsverktyg","Fordonssystem",
+  "Scada-system","Vårdsystem","Verkstadsutbildning","Plåtdetaljer","Revisionsarbete","Sjöfart",
+  "Allmäntandvård","Produktledning","A-hlr","Psykologexamen","Sophantering","Träningsprogram",
+  "Kontrollanläggningar","Relationsdatabaser","Städutbildning","Exploateringsprojekt","Medarbetaransvar",
+  "Besiktningsbehörighet för ventilation/OVK","Djurhållning","Regionnät","Utvecklingsprogram","Genetik",
+  "Särskolan","Firmware","Diagnosverktyg","Scorpio","Naturvetenskaplig utbildning","Barnhälsa",
+  "Transformatorer","Selenium, systemutvecklingsverktyg","Intermediärvård","Infrastrukturområdet",
+  "Orderplockning","Klor","Finansiell analys","Genomförd värnplikt","Gruvindustrin",
+  "Hotsoft, hotellbokningssystem","Stödboende","Måltidsservice","Smide","Gitlab","Arbetsplaner",
+  "Tandsköterskeutbildning","Nuklearmedicin","Tillståndsprövning","Landskap","Fritidsanläggningar","Reggio",
+  "Agila utvecklingsmetoder","Näringslära","Industriautomation","Tvättmaskin","Elutrustning","Gestaltning",
+  "Jobbmatchning","Yrkeslärarexamen","Datorteknik","Logistiklösningar","Lokalförsörjning",
+  "Idrottsanläggningar","Sågverk","Guidning","Leverantörsavtal","Grafisk produktion","Butiksservice",
+  "Katetersättning","Yrkesprogram","Fastighetsjuridik","Markprojekt","ADR 1.3","Parkarbete",
+  "Öppenvårdsmottagning","Design patterns","Detaljkonstruktion","Likabehandlingsfrågor",
+  "Ventilationsrengöring","Virtual reality/VR","Mjukvarutestning","Larmprodukter/Säkerhetsprodukter",
+  "Pedagogiskt ansvar","Medicinsk vård","Butiksexponering","Kursmaterial","Dricksvatten",
+  "Journalanteckningar","Finmekanik","Finmontering","Verksamhetsanalys","Avtalsförvaltning",
+  "Orderregistrering","Grönområden","Skolområdet","Svinnhantering","Applikationsdrift","Supportteam",
+  "Motorservice","Kunskapsstöd","Trygghetsarbete","Sakområden","Kontaktinformation","Datortomografi/DT",
+  "Plastikkirurgi","Undervisningsmaterial","Mac","Myndighetsbeslut","Skadereglering","Rds","Gruvindustri",
+  "Jakarta ee","Kravinsamling","Mdm","Radiofysik/Strålningsfysik","Underhållsteknik","Sågning",
+  "Kreditbedömning","Försäljningsansvar","Acceptanstester","Sketch","Klockor","Översiktsplanering",
+  "Rörelsehinder","Forskningsverksamhet","Övningsverksamhet","Akutverksamhet","Internservice","Mätdata",
+  "Tobak","Metabolism","Säkerhetsinstallationer","Guld","Kundreklamationer","Charkuterier",
+  "Kontrollutrustning","Kundanpassningar","Kemikaliehantering","Infektionssjukdomar","Lungsjukdomar",
+  "Marknadsundersökningar/Resultatanalys","Transportlösningar","Barnmorskemottagning","Billackering",
+  "Fotoartiklar/Kameror","Inlastning","Pki","Efterbehandling","Elektronikbranschen","Regionservice",
+  "Rekryteringsuppdrag","Rondarbete","Klimatfrågor","Lokalnät","Inköpsområdet","Bankavstämningar",
+  "Tigrinska","Förlossningsvård","Handrehabilitering","Resultaträkning","Kvalitetsgranskning",
+  "After effects","Yrkeshögskoleexamen","Bevattning","Industriutbildning","Styling","Samplanering",
+  "Datalager","Metallbearbetning","Grafisk formgivning","Jquery","Virke","Hårdlödning","Tableau",
+  "Distriktssköterskeutbildning","Studieexamen","Hjälpmedelsutprovning","Utredningsenhet",
+  "Kontorsadministration","Digitaliseringsarbete","Bostad med särskild service","Fullstackutveckling",
+  "Kommunikationshjälpmedel","Tjänstedesign","Vitala funktioner","Strategiarbete","Brandskyddsarbete",
+  "Masterutbildning","Produktvård","Bildanalys","Förbättringsprocesser","Kakor","Rutinbeskrivningar",
+  "Prince2","Säkerhetskontroll","Elektronikmontering","Skylift","Försäljningsverksamhet",
+  "LabView, programmeringsspråk","Larmhantering","Verkstadsteknik","Signal processing","Prismärka varor",
+  "Förvaltningsområdet","Buffé","Cellbiologi","Transplantation","Bildredigering","Grundskollärarexamen",
+  "Pressmeddelanden","Interaktionsdesign","Rutinarbete","Tillverkningsmetoder","Försäljningsplaner",
+  "Skogsmaskiner","Supportfrågor","CANalyzer, analysverktyg","Mentorsansvar","Träindustri",
+  "Tandsköterskeuppgifter","Arbetsförmedling","Smärtlindring","Grill","Byggservice","Canoe","Terapi",
+  "Provhantering","Edi","Onkologisk vård","Affärsverksamhet","Skrivsvårigheter","Växtodling",
+  "Elektronikproduktion","Uppmätning","Patientsäkerhetsarbete","Grafik","Intervention",
+  "Psykosocialt behandlingsarbete","Produktionsfrågor","Statistisk analys","Synnedsättning",
+  "Arbetsledaransvar","It-relaterade frågor","Klinisk fysiologi","Jourarbete","Systemdokumentation",
+  "Endpoint","Naturvetenskaplig inriktning","Logistikprocesser","Koordination","Laboratoriemiljö",
+  "Nätberäkningar","Pendeltåg","Vinstintresse","Husbyggnad","Dränage","Omsorgsområdet","Mathantering",
+  "Restful","Skärning","Containerlossning","Matvaror","Kunddata","Erp systems","Cpap","Benchmarking",
+  "Kontraktshantering","Rörlig bild","Processbeskrivningar","Ordersystem","React native",
+  "Leverantörskontrakt","Ansys","Käkkirurgi","Elisa","Galor","Stomi","Immunologi","Fleroperationsmaskiner",
+  "Installationsteknik","Säkerhetsanalyser","Reklamationsärenden","Pressning","Copywriting",
+  "Konstruktionsritningar","Hår","Bistro","Miljörätt","Teknikfrågor","Röjsågskörkort",
+  "Effektiviseringsarbete","Fotvård/Pedikyr","Vägprojekt","Soul","Kontrollsystem","Fordonsbesiktning",
+  "Bedömningsarbete","Stadsmiljö","Lässvårigheter","Arkivfrågor","Kretsscheman","Skifttjänstgöring","Debug",
+  "Samtalsstöd","Närakut","Skatteredovisning","Supportfunktion","Ventilationsbranschen","Affärsintresse",
+  "Diagnosklassificering","Vinterväghållning","Forskningsfinansiering","Elevassistentutbildning",
+  "Dagvatten","Plastindustrin","Kärlkirurgi","Mödrahälsovård","Krissamtal","Databehandling","Drifttagning",
+  "Informationsförvaltning","Betalningslösningar","Systemering","Försäljningsutveckling",
+  "Presentationsteknik","Asic","Informationssäkerhetsområdet","Innehållsproduktion","Slutmontering",
+  "Digital media","Neurologisk rehabilitering","Lokalbokning","Snöskoter","Läkemedelsdelegering",
+  "Stadsdelsförvaltning","Kundserviceförmåga","Vagnar","Familjearbete","Schaktarbeten","Vägledande samspel",
+  "Produktionsbudget","Enklare maträtter","Patientvård","Förädling","Slutbesiktning","Nyckelkunder",
+  "Koppar","Hplc","Visitationsarbete","Servicebostad","Triage","Laserskärning","Skriva på engelska",
+  "Reservkraft","Kad","After sales","IIS, webbserverprogram","Församling","Datormiljö","Realtid",
+  "Programfördjupning","Produktionskalkyler","Flygindustrin","Konstruktionslösningar","Mattor","Cism",
+  "Byggentreprenader","Ekonomiprogrammet","Korttidsvård","Säljmaterial","Nationella program",
+  "Kvalitetsområdet","Kulturfrågor","Mjukvaruarkitektur","Windowsmiljöer","Kraftelektronik","Adoption",
+  "Uppföljningsprocessen","Grammatik","Controllerarbete","Espressomaskin","Kommunala avtal",
+  "Fastighetsprojekt","VHDL, programmeringsspråk","Istqb","Relationshandlingar","Epidemiologi","Geologi",
+  "Ankomstkontroll","Gitarr","Underhållsverksamhet","Gymnasiesärskolan","Biologisk mångfald","Dari",
+  "Mazatrol","Informationsflödet","Parfym/Kosmetika","Lims","Arbetsgivardeklarationer","Rörtråd",
+  "Rörkonstruktion","Järn","Svensk husmanskost","Syrgas","Investeringskalkyler","Upphandlingsprocesser",
+  "Säkerhetsrådgivning","Personec p","Rida","Styrmodell","Anatomi","Mejeri","Produktdata",
+  "Distriktssköterskemottagning","Elbilsladdning","Mikroskop","Låssystem","Marknadsföringsmaterial",
+  "Individärenden","Postop","Vägbyggnad","Kundsystem","Ventilationsanläggningar","Entreprenadarbeten",
+  "Armén","Samverkansprojekt","Ta bilder","Livsmedelslagen","Kiosk","Hamburgare","Databearbetning",
+  "Distansutbildning","Frigivningsplanering","Körprov","It-säkerhetsarbete","Desserter","Pappersindustrin",
+  "Kontohantering","Markentreprenad","Kontinuitetshantering","Produktdemonstrationer","Underhållsfrågor",
+  "Alkoholtester","Marknadsteam","Pedagogiskt verktyg","Skötarutbildning","Hr-avdelning",
+  "Säkerhetsanläggningar","Juridisk rådgivning","Varuflöde","Monteringsvana","Naturorienterande ämnen",
+  "Ordningsvaktsförordnande","Hiss","Tillagningskök","Besöksnäring","Sql-databaser",
+  "Obstetrik och gynekologi","Metodhandledning","Klassansvar","Juristprogrammet","Universitetssjukhus",
+  "Försäkringsutbildning","Regression","Privatekonomi","Servicelösningar","Projektansvar",
+  "Rehabiliteringsfrågor","Nätverksinfrastruktur","Antenner","Broschyrer","Junit","Configuring",
+  "Marginaler","Strokeavdelning","Swedsec-licens","Produktionsflöde","Produktteam","Spirometri",
+  "Restaurangverksamhet","Frukt och grönt","Spss","Finsnickeri","Flygbranschen","Distribuerade system",
+  "Uppvärmning","Drivsystem","Abb 800xa","Unit testing","Serbiska","Gruppundervisning","Defektering",
+  "Försäljningsutbildning","Rehabiliteringsarbete","Systemkonstruktion","Kundutveckling",
+  "Sekretessprövning","Projektdokumentation","Objects","Försäljningsteknik","Sten","Planeringsprocesser",
+  "Automationsprojekt","Slutdokumentation","Arbetsberedningar","Fordonsdiagnostik","Vårdhygien","Lönestöd",
+  "Vattenbyggnad","Storhushållsutbildning","Schemaläggningssystem","Leveranskedjan",
+  "Miljöfarlig verksamhet","Kamerasystem","Läkemedelstillverkning","Myndighetsrapportering","Rörsystem",
+  "Barnutredningar","Utbildningsaktiviteter","Inflammation","Recepthantering","Biståndshandläggning",
+  "Apache Maven, programmeringsverktyg","Drivlinor","Movex, affärssystem","Stata","Frånvarohantering",
+  "Hjulskifte","Spark","Leverantörshantering","Systemteknik","Aktivitetsplaner","Kärnkraftverk",
+  "Hjärtövervakning","Däckservice","Koncernrapportering","Kabelförläggning","Kostnadsanalyser","Varuflödet",
+  "Cancervård","Diagram","Programvaruutveckling","Klinisk mikrobiologi","Flight Instructor/FI",
+  "Klinisk patologi","Resultatrapportering","Limning","Maskinstyrning","Problemskapande beteende",
+  "Distributionsnät","Robotteknik","Leveransteam","Kontinuitetsplanering","Hlr-utbildning",
+  "Ledarskapsprogram","Drawing","Matberedning","Vector","Rehabiliteringsärenden",
+  "Scheme, programmeringsspråk","Robotsvets","Simundervisning","Ungdomssjukvård","Hushållsavfall",
+  "Franchise","Försäkringsskador","In vivo","Fritidsprogram","Betongkonstruktioner","Redhat",
+  "Förpackningsmaterial","Kvartalsrapporter","Civilekonomexamen","Skisser","Semesterplanering","Cvs",
+  "User interface","Inmatning","Sampling","Medicindelning","Låneförmedling","S-hlr","Affärsstöd",
+  "Administrationsarbete","Perception","Geodata","Projektverktyg","Bygghandel","Nykonstruktion",
+  "Kliniska studier","Projektutveckling","Cad-system","Dagverksamhet","Forskningsfrågor","It-organisation",
+  "Vattenskador","Offentlig miljö","Produktionsmetoder","Adaptation","Batch","Arbetsmaterial","Pizzeria",
+  "Macos","Takarbeten","Handkirurgi","Grupputveckling","Logistikverksamhet","Kapacitetstester",
+  "Miljöledningssystem","Teamutveckling","Processrätt","Projektansökningar","Teknisk design","Ritläsning",
+  "Likviditetsplanering","Syntes","Fräsmaskiner","Segmentering","Serviceorganisation","Programutveckling",
+  "Mätverktyg","Vaxning","Plockarbete","Korttidsenhet","Objektorienterad programmering","E-learning",
+  "Bedömningssamtal","Författning","Ssis","Återbruk","Journalhantering","Produktionsberedning",
+  "Energibolag","Läkemedelsindustri","Cisco Certified Network Professional/CCNP","Stretching","Byggregler",
+  "Behörighetshantering","Kundbemötande och service","Bearbetningsmaskiner","Fritidshemsverksamhet",
+  "Säkerhetsskyddsarbete","Swedsec","Filmproduktion","Hållbarhetsområdet","Psykiatrisk slutenvård",
+  "Penetrationstester","Mekanismer","Dränering","Skräpplockning","Mediebyrå","Hemlarm",
+  "Veterinärlegitimation","Tlp10","Systemteori","Bilglas","Projektägare","Rapporteringssystem","Bowling",
+  "Traineeprogram","Morgontidningar","Content management","Kommunikationsverktyg","Barnläkarmottagning",
+  "Verksamhetsledning","Mätmetoder","Certifikathantering","Fortinet","Teknikföretag","Familjeliv",
+  "Medarbetarutveckling","Försäkringsfrågor","Web services","Styckning","Mikroskopi","Talangprogram",
+  "Windchill","It-teknik","Mjölkproduktion","Beredskapsfrågor","Bootstrap","Krisorganisation",
+  "Utbildning i livsmedelshygien","Ungdomsutredningar","Webbdesign","Asiatisk mat","Matrigma",
+  "Elektroniska komponenter","Fastighetsrättsliga frågor","Håltagning","Arbetsmarknadsutbildning",
+  "Offertunderlag","Servicehus/Äldreboende","Hyresadministration","Digital design","Renrumsmiljö",
+  "Larminstallationer","Gradning","Strålsäkerhet","Bosniska","Resebranschen","Affärsstrategi",
+  "Lageradministration","Biltest","Gipsning","Statistiska metoder","Sjukvårdsrådgivning","Skadehantering",
+  "Neuropsykiatriska funktionshinder","Bilindustrin","Dagkirurgi","Omt","Felsökningsteknik","Supportarbete",
+  "Xlpm","Markanläggning","Projektgenomförande","Kundserviceteam","Industrimaskiner","Spårfordon",
+  "Kvalitetsverktyg","It-verksamhet","Tekniklösningar","Digitaliseringsfrågor","Personalsäkerhet",
+  "Elkraftsanläggningar","Sass","Försäljningsstrategier","Leveranskontroll","Testmetodik","Hjulinställning",
+  "Skolarbete","Andning","Elektromekanik","Metallurgi","Försvarsindustri","Styrutrustning",
+  "Värdegrundsfrågor","Utvecklingsverktyg","Vattenverksamhet","Espresso","Konsekvensanalyser",
+  "Programspråk","Erfarenhetsåterföring","Mediehantering","Betallösningar","Nämndadministration",
+  "Operating systems","Neuropsykologi","Klinisk forskning","Invändig","Fläktar","Customer relations",
+  "Premiere","Protocol","Patientadministration","Ecu","Motorcyklar","Elmotorer","Basic training",
+  "Polisexamen","Driftteknikerutbildning","Skyddsbedömningar","Fme","Journalistutbildning","Batteribyten",
+  "Mekaniska system","Bromsar","Ledarskapsutveckling","Avtalstolkning","Statskunskap","Forskningsmetoder",
+  "Smådjur","Epsilon","Registratorsutbildning","Materielsystem","Talent management","Tillståndsansökningar",
+  "Forskningsansökningar","Uppföljningssystem","Personliga intervjuer","Resursteam","Redux",
+  "Skyddsvaktsutbildning","Tillståndsfrågor","It-säkerhetsområdet","Foder","Vägledningssamtal",
+  "Lagerhanteringssystem","Kundresor","Prepp","Rättsvetenskap","Testdata","Växling","Routing",
+  "Ortodonti/Tandreglering, specialistkompetens för tandläkare","Bilservice","Elkomponenter",
+  "Förundersökningar","Nytillverkning","Kontaktnätverk","Inkontinens","Etikettering","Källkritik",
+  "Protokollskrivning","Portionering","Parkeringsövervakning","Olycksfall","Cae","Städmaterial",
+  "Budgetplanering","Object","Diagnoskodning","Ankomstregistrering","Kretsschema","Specialistexamen",
+  "Begravning","Momsfrågor","Inkassohantering","Sops","Kakel","Anläggningsentreprenader","Rangering",
+  "Flödescytometri","Reell","Löpning","Demensboende","Projektförsäljning","Vvs-arbeten",
+  "Kommunikationsprotokoll","Trach","Biblioteksverksamhet","Waldorfpedagogik","Neonatalvård","Pares",
+  "Notariemeritering","Radioterapi/Strålbehandling","Sökmotoroptimering","Automated test","Tennis",
+  "Pdm-system","Casino","Simplex","Wlan","Elprodukter/Teleprodukter/Elektronikprodukter",
+  "Anläggningsteknik","Nätverkskommunikation","Telefonarbete","Mi-utbildning","Kateter",
+  "Beteendeproblematik","Akutsjukhus","Tensorflow","Produktförsäljning","Funktionsbeskrivningar",
+  "Lönekartläggning","Windows-server","Gasindustrin","Ämnesutveckling","Premiere pro","Systemunderhåll",
+  "Informationskunnighet","Kommunikationsmaterial","Oljeindustrin","Debitering","Inkassoärenden",
+  "Styrelsearbete","Endoskopi","Designprocessen","Kalkylprogram","Operationsavdelningen","PET/CT",
+  "Arkivlagen","Restaurangdel","Nice","Universitetsområdet","Serieproduktion","Mps",
+  "Informationsarkitektur","Tilläggstjänster","Läkarintyg","Kostdataprogram","Familjeterapi","Straffrätt",
+  "Redovisningsregler","Injektionsbehandlingar","Leverantörsuppföljning","Markområden","Arbetsmedicin",
+  "Motorsågskort","Utredningsvana","Redaktionellt arbete","Diagnosregistrering","Elektronikkomponenter",
+  "Hårdvaran","Publiceringsverktyg","Språkfärdigheter","Licenshantering","Content marketing",
+  "Garantihantering","Såser","Organisk kemi","Lagervård","Kvalitetsprocesser","Ingenjörsvetenskap",
+  "Golvläggning","Sopor","Stadsplanering","Respirator","Graviditet","Mammografi","Nybyggnad",
+  "Visual merchandising","Butikskommunikation","Integration testing","Schaktning","Elmaster","Bakterier",
+  "Korrekturläsning","Arkitekturarbete","Dekoration","Lönsamhetsanalyser","Målarbete","Logistikplanering",
+  "Kursintyg","Lokalanpassningar","Tjänsteutlåtanden","Projektkoordinering","Branschorganisation",
+  "Samhällsstörningar","Krigsorganisation","Lättare matlagning","Enterprise architecture","Utsläpp",
+  "Fonder","Personalkostnader","Förvaltningsfrågor","Fordonsreparationer","Konstruktionsunderlag",
+  "Verksamhetsprojekt","Dietkost","Ögonsjukdomar","Tingsrätt","LIN, kommunikationsprotokoll","Laravel",
+  "Elkraftsystem","Trigger","Bitbucket, versionshanteringssystem","Certifierad elektriker","Klientmiljö",
+  "Kraftsystem","Dataskyddslagstiftning","Däckverkstad","Äldrepsykiatri","Energiproduktion",
+  "Neurovetenskap","Virtualization","Tillståndskontroller","Faktureringsunderlag","Cognos",
+  "Produktutvecklingsprocessen","Driftorganisation","Bedömningsinstrument","Vindkraftverk",
+  "Utredningsmetodik","Behörighetsadministration","Sopbil","Husbilar","Diskmaskiner","Framplockning",
+  "Kanalisation","Köksmontering","Resursskola","Fusion","Catia v5","Aktier","Kunskapsöverföring",
+  "Musikintresse","Processdesign","Friluftsaktiviteter","Fritidsförvaltningen","Ledarutveckling","Scratch",
+  "Flygteknik","Lantbrukssektorn","Hantverksarbete","Gaap","Prisförhandlingar","Problemhantering",
+  "Beställarorganisation","Kylaggregat","Dos, operativsystem","Dukning","Modbus","Kapacitetsplanering",
+  "Medieteknik","Samverkansfrågor","Renoveringsprojekt","Testutveckling","Energibesparing","Testramverk",
+  "Formulering","Radiokommunikation","Budgetunderlag","Delårsrapporter","Loggning","Barns språkutveckling",
+  "Utvecklingsavdelning","Efterkalkyler","Säljverktyg","Tracing","Tillbyggnad","Diabetesmottagning",
+  "Klottersanering","Webbshop","Samarbetsprojekt","Perl, programmeringsspråk","Färgning","Personkontroll",
+  "Konsumentprodukter","D-behörighet","Realtidssystem","Momshantering","Konferensbokningar",
+  "Branschkännedom","Bilreparationer",".net framework","Tvättstugor","Prisuppgifter","Grekiska","Nis",
+  "Beteendeanalys","Atex","Rabbitmq","Svetserfarenhet","Kommunikationsutrustning","Vault",
+  "Värnpliktsutbildning","Balansera däck","Djursjukvård","Lean-arbete","Beredskapsplanering","Urvalsarbete",
+  "Verksamhetsarkitektur","Annonsförsäljning","Konsekvensbedömningar","Arbetsfordon","Transportfordon",
+  "Avdelningsansvar","Påverkansarbete","Korttidsverksamhet","Kommunalrätt","Vaktmästarsysslor",
+  "Produktframtagning","Systemuppdateringar","Kulturverksamhet","Kunskapsspridning","Skolskjuts","Medius",
+  "Lastvagnar","Gängning","Språkundervisning","Delansvar","Säljplanering","Skadeverkstad","Energilagring",
+  "Pizzabakning","Förskolekök","Psykosvård","Venereologi","Föräldraskap","Sekreteraruppgifter","D-kort",
+  "Internationella organisationer","Beskattning","Metallprodukter","Elevärenden","Tidningsdistribution",
+  "Emi","Leveransuppföljning","Tilläggsarbeten","Mottagningskontroll","Limarbeten","Konsultarbete",
+  "Bipolär sjukdom","Säljavdelning","Bygglogistik","Testsystem","Projektinköp","Företagsledning",
+  "Hälsoskyddsområdet","Affärsansvar","Ledarutvecklingsprogram","Betalsystem/Betalningssystem","Mobilvana",
+  "Asbest","Mps-system","Webbtjänster","Cisa","Qgis","Eu-körkort","Närmiljö","Ops","Identitetshantering",
+  "Logistiksystem","Gateway","Arbetsförmågebedömningar","Psykos","Kulturgeografi","Användartester",
+  "Forskningsstudier","Receptfria läkemedel","Telemetri","Upphandlingsdokument","Handboll",
+  "Skadebesiktningar","Säkerhetsgranskning","Resultatutveckling","Pastorat","Lungsjukvård","Siemens s7",
+  "Teambuilding","Patientmottagning","Införandeprojekt","Förvaltningsplaner","Unified modeling language",
+  "Leveransplanering","Kategoristyrning","Vårdbiträdesutbildning","Japanska","Headhunting",
+  "Officersutbildning","Konfidentiell information","Frekvensomriktare","Autentisering",
+  "Avtalsadministration","Sprida information","Kvalitetsstyrning","Markfrågor","Upphandlingsunderlag",
+  "Institutionstjänstgöring","Mineralindustri","Avloppsreningsverk","Teknikinformation",
+  "Upphandlingsverktyg","Lca","Dryckeskunskap","Energiprojekt","Härdning","Fönsterbyten","Däckbranschen",
+  "Köpprocessen","Fjärrkyla","Betting","Ogräsbekämpning","Graphics","Specialkunskaper","Routers","Cp-skada",
+  "Elförsörjning","Tryckkärl","Naturbruksprogrammet","Uthyrningsverksamhet","Momsrapportering",
+  "Författande","Verkstadsmaskiner","Rot-projekt","Arkeologi","Webbanalys","Delårsbokslut","Psykoedukation",
+  "It-arbete","Högskolekompetens","Blodtrycksmätning","Fordonsvård","Dataspel","Tfs","Trafikfrågor",
+  "Företrädesrätt","Arbetsorderhantering","Finansiell planering","Talsvårigheter","Css3","Autostore",
+  "Funktionaliteten","Kredithantering","Marknadsutveckling","Distributionsarbete","Förlossningsavdelning",
+  "Lektionsplanering","Marknadsstrategier","Samhällsbyggnadsfrågor","Dokumentationsansvar","Kompressorer",
+  "Microsoft Biztalk, integrationsplattform","Skatteregler","Kafka","Data warehousing","Musikundervisning",
+  "Plm-system","Epc","Behandlingsprogram","Cytostatikabehandling","Jms","Fiberinstallation","Plasma",
+  "Operationsplanering","Scenkonst","Upphandlingsprojekt","Teamtandvård","Medarbetarundersökning",
+  "Dispenser","Deli","Microsoft Dynamics AX, affärssystem","Underhållsservice","Informationsklassning",
+  "Klädvård","Kalenderhantering","Revisionsfrågor","Unreal Engine, spelmotor","Qpcr",
+  "Godkännande som trafiklärare","Innovationsprojekt","Sterilisering","Maxkompetens","Kreditgivning",
+  "Bluetooth","Biogas","Överlåtelser","Måleriarbeten","Smörjning","Äldres hälsa","Menyplaneringssystem",
+  "Samhällsbyggnadsprojekt","Bemanningssystem","Flödesscheman","Skolforskning","Materielunderhåll",
+  "Designarbete","Windows 7","Maskinförarbevis","Mottagningskök","Formverktyg","Lösningsförsäljning",
+  "Vägunderhåll","Lyftteknik","Processansvar","Förskolemiljö","Splunk","Styrskåp","Idrottsaktiviteter",
+  "Http","Va-verksamhet","Anhörigstöd","Resurshantering","Internationella frågor","Veckoplanering",
+  "Upphandlingsområdet","Analysinstrument","Synhjälpmedel","Lageroptimering","Inköpsavdelning",
+  "Signalsystem","Personsäkerhet","Murning","Kopplingsscheman","Kommunikationsavdelning","Nyanläggning",
+  "Byggarbetsplats","Hypertoni","Datorarbete","Total Productive Maintenance/TPM","Uppföljningsrapporter",
+  "Smittskydd","Hydrologi","Lss-boende","AV-teknik","Microservice","Materialinköp",
+  "Rekryteringsadministration","Processmodellering","Elkraftanläggningar","Kontrollprogram",
+  "Maskinreparationer","Hyreslagen","Starkström","Industriella styrsystem","Studieadministration",
+  "Arkitekturfrågor","Internrevision","Behandlingshem","Systemförbättringar","Medicingivning",
+  "Träningsaktiviteter","Fysisk funktionsnedsättning","Språkintroduktion","Säljansvar","Autodesk inventor",
+  "Informationsspridning","Mdt","Verktygsbyte","Palette","Spc","Handläggningsarbete","Tidredovisning","Pos",
+  "Måluppföljning","Boendemiljö","Uppföljningssamtal","Notes","Leadsgenerering","Läkemedelsadministration",
+  "Wpf","Produktionsområdet","Fystest","Slutenvårdsrehabilitering","Signalteknik","Bröllop","Provberedning",
+  "Am-körkort","Strålskydd","Kassaredovisning","Anestesi och intensivvård","Växelvård","Avfallsbranschen",
+  "Kommunikationsprojekt","Trädbeskärning","Städrutiner","Rättspsykiatrisk vård","Ekonomisk förvaltning",
+  "Medicinsk planering","Generatorer","MSA","Anläggningsverksamhet","Biblioteksarbete","Kvalitetsprodukt",
+  "Funktionsansvar","Abaqus","Konsulterfarenhet","Bokföringssystem","Fordonstyper","Ptsd","Traktorkörning",
+  "Grafiska gränssnitt/GUI","Firstline","Äta-hantering","Sexuell hälsa","Va-anläggningar","Mews",
+  "Sambandssystem","Vårddokumentationsutbildning","Kostnadsstyrning","Fibersvetsning","Flygplatser",
+  "Redovisningsprocesser","Manus","Litteraturvetenskap","Abk09","Dermatologi","Värmebehandling",
+  "Organisationsfrågor","Release management","Arbetsmaskiner","Naturvetenskaplig högskoleutbildning",
+  "Vårdprocessen","Produktionsdata","Batterilösningar","Postman","Samarbetsavtal","Energiomställning",
+  "Motorsport","Relational databases","Cloud computing","Cms-verktyg","Web api","Evidensbaserad vård",
+  "Innovationsarbete","Kontrolluppgifter","Löneberedning","Prestandatester","Industriproduktion",
+  "Klinisk prövning","Specialpedagogutbildning","Säljskola","Relationsförsäljning","Investeringsplaner",
+  "Textproduktion","Diatermi/Epilering/Hårborttagning","Djurskötsel","Konkurrentanalys","Videoredigering",
+  "Gymnasieskolekompetens","Betongbranschen","3rd line","Kampanjplanering","Cenium","Produktionsenheter",
+  "RTOS, operativsystem","Uppdukning","Jourcentral","Informationssäkerhetsfrågor","Nederländska","Patent",
+  "Integrationsplattformar","Extrudering/Strängpressning","Eu-rätt","Cellprovtagning","Personutredning",
+  "Gips","Sjukhusfysik","Stödtecken","Bostadsprojekt","Kommunikationsnät","Second line","Behandlingsteam",
+  "Togaf","Produktionsstopp","It-säkerhetsfrågor","Utrullning","Mätuppdrag","Suturtagning",
+  "Ortoser/Kroppsburna hjälpmedel","Utbildningsuppdrag","Deviation","Skrivkunskaper","Såg",
+  "Skatteberäkningar","Versions","Thoraxkirurgi","Spårning","Smärtbehandling","Skolutvecklingsarbete",
+  "Logistikflöde","Alkohollagen","Ekonomexamen","Naturbruk","Ärendehandledning","Pdt","Sandning","Relining",
+  "Montessoriutbildning","Sequencing","Massaindustrin","Laboratorieutrustning","Sexologi",
+  "Underrättelsetjänst","Hyresförhandlingar","Utbildningssystem","Rendering","Kunduppföljning","Albanska",
+  "Cv-granskning","Leg psykolog","Masspektrometri","Åkeri","Lingvistik","Restaurangerfarenhet",
+  "Lagerläggning","Arbetsledarerfarenhet","Utvecklingspsykologi","Hygienarbete","Tapetsering","Pci",
+  "Myndighetsbesiktningar","Scripting languages","Sågverksmaskiner","Kirurgisk verksamhet",
+  "Marknadsområdet","Lunchrestaurang","Personuppgiftsbehandling","Kriminalvårdsutbildning",
+  "Kunskapsunderlag","Pediatrik","Produktionskök","Av-utrustning","Ritningshantering","Anbudskalkyler",
+  "Integrationsfrågor","Starta eget företag","Patientsamtal","Verktygsmaskiner","Ämneslagsarbete",
+  "Handvård/Manikyr","Avvikelseutredningar","Simlärarutbildning","Relationsskapande försäljning","Djurvård",
+  "Flerfunktionshinder","Konverteringsoptimering","Varumärkesarbete","Skogsmiljö","Skarvning",
+  "Socialtjänstområdet","Winlas","Beslutsstödssystem","Datasäkerhet","Materiallära","Postgres",
+  "Storköksutbildning","Pivottabeller","Ideella organisationer","Förbrukningsartiklar",
+  "SVEA, styr- och utvecklingsmodell","Snabbmatsbranschen","Musikproduktion","Middleware",
+  "Kommunikationssvårigheter","Bygge","Drupal","Robotkirurgi","Kylanläggning","Basket","Yrkessvenska",
+  "Stamnät","Hyresgästanpassningar","Enstyckstillverkning","Eldistributionsnät","Teknisk kundsupport",
+  "Samhällsvetenskapsprogrammet","Instrument Rating/IR","Printer","Portugisiska","Wiring","Avtalsjuridik",
+  "Folkbibliotek","Koagulation","Be-kort","Verksamhetsutvecklingsprojekt","Miljösystem","Karaktärisering",
+  "Mobila applikationer","Redis","Miljörapporter","Utrymningslarm","Friledningsnät","Cytologi",
+  "Reglerutrustning","Löneutbetalningar","Internationalisering","Lunchservering","Hjärnskada",
+  "Planeringsunderlag","Energiförbrukning","Produktionssättning","Biofysik","Systemweaver","C#.net",
+  "Schemaritning","Mätkunskaper","Puppet","Crm-verktyg","Adobe-programmen","Specialistmottagning",
+  "Nybyggnadsprojekt","Produktsäkerhet","Serveringsvana","Systembeskrivningar","Metodbeskrivningar",
+  "Lasermaskiner","Kommunal socialtjänst","Ordningsvaktsutbildning","Shell, programmeringsspråk",
+  "Logistikfrågor","Tcp","Undernäring","Paas","Foliering","Operationssal","Props","Basal hemsjukvård",
+  "Vardagsrehabilitering","Clearing","Egentillverkning","Personalförsäkringar",
+  "Legitimation som arbetsterapeut","Elevregistrering","Sexualitet","Administrativ service","Transmissions",
+  "Ekonomisk rådgivning","Kapitalförvaltning","Intensivvårdsavdelningen","Bankområdet","Graphic design",
+  "Central venkateter","Försäkringskassa","Produktdesign","Abl","Agil metodik","Medieproduktion",
+  "Föräldrautbildning","Njursjukvård","Funktionsnedsättningsområdet","Kundlösningar","Läkemedelsföretag",
+  "Ppt","Ögonmottagning","Microsoft Dynamics NAV, affärssystem","Nybyggnationsprojekt","Ahs",
+  "Laserbehandlingar","Outplacement","Cover","Processteknisk utrustning","Nykundshantering",
+  "Miljökonsekvensbeskrivning","Livscykelanalys","Kvalitetsoptik","Tss","Google adwords","Shell script",
+  "Vägarbete","Avskrivningshantering","Kundanalys","Förbränningsmotor","Hörapparat","Vba-programmering",
+  "Adobe Acrobat","Montessori","Ledningsnät","Linsundersökningar","Däckerfarenhet","Grovmontering",
+  "Emballering","Skyltar","Infrastrukturkonstruktioner","Klantenservice","Arbeta språkutvecklande",
+  "Motomanrobotar","Begravningsplanering","ADR-intyg","Besiktiga ventilationssystem","Printing",
+  "Natural Language Processing/NLP","Tätningar","Kliniska prövningar","Listmontering",
+  "Intresseorganisationer","Säkerhetsförsäljning","Concrete5",
+  /* Banteknik ligger under golvet men ska ändå gå att välja: 27 omnämnanden per helår, men
+     ett fackord med tydlig innebörd och bred yrkesspridning över 18 yrkesgrupper. Järnvägens
+     ordförråd är splittrat på många smala termer, så ett volymgolv sållar bort sektorn trots
+     att den samlade efterfrågan finns. Signalteknik stod här tidigare av samma skäl och
+     klarar nu golvet på egen hand. */
+  "Banteknik"];
 function annonsantalTillatet(){ return window.VISA_ANNONSANTAL !== false; }
 
 /* Den inbakade kompetensdatan finns redan vid start och slås ihop så snart sidan är klar.
@@ -76,10 +856,19 @@ window.ANTALSFIGURER = [
    står vid kompOverGolv: taxonomin bytte namn på en rad kompetenser vid årsskiftet 2024 och
    2025, och ett nytt namn bär bara de senaste årens volym.
 
-   Resonemanget om räknebrus ovan bygger på en analys av annonsflödets variation och går
-   inte att belägga ur datafilerna. Det är en bedömning, till skillnad från talen, som är
-   mätta. */
-window.KOMPETENS_GOLV = 750;
+   Golvet sänktes från 750 till 100 den 26 september 2026. Det gamla golvet lämnade en
+   fjärdedel av alla omnämnanden utanför verktyget, och framför allt sorterade det efter hur
+   ofta ett ord förekommer och inte efter om det betyder något: generella ord passerade medan
+   fackord som reläskydd, kylcertifikat och OVK-behörighet föll bort. Tydligast syntes det i
+   samvariationsfigurerna, som visar 1 352 kompetensnamn — 441 av dem gick varken att söka på
+   eller öppna. Vid golv 100 är de 16. Kvaliteten följer inte med nedåt: de kompetenser som
+   tillkommer förekommer i median i 31 yrkesgrupper, ingen i färre än fem, och andelen namn
+   på högst fyra tecken ligger kring fyra procent oavsett var golvet står.
+
+   Ett lågt värde är inte ett problem utan ett resultat: att en kompetens efterfrågas sällan
+   i ett län är ett svar på frågan, inte ett mätfel. Golvet ska därför inte användas för att
+   dölja små tal, bara för att hålla uppenbara extraktionsfel ute. */
+window.KOMPETENS_GOLV = 100;
 
 /* Sant om kompetensen har underlag nog att visas. Serien hämtas ur NAT_KOMP, som finns
    först när kompetensfilen landat; dessförinnan släpps allt igenom. */
@@ -12746,7 +13535,7 @@ function renderKompLon(){
       {cls:"blue",v:nf.format(Math.round(L.basta.lon)),u:"kr/m\u00e5n",l:"H\u00f6gst medianl\u00f6n bland dessa yrken",
        /* Underraden namnger yrket som talet ovanf\u00f6r avser. Det l\u00e4gst betalda yrket stod
           h\u00e4r tidigare; det st\u00e5r kvar i analystexten under rubriken L\u00f6nenivå. */
-       d:(L.basta&&L.basta.namn)?('<span class="delta flat">yrket \u00e4r '+rdLowSafe(L.basta.namn)+'</span>'):""}
+       d:(L.basta&&L.basta.namn)?('<span class="delta flat">Yrket \u00e4r '+rdLowSafe(L.basta.namn)+'</span>'):""}
     ].map(kpiKortHtml).join("");
     var ctx=document.getElementById("cKompLon");
     if(ctx){
@@ -23219,21 +24008,15 @@ function buildUtbRegionMenu(){
         ]);
       blocks.push(["fig",{title:"Yrken i branschen",sub:"De \u00e5tta yrkesgrupper som syssels\u00e4tter flest i "+d.name+", som andel av branschens anst\u00e4llda.",id:"rapportYrkenBar",source:"SCB. Avser riket."}]);
     }
-    /* Avsnittet Efterfrågan i jobbannonser — annonsintensiteten och de två
-       kompetensfigurerna — stod utan analystext: byggaren hade inget avsnitt för
-       annonserad efterfrågan och kartan inget ankare. Läns- och kommunvyn har ett
-       avsnitt för samma två figurer, och rubriken är densamma här, så att samma
-       innehåll heter samma sak i alla tre vyerna.
+    /* Avsnittet Efterfrågan i jobbannonser hade en analystext som beskrev metoden: att
+       talen är skattade och vägs fram ur yrkesgruppernas annonser. Samma sak står i båda
+       figurernas undertexter, och texten sade ingenting om vad figurerna innehåller.
 
-       Första stycket säger vad talen beskriver: efterfrågan som arbetsgivarna
-       formulerar den, inte vad de anställda kan. Det andra säger varför talen är
-       skattade. Jobbannonser bär ingen näringsgrenskod, så branschens efterfrågan
-       kan inte läsas av direkt; den vägs fram ur yrkesgruppernas annonser. Det
-       antagande vägningen vilar på skrivs ut, eftersom det är avgörande för hur
-       talen ska läsas och inte framgår av figurerna. */
-    blocks.push(["h2","Efterfrågade kompetenser"]);
-    blocks.push(["p","I jobbannonser anger arbetsgivarna vilka kompetenser de söker. Figurerna beskriver alltså efterfrågan som den formuleras i annonserna, inte vad de som redan arbetar i branschen kan."]);
-    blocks.push(["p","Jobbannonser bär ingen näringsgrenskod, så efterfrågan kan inte läsas av direkt per bransch. Talen är skattade: för varje yrkesgrupp räknas hur stor andel av gruppens annonser som nämner en kompetens, och andelarna vägs samman efter branschens yrkessammansättning enligt SCB:s yrkesregister. Skattningen förutsätter att en yrkesgrupp annonserar likadant oavsett vilken bransch den finns i."]);
+       Den är borttagen, och med den ankaret i __BRANSCH_MAP. Platsen är inte tom efteråt:
+       avsnittstexten och figurprosan läggs på samma ställe, före tvåspaltsrutnätet, och
+       harFrammandeProsa får byggaren att avstå så länge en avsnittstext står där. Utan den
+       skriver byggaren för Specialisering i efterfrågan sin egen text, som beskriver vad de
+       två listorna visar och vilka kompetenser som ligger högst. */
     blocks.push(["h2","Geografisk fördelning"]);
     if(top.length){
       blocks.push(["p","Kartorna visar specialiseringskvoter per l\u00e4n och kommun. \u00d6ver 1,0 betyder att branschen utg\u00f6r en st\u00f6rre andel i l\u00e4net \u00e4n i riket, under 1,0 en mindre andel. H\u00f6gst kvot har "+rdList(top.map(function(x){return x.name+" ("+fmt2(x.lq)+")";}),3)+"."]);
@@ -24498,10 +25281,8 @@ window.__BRANSCH_MAP={
   /* Branschens struktur och yrkessammansättning står sida vid sida i samma figur och
      delar därför rubrik. Ankaret är den vänstra av dem. */
   "Yrkesstruktur":"Yrken i branschen",
-  /* Ankaret är den vänstra av de två kompetensfigurerna. Den ligger i ett tvåspaltigt
-     rutnät, så texten hamnar ovanför båda — och under annonsintensiteten, som bär sin
-     egen undertext. */
-  "Efterfrågade kompetenser":"Specialisering i efterfrågan",
+  /* Avsnittet Efterfrågade kompetenser är borttaget ur rdBransch: figurprosan beskriver
+     de två listorna i stället. Ankaret utgick med det. */
   "Geografisk fördelning":"Län"            /* specialiseringskartan, som inleder geografiavsnittet */
 };
 window.__UTB_MAP={
@@ -34530,7 +35311,7 @@ B["Lönenivå"]=function(c){
     var d=c.d; var list=(d&&d.lqRegions)||[];
     if(!list.length)return null;
     var hi=list[0], lo=list[list.length-1];
-    var st="Kartorna f\u00e4rgar l\u00e4nen och kommunerna efter specialiseringskvot. Kvoten j\u00e4mf\u00f6r "+(c.dim==="bransch"?"branschens":"yrkets")+" andel av syssels\u00e4ttningen i omr\u00e5det med samma andel i riket, d\u00e4r 1,0 betyder att andelarna \u00e4r lika stora. H\u00f6gst kvot har "+hi.name+" ("+fmt2(hi.lq)+")";
+    var st="Kartorna f\u00e4rgar l\u00e4nen och kommunerna efter specialiseringskvot. Kvoten j\u00e4mf\u00f6r "+(c.dim==="bransch"?"branschens":"yrkets")+" andel av syssels\u00e4ttningen i l\u00e4net respektive kommunen med samma andel i riket, d\u00e4r 1,0 betyder att andelarna \u00e4r lika stora. H\u00f6gst kvot har "+hi.name+" ("+fmt2(hi.lq)+")";
     if(lo!==hi)st+=" och l\u00e4gst "+lo.name+" ("+fmt2(lo.lq)+")";
     st+=".";
     /* Rubriken sa var andelen är störst, men kartorna färgar efter specialiseringskvot,
@@ -34569,7 +35350,7 @@ B["Lönenivå"]=function(c){
   B["Var jobben annonseras – län"]=function(c){
     /* Talen lästes ur en figur med titeln "annonseras mest respektive minst". Den figuren
        finns inte i vyn, så meningen skrevs aldrig. Kartorna beskrivs för sig. */
-    var st=["Kartorna visar specialiseringskvoten per l\u00e4n och kommun, ber\u00e4knad f\u00f6r jobbannonser. Kvoten j\u00e4mf\u00f6r yrkets andel av annonserna i omr\u00e5det med samma andel i riket. M\u00f6rk f\u00e4rg betyder att andelen \u00e4r h\u00f6gre \u00e4n i riket. Kartorna visar inte var flest annonser finns."];
+    var st=["Kartorna visar specialiseringskvoten per l\u00e4n och kommun, ber\u00e4knad f\u00f6r jobbannonser. Kvoten j\u00e4mf\u00f6r yrkets andel av annonserna i l\u00e4net respektive kommunen med samma andel i riket. M\u00f6rk f\u00e4rg betyder att andelen \u00e4r h\u00f6gre \u00e4n i riket. Kartorna visar inte var flest annonser finns."];
     return {rubrik:"Specialiseringskvoter för jobbannonser", stycken:st};
   };
   /* Prosan "Störst och minst annonstryck" är borttagen. Figuren står nu bredvid
@@ -34796,7 +35577,9 @@ B["Lönenivå"]=function(c){
        därför alltid null — figuren stod utan text. */
     var d=(c&&(c.d||c.data))||null, mi=d&&d.medInk, e=mi&&mi.egen, r=mi&&mi.riket;
     if(!e||e.tot==null)return null;
-    var namn=(d&&d.name)||"området";
+    /* Reservvärdet var ordet området, som är tvetydigt. Vyns eget subjekt är bättre:
+       subj ger namnet när det finns och annars länet eller kommunen. */
+    var namn=(d&&d.name)||(c&&c.subj&&c.subj.no)||"l\u00e4net";
     /* Samma omräkning som figuren gör: årsinkomst i tusental till kronor i månaden, avrundat
        till närmaste hundralapp. Texten och staplarna måste säga samma tal. */
     function _man(v){ return (v==null||isNaN(v))?null:Math.round(v*1000/12/100)*100; }
@@ -34849,7 +35632,11 @@ B["Lönenivå"]=function(c){
   };
   B["Specialisering i annonser per yrke"]=function(c){
     var rd=staplar(c.chart); var t=lqText(rd,c.subj.no,"yrkena");
-    return t&&{rubrik:"Annonsprofilen", stycken:["Kvoten j\u00e4mf\u00f6r yrkets andel av annonserna i omr\u00e5det med samma andel i riket, d\u00e4r 1,0 betyder att andelarna \u00e4r lika stora. "+t]};
+    /* Figuren finns i läns- och kommunvyn, och undertexterna skiljer sig: länsvyn räknar
+       på länets annonser och kommunvyn på kommunens. Ordet följer därför vyn. Området var
+       tvetydigt och kunde läsas som ett yrkesområde. */
+    var _enhet=(c.dim==="kommun")?"kommunen":"l\u00e4net";
+    return t&&{rubrik:"Annonsprofilen", stycken:["Kvoten j\u00e4mf\u00f6r yrkets andel av annonserna i "+_enhet+" med samma andel i riket, d\u00e4r 1,0 betyder att andelarna \u00e4r lika stora. "+t]};
   };
   /* Företagandet finns i läns- och kommunvyn med samma figur. Talen läses ur figurens
      nyckeltalskort, eftersom hämtningen är asynkron och prosan körs när figuren är målad. */
@@ -34965,7 +35752,21 @@ B["Lönenivå"]=function(c){
     if(_mitt.length===1)_v1+=" D\u00e4refter kommer "+_kv(_mitt[0].namn)+", "+fmt2(_mitt[0].v)+".";
     else if(_mitt.length===2)_v1+=" D\u00e4refter kommer "+_kv(_mitt[0].namn)+", "+fmt2(_mitt[0].v)+", och "+_kv(_mitt[1].namn)+", "+fmt2(_mitt[1].v)+".";
     if(_lo!==_hi)_v1+=" L\u00e4gst kvot har "+_kv(_lo.namn)+", "+fmt2(_lo.v)+".";
-    var st=[_v1];
+    /* Beskrivningen av vad de två listorna visar stod sist. Den står nu först: läsaren
+       behöver veta vad figurerna innehåller innan talen kommer. Meningen om den högra
+       listan läggs till först när den listan har rader, se nedan. */
+    /* Ordet området är tvetydigt: det läses lika gärna som ett yrkes- eller branschområde
+       som geografiskt. Byggaren körs bara i bransch-, läns- och kommunvyn, så det tredje
+       fallet är alltid länsvyn och kan skrivas ut som länet. */
+    var _ordet=_bransch?"branschen":"l\u00e4net";
+    /* Området namnges i första meningen. Kommunvyns figur bygger på länets annonser, så
+       där vore kommunnamnet fel — länet slås upp ur kommunkoden och skrivs ut med namn. */
+    var _omrKom=((window.SVE_KOMMUN&&SVE_KOMMUN.lan&&window.kommunState&&kommunState.code&&typeof lanFullName==="function")
+                 ?lanFullName(SVE_KOMMUN.lan[kommunState.code]):"")||"l\u00e4net";
+    var _omrN=_bransch?("branschen "+c.subj.no):((c.dim==="kommun")?_omrKom:(c.subj.no||"l\u00e4net"));
+    var st=["Figurerna visar vilka kompetenser som n\u00e4mns i jobbannonser inom "+_omrN+"."
+      +" Den v\u00e4nstra visar vilka kompetenser som \u00e4r mer utm\u00e4rkande f\u00f6r "+_ordet
+      +" \u00e4n f\u00f6r arbetsmarknaden som helhet, m\u00e4tt som specialiseringskvot.", _v1];
     /* Figurparets högra lista har ingen egen analystext, eftersom prosan ankras till den
        f\u00f6rsta figuren i ett par. Den beskrivs d\u00e4rf\u00f6r h\u00e4r, i samma block som den v\u00e4nstra.
        Beskrivningen gjordes tidigare bara i branschvyn; l\u00e4ns- och kommunvyn har samma par
@@ -34987,7 +35788,8 @@ B["Lönenivå"]=function(c){
         /* Vems annonser listan bygger p\u00e5 skiljer sig mellan vyerna. Kommunvyns figur bygger
            p\u00e5 l\u00e4nets annonser, eftersom kompetensuppgiften inte redovisas per kommun, och d\u00e4r
            vore ordet kommunens missvisande. Samma \u00e5tskillnad som figurens egen byggare g\u00f6r. */
-        var _vems=_bransch?"branschens":((c.dim==="kommun")?"l\u00e4nets":"omr\u00e5dets");
+        /* Samma sak här: tredje fallet är länsvyn. */
+        var _vems=_bransch?"branschens":"l\u00e4nets";
         /* Andelarna st\u00e5r i .kreg-meta bredvid namnet. Utan dem sade texten bara vilka
            kompetenser som var vanligast, inte hur vanliga de var. */
         var _and=[];
@@ -35008,12 +35810,11 @@ B["Lönenivå"]=function(c){
           ? (_ovriga.length===1 ? (_forst+" och "+_ovriga[0])
                                 : (_forst+", "+_ovriga.slice(0,-1).join(", ")+" och "+_ovriga[_ovriga.length-1]))
           : _forst;
+        /* Meningen om den högra listan hör till beskrivningen överst, inte hit. */
+        st[0]+=" Den h\u00f6gra visar vilka som f\u00f6rekommer i flest annonser.";
         st.push("Oftast n\u00e4mns "+_mening+".");
         /* De tv\u00e5 listorna m\u00e4ter olika saker och hamnar d\u00e4rf\u00f6r s\u00e4llan i samma ordning.
            Skillnaden st\u00e5r inte i n\u00e5gon av undertexterna. */
-        st.push("Listorna svarar p\u00e5 olika fr\u00e5gor. Den v\u00e4nstra visar vilka kompetenser som \u00e4r mer utm\u00e4rkande f\u00f6r "
-          +(_bransch?"branschen":((c.dim==="kommun")?"l\u00e4net":"omr\u00e5det"))
-          +" \u00e4n f\u00f6r arbetsmarknaden som helhet. Den h\u00f6gra visar vilka som f\u00f6rekommer i flest annonser.");
       }
     }
     return {rubrik:_bransch?"Efterfrågade kompetenser i branschen":"Efterfrågade kompetenser mot riket", stycken:st};
@@ -35228,7 +36029,7 @@ function _gruppText(c, matt){
       var _d=(typeof utbState!=="undefined"&&utbState)?utbState.data:null;
       if(_d && _d.tillgang!=null && _d.efterfragan!=null){
         var _t=_d.tillgang, _e=_d.efterfragan, _bal=_e?((_t-_e)/_e*100):0;
-        var _omr=_d.regionalForecast?(_d.regionName||"området"):"riket";
+        var _omr=_d.regionalForecast?(_d.regionName||"l\u00e4net"):"riket";
         var _bas=(typeof utbLive==="function"&&utbLive()&&utbLive().meta&&utbLive().meta.basar)||"basåret";
         ut.push("Framskrivningen ställer den beräknade tillgången på utbildade mot den "
           +"beräknade efterfrågan i "+_omr+" år 2040. Båda uttrycks som index där 100 är nivån "
@@ -35525,7 +36326,7 @@ function _gruppText(c, matt){
   B["Rekryteringsläge för efterfrågade yrken"]=function(c){
     var rd=rader(c.fig)||[]; if(!rd.length)return null;
     return {rubrik:"Bed\u00f6mning per yrke",
-      stycken:["Listan visar Arbetsf\u00f6rmedlingens bed\u00f6mning av rekryteringsl\u00e4get f\u00f6r de yrken som efterfr\u00e5gas mest i omr\u00e5det. Bed\u00f6mningen avser m\u00f6jligheterna till arbete p\u00e5 ett till fem \u00e5rs sikt. "
+      stycken:["Listan visar Arbetsf\u00f6rmedlingens bed\u00f6mning av rekryteringsl\u00e4get f\u00f6r de yrken som efterfr\u00e5gas mest i l\u00e4net. Bed\u00f6mningen avser m\u00f6jligheterna till arbete p\u00e5 ett till fem \u00e5rs sikt. "
         +"Listan omfattar "+ental(rd.length,"yrke","yrken")+"."]};
   };
 
@@ -35545,7 +36346,7 @@ function _gruppText(c, matt){
     if(list.length<2)return null;
     var hi=list[0], lo=list[list.length-1];
     return {rubrik:"Specialisering i l\u00e4n och kommuner",
-      stycken:["Kartorna f\u00e4rgar l\u00e4nen och kommunerna efter specialiseringskvot. Kvoten j\u00e4mf\u00f6r yrkets andel av de anst\u00e4llda i omr\u00e5det med samma andel i riket, d\u00e4r 1,0 betyder att andelarna \u00e4r lika stora. "
+      stycken:["Kartorna f\u00e4rgar l\u00e4nen och kommunerna efter specialiseringskvot. Kvoten j\u00e4mf\u00f6r yrkets andel av de anst\u00e4llda i l\u00e4net respektive kommunen med samma andel i riket, d\u00e4r 1,0 betyder att andelarna \u00e4r lika stora. "
         +"H\u00f6gst kvot har "+hi.name+" ("+fmt2(hi.lq)+") och l\u00e4gst "+lo.name+" ("+fmt2(lo.lq)+")."]};
   };
   B["Specialiseringskvoter per l\u00e4n \u2013 Jobbannonser"]=function(c){
