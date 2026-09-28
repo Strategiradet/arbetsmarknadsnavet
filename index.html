@@ -20247,6 +20247,15 @@ function initKomp(){
           /* Lönen hämtas efter att vyn ritats, och sammanfattningen hann därför skrivas utan
              den. Rutan ritas om när talet landat. */
           if(window.__sumRita)window.__sumRita("sumKomp");
+          /* Detsamma gäller texten ovanför figuren. Rapportens löneavsnitt hoppas över så
+             länge talet är null, så platsen stod tom vid ritningen och figurprosan tog den.
+             Rapportens text kom först vid nästa omritning av vyn, och fram till dess stod
+             prosan kvar. Båda skrivs om här, i samma ordning som vid en vanlig ritning:
+             rapporten först, sedan prosan, som då ser rapportens text och drar sig tillbaka
+             från de figurer rapporten själv beskriver. */
+          try{ if(typeof window.__reportInject==="function"&&window.__reportMode&&window.__reportMode.komp)
+                 window.__reportInject("kompBody",window.rdKomp,kompState.data,window.__KOMP_MAP); }catch(e){}
+          try{ if(window.__figProsaRun)window.__figProsaRun("kompBody","kompetens"); }catch(e){}
         }
       }catch(e){}
     });
@@ -21774,6 +21783,12 @@ function branschMixKlar(){
     if(typeof window.__reportInject==="function" && window.__reportMode && window.__reportMode.bransch)
       window.__reportInject("branschBody",window.rdBransch,branschState.data,window.__BRANSCH_MAP);
   }catch(e){}
+  /* Och figurprosan efter rapporten, i den ordningen. Rapportens block skjuts in ovanför
+     prosans, så utan den här körningen kan två texter stå kvar vid samma figur: prosan som
+     hann skriva medan rapportens stycke saknades, och rapportens stycke som kom sedan.
+     Prosan tar bort sitt eget block när den ser rapportens text. Samma par av anrop görs
+     när kompetensvyns lönetal landar. */
+  try{ if(window.__figProsaRun)window.__figProsaRun("branschBody","bransch"); }catch(e){}
 }
 window.__renderBranschKomp=renderBranschKomp;
 
@@ -30465,6 +30480,16 @@ window.__renderKompOpts=function(q){
        gånger med olika formuleringar, och ingressen lades först i behållaren där den blev
        ett eget avsnitt vid namn Översikt. Prosan är därför borttagen, och analystexten vid
        figurerna är den enda texten i läget. */
+
+    /* Varje omritning skriver om hela behållaren, alltså vid varje kompetensval. Navets
+       pillerrad och förteckning ligger utanför behållaren och överlever, och stämpeln
+       stämmer fortfarande — självläkningen såg därför ingenting att laga, märkningen
+       data-rsec kördes aldrig om och de nya figurerna blev omärkta. Analysblocken märks
+       av __usAnalys när de sätts in, så med avsnittet Yrken och geografi valt visade
+       __applySecNav texterna och dolde figurerna. Navet byggs därför om här, sist i
+       ritningen. setupSecNav är idempotent och behåller det valda avsnittet. */
+    try{ if(window.setupSecNav)window.setupSecNav(host.id||"kompKombi"); }
+    catch(e){ if(window.__fel)__fel("kombinationslägets avsnittsnav",e); }
   };
   function wireModes(){
     var btns=document.querySelectorAll(".komp-modes:not(.vc-modes) .km-mode"); if(!btns.length)return;
@@ -35241,9 +35266,14 @@ B["Kompetenser som samvarierar"]=B["Kompetensnätverk"]=B["Kompetenser som samva
   };
   
 B["Lönenivå"]=function(c){
-    var m=c.fig.textContent.replace(/\s+/g," ").match(/(\d[\d ]{3})\s*kr/);
-    if(!m)return null;
-    return {rubrik:"Löneläget", stycken:["Figuren visar medianl\u00f6nen i de yrken som efterfr\u00e5gar "+c.subj.no+". Talet \u00f6verst \u00e4r ett genomsnitt av dessa medianl\u00f6ner, v\u00e4gt efter hur m\u00e5nga annonser varje yrke har, och uppg\u00e5r till "+m[1].trim()+" kronor i m\u00e5naden. Det \u00e4r en l\u00f6n f\u00f6r yrkena, inte f\u00f6r kompetensen."]};
+    /* Talet lästes tidigare ur figurens egen text, med ett mönster som krävde siffror följda
+       av kr. Första träffen blev då jämförelsetalet i undertexten — medianlönen på
+       arbetsmarknaden, 38 300 kronor — eftersom kronor börjar på kr, och stycket påstod att
+       genomsnittet var 300 kronor i månaden. Nyckeltalskortet lästes aldrig. Talet tas nu ur
+       samma data som figuren ritas ur, så text och figur inte kan säga olika saker. */
+    var L=c.d&&c.d.lon;
+    if(!L||L.lon==null||isNaN(L.lon))return null;
+    return {rubrik:"Löneläget", stycken:["Figuren visar medianl\u00f6nen i de yrken som efterfr\u00e5gar "+c.subj.no+". Talet \u00f6verst \u00e4r ett genomsnitt av dessa medianl\u00f6ner, v\u00e4gt efter hur m\u00e5nga annonser varje yrke har, och uppg\u00e5r till "+tal(Math.round(L.lon))+" kronor i m\u00e5naden. Det \u00e4r en l\u00f6n f\u00f6r yrkena, inte f\u00f6r kompetensen."]};
   };
 
   B["Annonsintensitet över tid"]=function(c){
@@ -36447,9 +36477,18 @@ function _gruppText(c, matt){
        bara etableringsgraden, medan de tre övriga ställningarna finns i underlaget och hör
        till bilden av vad som händer med resten av de examinerade. */
     var d=null, tab=null, riket=null;
+    /* Tabellen bär SCB:s formella namn, rullistan det namn lärosätet är känt under. Namnen i
+       texten går genom översättaren, annars står två stavningar av samma lärosäte i samma
+       stycke: Sophiahemmet Högskola i meningen och Sophiahemmet högskola i listan intill. */
+    var vnamn=function(t){ try{ return (typeof window.__etabNamn==="function")?window.__etabNamn(t):t; }catch(e){ return t; } };
     try{
       var namn=(typeof window.__larLabel==="function")?window.__larLabel():((typeof larLabel==="function")?larLabel():"");
-      if(typeof window.__etabHitta==="function")d=window.__etabHitta(namn);
+      /* Uppslaget gjordes på etiketten. För Högskolan i Jönköping skiljer sig etiketten och
+         nyckeln med ett helt ord — nyckeln är Stiftelsen Högskolan i Jönköping — och då
+         hittades ingen rad. Texten sade att etableringsgraden inte redovisas medan kortet
+         intill visade den, eftersom kortet slår upp på nyckeln. Båda gör det nu. */
+      var kod=(window.usState&&window.usState.larosate)||"";
+      if(typeof window.__etabHitta==="function")d=window.__etabHitta(kod)||window.__etabHitta(namn);
       tab=window.__etabTabell||null; riket=window.__etabRiket;
     }catch(e){}
     var st=["Etableringsgraden som beskrivs nedan avser andelen av de examinerade som 1–1,5 år efter examen hade en arbetsinkomst över en fastställd gräns och inte var studerande. Övriga delas in i osäker ställning, svag ställning och utanför arbetsmarknaden. Måttet avser examinerade läsåret 2022/23."];
@@ -36468,7 +36507,7 @@ function _gruppText(c, matt){
       if(harTxt&&ut)ovriga=" Av de övriga hade "+harTxt+", medan "+ut+" procent stod utanför arbetsmarknaden.";
       else if(harTxt)ovriga=" Av de övriga hade "+harTxt+".";
       else if(ut)ovriga=" Av de övriga stod "+ut+" procent utanför arbetsmarknaden.";
-      st.push("Av de "+tal(d[1])+" examinerade från "+d[0]+" var "+pct(d[2])+" procent etablerade."+ovriga);
+      st.push("Av de "+tal(d[1])+" examinerade från "+vnamn(d[0])+" var "+pct(d[2])+" procent etablerade."+ovriga);
       }
       /* Saknar det valda lärosätet en etableringsgrad hoppades hela stycket över, och texten
          gick direkt från måttets definition till spännvidden mellan lärosätena utan att
@@ -36488,16 +36527,16 @@ function _gruppText(c, matt){
                    .slice().sort(function(a,b){ return b[2]-a[2]; });
       if(lista.length>2){
         var hog=lista[0], lag=lista[lista.length-1];
-        var p3="Etableringsgraden varierar mellan lärosätena. Högst ligger "+hog[0]+" med "+pct(hog[2])
-          +" procent och lägst "+lag[0]+" med "+pct(lag[2])+" procent, alltså "
+        var p3="Etableringsgraden varierar mellan lärosätena. Högst ligger "+vnamn(hog[0])+" med "+pct(hog[2])
+          +" procent och lägst "+vnamn(lag[0])+" med "+pct(lag[2])+" procent, alltså "
           +pct(hog[2]-lag[2])+" procentenheters skillnad.";
         if(d&&d[2]!=null){
           var plats=0;
           for(var q=0;q<lista.length;q++){ if(lista[q][0]===d[0]){ plats=q+1; break; } }
-          if(plats)p3+=" "+d[0]+" ligger på plats "+plats+" av "+lista.length+".";
+          if(plats)p3+=" "+vnamn(d[0])+" ligger på plats "+plats+" av "+lista.length+".";
         }
         p3+=" Etableringsgraden skiljer sig åt mellan lärosäten med olika utbildningsutbud.";
-        if(d&&d[1]!=null&&d[1]<100)p3+=" Underlaget för "+d[0]+" är litet, "+tal(d[1])
+        if(d&&d[1]!=null&&d[1]<100)p3+=" Underlaget för "+vnamn(d[0])+" är litet, "+tal(d[1])
           +" examinerade, så andelen påverkas mycket av enstaka personer.";
         st.push(p3);
       }
@@ -39136,6 +39175,7 @@ window.__ritaGymOvg = async function(){
      aldrig visats. Handtagen läggs på window, där byggaren kan hitta dem. */
   try{
     window.__etabHitta=_etabHitta;
+    window.__etabNamn=_etabNamn;
     window.__etabTabell=ETAB3A;
     window.__etabRiket=_etabRiket;
     window.__larLabel=function(){ return larLabel(); };
@@ -39213,7 +39253,18 @@ window.__ritaGymOvg = async function(){
     var lokalV=rows.map(function(r){return lTot?(r[1]/lTot*100):0;});
     var riketV=rows.map(function(r){var v=rikMap[r[0]]||0; return rikTot?(v/rikTot*100):0;});
     wrap.innerHTML='<canvas id="hogOmrCanvas"></canvas>';
-    wrap.style.height=Math.max(260,rows.length*(rows.length>16?23:30)+50)+"px";
+    /* Radhöjden var 23 px så snart figuren hade fler än sexton staplar, oavsett hur många
+       rader etiketten bröts på. På en telefon ryms 22 tecken per rad, och de längsta
+       ämnesdelområdena bryts då på tre — omkring 42 px text i ett fack på 23. Etiketterna
+       lade sig över varandra, och ett treradigt namn centreras dessutom över sitt fack, så
+       det gick inte att se vilken stapel det hörde till. Höjden följer nu etiketten, med
+       etikettRadHojd som de övriga figurerna använder. Ryms varje namn på en rad ger
+       hjälparen 30 px, och då behålls den täta höjden: en rad text i grad elva får plats
+       i 23 px. */
+    var _bud=(window.etikettTecken?window.etikettTecken(wrap):30);
+    var _radh=(window.etikettRadHojd?window.etikettRadHojd(labels,_bud):30);
+    if(_radh===30&&rows.length>16)_radh=23;
+    wrap.style.height=Math.max(260,rows.length*_radh+50)+"px";
     if(_ch2)_ch2.destroy();
     var fmtP=function(v){return (Math.round(v*10)/10)+"\u00a0%";};
     var lbl=(key==="00")?"Riket":larNamn(key);
@@ -42030,7 +42081,23 @@ var UNDERLAG = [
          villkor brister: förteckningen saknas, pillerraden saknas, eller antalet poster
          stämmer inte med antalet avsnitt som har innehåll. setupSecNav är idempotent,
          så en omkörning kostar bara några millisekunder. */
-      if(toc && bar && String(toc.getAttribute("data-sekt")||"") === String(n)) return;
+      /* Stämpeln räcker inte som prövning. Skriver en renderare om hela kroppen är
+         stämpeln oförändrad medan barnen är nya och omärkta, och läkningen avstår. Så såg
+         kombinationsläget ut: figurerna föll bort så snart ett annat avsnitt än översikten
+         var valt. En figur utan data-rsec betyder att kroppen ritats om sedan navet
+         byggdes, och då ska det byggas om. Prövningen gäller bara figurer: analysblocken
+         kan sakna märkning av egen kraft, och skulle annars kunna hålla läkningen igång. */
+      var _omarkt=[].slice.call(body.children).some(function(k){
+        if(k.getAttribute("data-rsec")!==null)return false;
+        /* Figuren kan ligga i ett omslag — rutnäten i läns-, yrkes-, bransch- och
+           kompetensvyn håller två figurer var — och då är det omslaget som är barnet och
+           bär märkningen. Prövningen gäller därför både figuren själv och det som
+           innehåller en. Analysblocken kan sakna märkning av egen kraft, men innehåller
+           aldrig en figur, och kan alltså inte hålla läkningen igång. */
+        if(k.classList && k.classList.contains("r-fig"))return true;
+        return !!(k.querySelector && k.querySelector(".r-fig"));
+      });
+      if(toc && bar && !_omarkt && String(toc.getAttribute("data-sekt")||"") === String(n)) return;
       /* Navet ska byggas på samma kropp som räknades ovan. Ligger blocken i ett
          rapportdokument är det dokumentets id som gäller, inte behållarens: annars börjar
          setupSecNav om på behållarnivån, ser inga rubriker där och bygger ingenting. */
@@ -42344,7 +42411,8 @@ try{ window._sumOm=_sumOm; }catch(e){}
     /* En plats kan ha flera möjliga etiketter. Kortet om ämnesfördelningen heter Största
        posten när den största posten är en restpost, och utan alternativet stod platshållaren
        kvar tom bredvid sitt eget kort. */
-    sumHog:["Helårsstudenter","Andel kvinnor",["Största ämnesområdet","Största posten"],"Etablerade efter examen"]
+    sumHog:["Helårsstudenter","Andel kvinnor",["Största ämnesområdet","Största posten"],
+            ["Etablerade efter examen","Etablerade, samtliga lärosäten"]]
   };
   function _ent(n,sg,pl){
     if(n==null||isNaN(n))return "uppgift saknas";
@@ -43290,9 +43358,15 @@ try{ window._sumOm=_sumOm; }catch(e){}
       +(d.etabPlats?(", vilket är plats <b>"+d.etabPlats+" av "+d.etabAntal+"</b> bland lärosätena"):"")+"."
       +(_er?(' <span class="sum-jmf">Hos samtliga lärosäten är andelen <b>'+_er+" procent</b>.</span>"):""),
       fig("Etablering 1–1,5 år efter examen"),"Etablerade efter examen", _e+"\u00a0%"));
-    else if(_er) ut.push(p("<b>"+_er+" procent</b> av de examinerade"+_eAr+" var etablerade på "
-      +"arbetsmarknaden 1\u20131,5 år efter examen.",
-      fig("Etablering 1–1,5 år efter examen"),"Etablerade efter examen", _er+"\u00a0%"));
+    /* Utan eget tal föll kortet tillbaka på snittet för samtliga lärosäten, med samma rubrik
+       och en mening utan subjekt. Läsaren såg 84,9 procent under Etablerade efter examen och
+       kunde bara läsa det som lärosätets eget, samtidigt som texten intill sa att uppgiften
+       inte redovisas. Det gällde nio lärosäten. Talet är värt att visa, men rubriken och
+       meningen säger nu vems det är, och att lärosätets eget saknas. */
+    else if(_er) ut.push(p("Hos samtliga lärosäten var <b>"+_er+" procent</b> av de examinerade"+_eAr
+      +" etablerade på arbetsmarknaden 1\u20131,5 år efter examen."
+      +((namn&&namn!=="samtliga lärosäten")?(' <span class="sum-jmf">Uppgift saknas för '+namn+".</span>"):""),
+      fig("Etablering 1–1,5 år efter examen"),"Etablerade, samtliga lärosäten", _er+"\u00a0%"));
     return ut.filter(Boolean);
   }
 
