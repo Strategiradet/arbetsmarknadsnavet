@@ -10002,7 +10002,7 @@ function _demoRenderInto(kpiId,chartId,srcId,forsChartId,forsSrcId,subId,data,na
   _demoLineChart(forsChartId, data.years, _forsSer, "kvot", _hasRefs);
   /* fw är försörjningskvotens canvas, cw åldersgruppernas. Den senare ligger nu i en egen
      figur, och behållaren demo-utv finns inte längre. Analysen skriver därför två block:
-     ett vid tidslinjen och ett vid försörjningskvoten. */
+     ett vid tidsserien och ett vid försörjningskvoten. */
   if(window.__anaDemografi&&fw)__anaDemografi(fw.closest(".r-fig"),data,name||"området",refs, (cw?cw.closest(".r-fig"):null));
   /* Källraden anger källan. Att de streckade linjerna är jämförelseområden är en
      läsanvisning till diagrammet och hör inte hit. Teckenförklaringen namnger varje
@@ -11364,6 +11364,41 @@ const charts={};
     boxBorderColor:"#fff",boxBorderWidth:1,
     displayColors:function(ctx){ try{ var ds=(ctx&&ctx.chart&&ctx.chart.data&&ctx.chart.data.datasets)||[];
       return ds.length>1; }catch(e){ return true; } }});
+  /* Chart.js ritar teckenförklaringen på duken och bryter aldrig en etikett. Är etiketten
+     bredare än duken ritas den ändå ut och klipps av kanten, och eftersom raden centreras
+     försvinner text i båda ändarna: yrkesvyns annonsintensitet visade "krav på
+     högskolekompetens eller motsvarande inom teknik i J" på en telefon, utan vare sig början
+     eller slut. Etiketten kortas därför till det som får plats och avslutas med ellips, så
+     att det framgår att namnet fortsätter. Hela namnet står kvar i verktygstipset, som läser
+     seriens egen etikett och inte den här. Ryms etiketten görs ingenting, så figurer på en
+     bred skärm är oförändrade. */
+  var _legOrig=(_TP.legend&&_TP.legend.labels&&_TP.legend.labels.generateLabels)||null;
+  if(_legOrig){
+    _TP.legend.labels.generateLabels=function(chart){
+      var poster=_legOrig.call(this,chart)||[];
+      try{
+        var bredd=(chart&&chart.width)||0;
+        if(!bredd||!poster.length)return poster;
+        var o=(chart.legend&&chart.legend.options&&chart.legend.options.labels)||{};
+        var ruta=(o.boxWidth!=null)?o.boxWidth:40, luft=(o.padding!=null)?o.padding:10;
+        var grad=(o.font&&o.font.size)||11, snitt=(o.font&&o.font.family)||"Inter, system-ui, sans-serif";
+        var ctx=chart.ctx; if(!ctx)return poster;
+        var spar=ctx.font; ctx.font=grad+"px "+snitt;
+        /* Plats för färgrutan, luften kring posten och en marginal mot kanten. */
+        var max=bredd-ruta-luft*2-10;
+        if(max>40){
+          poster.forEach(function(p){
+            var t=String(p.text==null?"":p.text);
+            if(!t||ctx.measureText(t).width<=max)return;
+            while(t.length>1&&ctx.measureText(t+"\u2026").width>max)t=t.slice(0,-1);
+            p.text=t.replace(/[\s,;:\u2013-]+$/,"")+"\u2026";
+          });
+        }
+        ctx.font=spar;
+      }catch(e){}
+      return poster;
+    };
+  }
   /* Luft ovanför och under datat, så att den högsta punkten inte klistrar mot taket.
      Den gäller de skalor som själva räknar fram sina gränser. Är gränserna däremot låsta,
      som i de inzoomade sysselsättningsdiagrammen, får luften Chart.js att räkna om spannet
@@ -17795,7 +17830,14 @@ function renderYrkeAI(){
      går nu via lanFullName, som täcker alla län. */
   var _omrY=_region?(((typeof lanFullName==="function")&&lanFullName(_region))||regionDisplayName(_region)||"det valda länet"):"riket";
   var _namnY=(d.name)||((typeof yrkeNivaOrd==="function")?yrkeNivaOrd(yrkeState.niva,"best"):"yrket");
-  var primaryLabel=_namnY+" i "+_omrY;
+  /* Etiketten bar hela yrkeskategorins namn, och de längsta namnen är bredare än duken på
+     en telefon. Chart.js bryter aldrig en etikett, så teckenförklaringen klipptes i båda
+     ändar: "Yrken med krav på högskolekompetens eller motsvarande inom teknik i Jönköpings
+     län" syntes som "krav på högskolekompetens eller motsvarande inom teknik i J". Namnet
+     står i figurens rubrik och undertext, och de följer med i en nedladdad bild, så
+     etiketten behöver bara skilja de två kurvorna åt. Den säger nu vald yrkeskategori och
+     området, vilket ställer sig mot referensens samtliga yrken i riket. */
+  var primaryLabel="Vald yrkeskategori i "+_omrY;
   var _sub=document.getElementById("subYAI");
   if(_sub){
     /* Referenslinjen för riket ritas alltid, se kommentaren vid draw nedan. Med ett län valt
@@ -17900,8 +17942,11 @@ function renderBranschAI(){
     +" Branschens annonsvolym \u00e4r skattad ur yrkenas annonser, v\u00e4gda efter branschens yrkessammans\u00e4ttning."
     /* Samma lösa fras som i annonsintensiteten ovan; se kommentaren där. */
     +(_region?(" Avser "+(regNamn||"det valda l\u00e4net")+", j\u00e4mf\u00f6rt med riket."):"");
-  /* Kurvetiketten namnger branschen, så att en nedladdad bild går att läsa fristående. */
-  function draw(agg){ if(charts.branschAI)charts.branschAI.destroy(); charts.branschAI=aiChart("cBranschAI",ai,agg,_bNamn+" i "+(_region?(regNamn||"det valda l\u00e4net"):"riket"),"sysselsatta"); }
+  /* Samma sak som i yrkesvyns annonsintensitet: etiketten bar hela branschnamnet, och de
+     längsta är bredare än duken på en telefon. Branschen står i figurens rubrik och
+     undertext, som följer med i en nedladdad bild, så etiketten skiljer kurvorna åt och
+     ställer vald bransch mot referensens samtliga branscher i riket. */
+  function draw(agg){ if(charts.branschAI)charts.branschAI.destroy(); charts.branschAI=aiChart("cBranschAI",ai,agg,"Vald bransch i "+(_region?(regNamn||"det valda l\u00e4net"):"riket"),"sysselsatta"); }
   draw(null);
 
   if(!_region){
@@ -18376,8 +18421,18 @@ window.renderLanMap=function(containerId,regions,level,komRegions){
     if(sub){
     /* Mallen i data-amn är källan när den finns, så att yrkes- eller länsbyte inte
        lämnar ett gammalt namn kvar i den cachade grundtexten. Markeringsnoten namnger
-       länet i stället för att säga "det valda länet", som är oläsligt i en nedladdad bild. */
-    var _mMall=sub.getAttribute("data-amn");
+       länet i stället för att säga "det valda länet", som är oläsligt i en nedladdad bild.
+
+       Platshållarmodulen släpper sin mall så snart en renderare skrivit i undertexten: den
+       skrivningen betyder att renderaren äger elementet. Raden nedan är en sådan skrivning,
+       så mallen försvann i samma stund som markeringen lades till första gången. Nästa
+       omritning hittade ingen mall, tog den text som redan stod där som grundtext och lade
+       markeringen en gång till — "Jönköpings län är markerat. Jönköpings län är markerat."
+       Mallen sparas därför i ett eget attribut första gången den ses, och läses därifrån
+       sedan. Grundtexten byggs alltså om ur mallen vid varje omritning, så ett yrkes- eller
+       länsbyte slår igenom som förut. */
+    var _mMall=sub.getAttribute("data-amn")||sub.getAttribute("data-kartmall");
+    if(_mMall&&!sub.getAttribute("data-kartmall"))sub.setAttribute("data-kartmall",_mMall);
     var _mBas=_mMall?((window.__amnFyll?window.__amnFyll(_mMall):_mMall)):(sub.dataset.bas==null?(sub.dataset.bas=sub.textContent):sub.dataset.bas);
     var _mKod=(typeof window.__valdRegionKod==="function")?window.__valdRegionKod():"";
     var _mNamn=(_mKod&&typeof lanFullName==="function")?lanFullName(_mKod):"";
@@ -23920,7 +23975,7 @@ function buildUtbRegionMenu(){
          förändring. */
       var _adOmr=ad.regional?((d.regionName||regionDisplayName(d.region))||"valt län"):"riket";
       var _adN=ad.serie.length, _adSist=(_adN?ad.serie[_adN-1]:null), _adFore=(_adN>1?ad.serie[_adN-2]:null);
-      var _adTxt="I tidslinjen framgår antalet jobbannonser per år som avser "+kurs(d.name)+" i "+_adOmr+".";
+      var _adTxt="I tidsserien framgår antalet jobbannonser per år som avser "+kurs(d.name)+" i "+_adOmr+".";
       if(_adSist!=null) _adTxt+=" År "+ad.years[_adN-1]+" publicerades "+rdNum(Math.round(_adSist))+" jobbannonser.";
       if(_adSist!=null&&_adFore){
         var _adF=(_adSist-_adFore)/_adFore*100;
@@ -37147,12 +37202,12 @@ function _gruppText(c, matt){
       }
     })();
   /* Två stycken, två figurer, två rubriker. Befolkningsstycket handlar om åldersgruppernas
-     utveckling och hör till tidslinjen; kvotstycket hör till försörjningskvoten. Tidigare
+     utveckling och hör till tidsserien; kvotstycket hör till försörjningskvoten. Tidigare
      skrevs det första in i en behållare inne i figuren, vilket lade en rubrik mitt i
      diagrammet. Båda skrivs nu som vanliga analysblock ovanför sin figur. */
   var linjeFig=(typeof utvX==="string")?document.getElementById(utvX):utvX;
   /* Texten ska stå överst i avsnittet, alltså före faktakorten och inte mellan dem och
-     tidslinjen. Faktakorten ligger i figuren närmast före tidslinjen, så den används som
+     tidsserien. Faktakorten ligger i figuren närmast före tidsserien, så den används som
      ankare när den finns. */
   var kortFig=null;
   if(linjeFig){
@@ -37209,7 +37264,7 @@ function __anaAnnonsAr(figElOrId,labels,vals,namn,omrord){
   var n=VA.length, s1=VA[n-1], s0=VA[n-2];
   /* Omr\u00e5det st\u00e5r i inledningen, d\u00e4r det s\u00e4ger vad serien avser. Andra meningen
      upprepade det i best\u00e4md form; nu b\u00e4r den bara talet. */
-  var p1="I tidslinjen framg\u00e5r antalet jobbannonser per \u00e5r som avser arbeten i "+namn+". "
+  var p1="I tidsserien framg\u00e5r antalet jobbannonser per \u00e5r som avser arbeten i "+namn+". "
     +"Under "+LB[n-1]+" uppgick antalet jobbannonser till "+tal(s1)+".";
   if(s0){
     var f=(s1-s0)/s0*100;
@@ -37280,7 +37335,7 @@ window.__anaAnnons=function(figElOrId,labels,vals,namn,omrord){
     var hela=Object.keys(ar).filter(function(y){ return Object.keys(kvN[y]).length===4 && ar[y]>0; }).sort();
     if(!hela.length)return;
     var yN=hela[hela.length-1];
-    var p1="I tidslinjen framg\u00e5r antalet jobbannonser per \u00e5r som avser arbeten i "+namn+". "
+    var p1="I tidsserien framg\u00e5r antalet jobbannonser per \u00e5r som avser arbeten i "+namn+". "
       +"Under "+yN+" uppgick antalet jobbannonser till "+tal(ar[yN])+".";
     if(hela.length>1){
       var yF=hela[hela.length-2];
