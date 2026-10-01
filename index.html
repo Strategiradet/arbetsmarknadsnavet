@@ -25234,6 +25234,27 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
        dimensionen. En text här hade stått kvar oläst och sett aktuell ut. */
     kompetens:{title:"Efterfrågan över tid",src:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments."}
   };
+  /* Yrkes- och branschserierna hämtas per län när ett län är valt, med fetchYrkeTimeReg
+     respektive branschTimeReg, och annars för riket. Undertexterna i RD_TRENDCAP är fasta
+     och sa ingetdera, så figuren kunde visa länets tal utan att området framgick.
+     Området läses ur de jämförda objektens egen regionuppgift. Den är densamma för alla,
+     eftersom vyn har en enda regionväljare; skiljer den sig ändå åt utelämnas uppgiften
+     hellre än att sättas på fel område. Region- och kommunjämförelserna bär sitt område i
+     själva måttet och utbildningsjämförelsen skriver redan riket, så de berörs inte. */
+  function rdTrendOmrade(dim, datas){
+    if(dim!=="yrke"&&dim!=="bransch") return "";
+    if(!datas||!datas.length) return "";
+    var r=String((datas[0]&&datas[0].region)||"");
+    for(var i=1;i<datas.length;i++){ if(String((datas[i]&&datas[i].region)||"")!==r) return ""; }
+    /* Att talen avser dagbefolkningen säger var arbetet utförs och inte var de anställda
+       bor. Det har betydelse först när ett län är valt. På riksnivå tillför uppgiften
+       ingenting och utelämnas, av samma skäl som i branschvyns egen trendfigur.
+       Båda serierna räknas på arbetsställets belägenhet: branschfrågan låser det måttet
+       i SNI-tabellen, och yrkesregistret är uppbyggt på samma sätt. */
+    if(!r) return " Avser riket.";
+    var n=(datas[0].regionName)||((typeof regionDisplayName==="function")?regionDisplayName(r):"");
+    return n?(" Avser dagbefolkningen i "+n+"."):" Avser riket.";
+  }
   /* Året är detsamma för alla jämförda så länge underlaget är det. Skiljer det sig
      utelämnas det hellre än att sättas på fel siffra. */
   /* Perioderna som skrivs efter måttens namn. Registerstatistiken har ingen årsuppgift i
@@ -25987,7 +26008,7 @@ window.__KOMMUN_MAP={
         smN:10, smStack:true, visaMatris:true, visaKarna:false, smIRubrik:true, visaProfiler:false },
     yrke:{ get:function(d){ return (d.kompetenser||[]).map(function(it){ return {name:it[0], val:it[1]}; }); },
       h2:"Efterfrågade kompetenser", title:"Kompetenser i annonserna", corner:"Kompetens",
-      sub:"Andel av yrkets jobbannonser som n\u00e4mner kompetensen.", smTitle:"Kompetensprofil per yrke", smSub:"De femton kompetenser som oftast n\u00e4mns i yrkenas jobbannonser. V\u00e4rdet \u00e4r andelen av yrkets annonser d\u00e4r kompetensen n\u00e4mns.", smSrc:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.",
+      sub:"Andel av yrkets jobbannonser som n\u00e4mner kompetensen.", smTitle:"Kompetensprofil per yrke", smSub:"De femton kompetenser som oftast n\u00e4mns i yrkenas jobbannonser. V\u00e4rdet \u00e4r andelen av yrkets annonser d\u00e4r kompetensen n\u00e4mns. Avser riket.", smSrc:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.",
       fmt:function(v){ return rdP1(v)+"\u00a0%"; }, noun:"kompetens", nounDef:"kompetenskraven", src:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.", topN:8, maxRows:20,
         smIntro:"Diagrammen visar vilka kompetenser som efterfr\u00e5gas i jobbannonser f\u00f6r respektive yrke.",
         smN:15, visaMatris:false, visaKarna:false, smIRubrik:false },
@@ -25997,7 +26018,7 @@ window.__KOMMUN_MAP={
          andelar efter branschens yrkessammansättning. Formatet skrev ut talet som ett antal
          och undertexterna kallade det antal annonser. Båda är rättade, och figuren visar nu
          samma mått och samma enhet som branschvyns egen kompetensfigur. */
-      sub:"Skattad andel av branschens jobbannonser som n\u00e4mner kompetensen, ber\u00e4knad ur yrkesgruppernas kompetensandelar v\u00e4gda efter branschens yrkessammans\u00e4ttning.", smTitle:"Kompetensprofil per bransch", smSub:"De femton kompetenser som oftast n\u00e4mns i branschernas jobbannonser, skattade ur yrkesgruppernas kompetensandelar v\u00e4gda efter branschens yrkessammans\u00e4ttning. V\u00e4rdet \u00e4r andelen av branschens annonser d\u00e4r kompetensen n\u00e4mns.", smSrc:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.",
+      sub:"Skattad andel av branschens jobbannonser som n\u00e4mner kompetensen, ber\u00e4knad ur yrkesgruppernas kompetensandelar v\u00e4gda efter branschens yrkessammans\u00e4ttning.", smTitle:"Kompetensprofil per bransch", smSub:"De femton kompetenser som oftast n\u00e4mns i branschernas jobbannonser, skattade ur yrkesgruppernas kompetensandelar v\u00e4gda efter branschens yrkessammans\u00e4ttning. V\u00e4rdet \u00e4r andelen av branschens annonser d\u00e4r kompetensen n\u00e4mns. Avser riket.", smSrc:"Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.",
       fmt:function(v){ return rdP1(v)+"\u00a0%"; }, noun:"kompetens", nounDef:"kompetenskraven", src:"Arbetsf\u00f6rmedlingen, Historiska platsannonser och JobAd Enrichments.", topN:8, maxRows:20,
         smIntro:"Diagrammen visar vilka kompetenser som efterfr\u00e5gas i jobbannonser f\u00f6r respektive bransch.",
         smN:15, visaMatris:false, visaKarna:false, smIRubrik:false }
@@ -26584,7 +26605,7 @@ window.__KOMMUN_MAP={
                          ?(((window.__jmfEnhet||"andel")==="antal")
                             ? "Antal jobbannonser d\u00e4r respektive kompetens n\u00e4mns."
             : "Andel jobbannonser d\u00e4r respektive kompetens n\u00e4mns.")
-                         :tc.sub);
+                         :(tc.sub+rdTrendOmrade(dim,datas)));
       /* Fem mått ryms inte som piller, särskilt inte på smal skärm. En märkt rullgardin i
          samma form som panelens väljare tar samma plats oavsett hur många mått som tillkommer,
          och etiketten säger vad valet gäller utan att figuren behöver förklara det. */
