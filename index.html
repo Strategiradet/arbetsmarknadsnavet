@@ -3181,6 +3181,9 @@ main.view>aside .us-stat>.block>/* Rubriken som ligger först i ett block fick f
   .r-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:9px}
   .r-legend .chip{display:inline-flex;align-items:center;gap:6px;font:400 var(--fig-etikett)/1 var(--font-ui);color:var(--ink-soft)}
   .r-legend .sw{width:12px;height:12px;border-radius:3px}
+  /* Ett linjediagram förklaras med en linje, inte med en kvadrat. Kvadraten är kvar
+     för stapel- och ytdiagram, där den är rätt nyckel till det som ritas. */
+  .r-legend--linje .sw{width:16px;height:3px;border-radius:2px}
   .lq-list{display:flex;flex-direction:column;gap:9px}
   /* Kolumnhuvud. Talen till höger blev svårlästa utan att vara namngivna, men ett fullt
      tabellhuvud hade tyngt en figur som mest består av staplar. Därför versalt i minsta
@@ -3581,6 +3584,21 @@ var RUTNAT=(getComputedStyle(document.documentElement).getPropertyValue("--paper
   var ROLL_OVER=__roll("--c-over","#60a172");
   var ROLL_UNDER=__roll("--c-under","#b3503f");
   try{ window.__AMR_FARGROLLER={subjekt:PETROL, referens:REFERENS, referensLjus:REFERENS_LJUS, over:ROLL_OVER, under:ROLL_UNDER}; }catch(e){}
+
+  /* Linjeroller. Streckad linje betyder preliminär eller framskriven uppgift, ingenting
+     annat. Den betydelsen bärs av segmentstreckningen i sju figurer och av prognosserien,
+     och den förklaras i figurens underrubrik genom kompPrelimNot.
+     Tidigare streckades även referensserier på nio ställen, enbart för att skilja dem från
+     den egna serien. Samma streck betydde då två oförenliga saker, och i de fyra figurer
+     som har en handbyggd förklaring kunde den dessutom inte visa streckningen alls,
+     eftersom nyckeln var en fylld kvadrat. Referensen skiljs nu ut med färg och bredd:
+     2,6 för det valda subjektet, som dessutom har fyllning och punkter, 2,0 för en
+     mellanliggande referens som länet i kommunvyn, och 1,4 för riksreferensen.
+     Bredden valdes för att den överlever gråskala. Rapporten byggs som pdf och skrivs
+     ibland ut i svartvitt, och ljushetsskillnaden mellan terrakotta och referensgrå är
+     bara 8,9 i L*, alltså för liten för att ensam bära åtskillnaden. */
+  var LINJE_BREDD={subjekt:2.6, mellan:2, referens:1.4};
+  try{ window.__AMR_LINJEROLLER=LINJE_BREDD; }catch(e){}
 </script>
 
 <style id="altLayout">@layer bas{
@@ -7266,7 +7284,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <div class="r-splitfig">
           <div class="r-splitfig-main">
             <div class="r-chart" style="height:240px"><canvas id="cTrend"></canvas></div>
-            <div class="r-legend"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legRegion">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
+            <div class="r-legend r-legend--linje"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legRegion">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
           </div>
           <div class="r-splitfig-side" id="sysSideKpis"></div>
         </div>
@@ -7286,7 +7304,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <div class="r-splitfig">
           <div class="r-splitfig-main">
             <div class="r-chart" style="height:240px"><canvas id="cArbReg"></canvas></div>
-            <div class="r-legend"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legArbRegion">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
+            <div class="r-legend r-legend--linje"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legArbRegion">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
           </div>
           <div class="r-splitfig-side" id="arbSideKpis"></div>
         </div>
@@ -7602,7 +7620,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <p class="r-fig-title">Sysselsättningsgrad över tid</p>
         <p class="r-fig-sub" id="subSysKom" data-amn="Andel sysselsatta av befolkningen 20–65 år. Avser {S}." data-bas="Andel sysselsatta av befolkningen 20–65 år.">Andel sysselsatta av befolkningen 20–65 år.</p>
         <div class="r-chart" style="height:240px"><canvas id="cTrendKom"></canvas></div>
-        <div class="r-legend"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legKom">Kommunen</span></span><span class="chip"><span class="sw" style="background:#c2675b"></span><span id="legLanKom">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
+        <div class="r-legend r-legend--linje"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legKom">Kommunen</span></span><span class="chip"><span class="sw" style="background:#c2675b"></span><span id="legLanKom">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
         <p class="r-src" id="srcTrendKom"></p>
       </div>
       <div class="r-fig" id="grFigKom" style="display:none">
@@ -7617,7 +7635,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <p class="r-fig-title">Arbetslöshet över tid</p>
         <p class="r-fig-sub" id="subArbKom" data-amn="Andel arbetslösa av arbetskraften 20–65 år. Avser {S}." data-bas="Andel arbetslösa av arbetskraften 20–65 år.">Andel arbetslösa av arbetskraften 20–65 år.</p>
         <div class="r-chart" style="height:240px"><canvas id="cArbKom"></canvas></div>
-        <div class="r-legend"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legArbKom">Kommunen</span></span><span class="chip"><span class="sw" style="background:#c2675b"></span><span id="legLanArbKom">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
+        <div class="r-legend r-legend--linje"><span class="chip"><span class="sw" style="background:var(--petrol)"></span><span id="legArbKom">Kommunen</span></span><span class="chip"><span class="sw" style="background:#c2675b"></span><span id="legLanArbKom">Länet</span></span><span class="chip"><span class="sw" style="background:var(--c-reference)"></span>Riket</span></div>
         <p class="r-src" id="srcArbKom"></p>
       </div>
       <div class="r-fig" id="grArbFigKom" style="display:none">
@@ -10286,7 +10304,7 @@ function _demoLineChart(canvasId, years, series, kind, showLegend){
   if(!charts._demo)charts._demo={};
   if(charts._demo[canvasId]){ try{charts._demo[canvasId].destroy();}catch(e){} }
   var isCount=kind==="antal";
-  var ds=series.map(function(x){ return {label:x.label,data:x.data,borderColor:x.color,backgroundColor:x.fill?(x.color+"22"):"transparent",borderWidth:2.2,borderDash:x.dash?[6,4]:undefined,fill:!!x.fill,tension:.3,pointRadius:0}; });
+  var ds=series.map(function(x){ return {label:x.label,data:x.data,borderColor:x.color,backgroundColor:x.fill?(x.color+"22"):"transparent",borderWidth:(x.bredd||2.2),fill:!!x.fill,tension:.3,pointRadius:0}; });
   charts._demo[canvasId]=new Chart(ctx,{type:"line",data:{labels:years,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:!!showLegend,position:"bottom",labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,pointStyle:"line",boxWidth:18,padding:10}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+(isCount?nf.format(Math.round(c.parsed.y)):fmt1(c.parsed.y));}}}},scales:{y:{min:0,ticks:{precision:0,callback:function(v){return nf.format(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{maxTicksLimit:8,font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
   ctx.setAttribute("role","img"); ctx.setAttribute("aria-label","Linjediagram, framskrivning "+years[0]+" till "+years[years.length-1]+".");
 }
@@ -10379,8 +10397,8 @@ function _demoRenderInto(kpiId,chartId,srcId,forsChartId,forsSrcId,subId,data,na
   ], "antal", true);
 
   var _hasRefs=refs&&refs.length;
-  var _forsSer=[{label:_hasRefs?(name||"Regionen"):"F\u00f6rs\u00f6rjningskvot",data:data.fors,color:"#52999b",fill:!_hasRefs}];
-  if(_hasRefs){ refs.forEach(function(r){ var al=_forsAlign(r.data,data.years); if(al)_forsSer.push({label:r.label,data:al,color:r.color,dash:true}); }); }
+  var _forsSer=[{label:_hasRefs?(name||"Regionen"):"F\u00f6rs\u00f6rjningskvot",data:data.fors,color:PETROL,fill:!_hasRefs,bredd:2.6}];
+  if(_hasRefs){ refs.forEach(function(r,ri){ var al=_forsAlign(r.data,data.years); if(al)_forsSer.push({label:r.label,data:al,color:r.color,bredd:(ri===0?2:1.4)}); }); }
   _demoLineChart(forsChartId, data.years, _forsSer, "kvot", _hasRefs);
   /* fw är försörjningskvotens canvas, cw åldersgruppernas. Den senare ligger nu i en egen
      figur, och behållaren demo-utv finns inte längre. Analysen skriver därför två block:
@@ -11983,10 +12001,10 @@ function renderKommunTrend(){
   if(typeof Chart==="undefined"){ var w=ctx.closest(".r-chart"); if(w)w.innerHTML='<div class="msg" style="height:100%">Diagrammet kunde inte laddas.</div>'; return; }
   if(charts.trendKom)charts.trendKom.destroy();
   var _lk=document.getElementById("legLanKom"); if(_lk)_lk.textContent=(d.lanName||"Länet");
-  var ds=[{label:d.name+" (kommun)",data:d.sysSeries.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.5,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
-  if(d.sysSeries.lan&&d.sysSeries.lan.some(function(v){return v!=null;}))ds.push({label:(d.lanName||"Länet"),data:d.sysSeries.lan,borderColor:"#c2675b",backgroundColor:"transparent",borderWidth:2,borderDash:[2,3],fill:false,tension:.35,pointRadius:0});
-  ds.push({label:"Riket",data:d.sysSeries.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:2,borderDash:[5,4],fill:false,tension:.35,pointRadius:0});
-  var _z=pctZoomMinMax(d.sysSeries.region,d.sysSeries.riket,d.sysSeries.lan); charts.trendKom=new Chart(ctx,{type:"line",data:{labels:d.sysYears,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+"\u00a0%";}}}},scales:{y:{min:_z.min,max:_z.max,grace:0,ticks:{stepSize:_z.step,callback:function(v){return axTal(pct1(v))+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
+  var ds=[{label:d.name+" (kommun)",data:d.sysSeries.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.6,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
+  if(d.sysSeries.lan&&d.sysSeries.lan.some(function(v){return v!=null;}))ds.push({label:(d.lanName||"Länet"),data:d.sysSeries.lan,borderColor:"#c2675b",backgroundColor:"transparent",borderWidth:2,fill:false,tension:.35,pointRadius:0});
+  ds.push({label:"Riket",data:d.sysSeries.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:1.4,fill:false,tension:.35,pointRadius:0});
+  var _z=pctZoomMinMax(d.sysSeries.region,d.sysSeries.riket,d.sysSeries.lan); charts.trendKom=new Chart(ctx,{type:"line",data:{labels:d.sysYears,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+"\u00a0%";}}}},scales:{y:{min:_z.min,max:_z.max,grace:0,ticks:{stepSize:_z.step,callback:function(v){return axTal(pct1(v))+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
     x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
 }
 function renderKommunArbTrend(){
@@ -11999,10 +12017,10 @@ function renderKommunArbTrend(){
   if(charts.arbKom)charts.arbKom.destroy();
   var _lk=document.getElementById("legLanArbKom"); if(_lk)_lk.textContent=(d.lanName||"Länet");
   var _ak=arbKlipp(d);
-  var ds=[{label:d.name+" (kommun)",data:_ak.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.5,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
-  if(_ak.lan&&_ak.lan.some(function(v){return v!=null;}))ds.push({label:(d.lanName||"Länet"),data:_ak.lan,borderColor:"#c2675b",backgroundColor:"transparent",borderWidth:2,borderDash:[2,3],fill:false,tension:.35,pointRadius:0});
-  ds.push({label:"Riket",data:_ak.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:2,borderDash:[5,4],fill:false,tension:.35,pointRadius:0});
-  var _z=pctZoomMinMax(_ak.region,_ak.riket,_ak.lan); charts.arbKom=new Chart(ctx,{type:"line",data:{labels:_ak.ar,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+"\u00a0%";}}}},scales:{y:{min:_z.min,max:_z.max,grace:0,ticks:{stepSize:_z.step,callback:function(v){return axTal(pct1(v))+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
+  var ds=[{label:d.name+" (kommun)",data:_ak.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.6,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
+  if(_ak.lan&&_ak.lan.some(function(v){return v!=null;}))ds.push({label:(d.lanName||"Länet"),data:_ak.lan,borderColor:"#c2675b",backgroundColor:"transparent",borderWidth:2,fill:false,tension:.35,pointRadius:0});
+  ds.push({label:"Riket",data:_ak.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:1.4,fill:false,tension:.35,pointRadius:0});
+  var _z=pctZoomMinMax(_ak.region,_ak.riket,_ak.lan); charts.arbKom=new Chart(ctx,{type:"line",data:{labels:_ak.ar,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+"\u00a0%";}}}},scales:{y:{min:_z.min,max:_z.max,grace:0,ticks:{stepSize:_z.step,callback:function(v){return axTal(pct1(v))+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
     x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
 }
 function renderKommunSpec(){
@@ -14421,9 +14439,9 @@ function renderTrend(){
   if(typeof Chart==="undefined"){ctx.closest(".r-chart").innerHTML=`<div class="msg" style="height:100%">Diagrammet kunde inte laddas.</div>`;return;}
   if(charts.trend)charts.trend.destroy();
   const isR=regionState.code==="00";
-  const ds=[{label:d.name,data:d.sysSeries.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.5,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
-  if(!isR)ds.push({label:"Riket",data:d.sysSeries.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:2,borderDash:[5,4],fill:false,tension:.35,pointRadius:0});
-  var _zr=pctZoomMinMax(d.sysSeries.region,d.sysSeries.riket); charts.trend=new Chart(ctx,fcAug("region",d.sysYears,d.sysSeries.region,"%",{type:"line",data:{labels:d.sysYears,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt1(c.parsed.y)} %`}}},scales:{y:{min:_zr.min,max:_zr.max,grace:0,ticks:{stepSize:_zr.step,callback:v=>pct1(v)+"\u00a0%",font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}}));
+  const ds=[{label:d.name,data:d.sysSeries.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.6,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
+  if(!isR)ds.push({label:"Riket",data:d.sysSeries.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:1.4,fill:false,tension:.35,pointRadius:0});
+  var _zr=pctZoomMinMax(d.sysSeries.region,d.sysSeries.riket); charts.trend=new Chart(ctx,fcAug("region",d.sysYears,d.sysSeries.region,"%",{type:"line",data:{labels:d.sysYears,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt1(c.parsed.y)} %`}}},scales:{y:{min:_zr.min,max:_zr.max,grace:0,ticks:{stepSize:_zr.step,callback:v=>pct1(v)+"\u00a0%",font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}}));
 }
 /* Arbetslösheten enligt BAS börjar senare än sysselsättningsgraden, så de första åren i
    serien saknar värden. Diagrammet ritade ändå hela årsaxeln, med ett tomt fält till
@@ -14453,9 +14471,9 @@ function renderRegionArbTrend(){
   if(charts.arbReg)charts.arbReg.destroy();
   const isR=regionState.code==="00";
   var _ak=arbKlipp(d);
-  const ds=[{label:d.name,data:_ak.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.5,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
-  if(!isR)ds.push({label:"Riket",data:_ak.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:2,borderDash:[5,4],fill:false,tension:.35,pointRadius:0});
-  var _zr=pctZoomMinMax(_ak.region,_ak.riket); charts.arbReg=new Chart(ctx,{type:"line",data:{labels:_ak.ar,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt1(c.parsed.y)} %`}}},scales:{y:{min:_zr.min,max:_zr.max,grace:0,ticks:{stepSize:_zr.step,callback:v=>pct1(v)+"\u00a0%",font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
+  const ds=[{label:d.name,data:_ak.region,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.6,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL}];
+  if(!isR)ds.push({label:"Riket",data:_ak.riket,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:1.4,fill:false,tension:.35,pointRadius:0});
+  var _zr=pctZoomMinMax(_ak.region,_ak.riket); charts.arbReg=new Chart(ctx,{type:"line",data:{labels:_ak.ar,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt1(c.parsed.y)} %`}}},scales:{y:{min:_zr.min,max:_zr.max,grace:0,ticks:{stepSize:_zr.step,callback:v=>pct1(v)+"\u00a0%",font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
 }
 function renderLqOne(cfg){
   var list=cfg.list||[];
@@ -18189,9 +18207,9 @@ function aiChart(canvasId,ai,agg,primaryLabel,enhet){
   var C=(typeof Chart!=="undefined")?Chart:null;
   if(!C){ var w=host.closest(".r-chart"); if(w)w.innerHTML='<div class="msg" style="height:100%">Diagrammet kunde inte laddas.</div>'; return null; }
   var hasAgg=!!(agg&&agg.values);
-  var ds=[{label:primaryLabel||"Annonsintensitet",data:ai.values,borderColor:"#c2675b",backgroundColor:"rgba(194,103,91,.10)",borderWidth:2.5,fill:!hasAgg,tension:.35,pointRadius:3,pointBackgroundColor:"#c2675b"}];
-  if(hasAgg){ ds.push({label:agg.label||"Samtliga yrken i riket",data:agg.values,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:2,borderDash:[5,4],fill:false,tension:.35,pointRadius:0,spanGaps:true}); }
-  return new C(host,{type:"line",data:{labels:ai.years,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:hasAgg,position:"bottom",labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,pointStyle:"line",boxWidth:18,padding:10}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+" annonser per 1 000 "+((typeof enhet==="string"&&enhet)?enhet:"anst\u00e4llda");}}}},scales:{y:{min:0,ticks:{precision:0,callback:function(v){return nf.format(Math.round(v));},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
+  var ds=[{label:primaryLabel||"Annonsintensitet",data:ai.values,borderColor:"#c2675b",backgroundColor:"rgba(194,103,91,.10)",borderWidth:2.6,fill:!hasAgg,tension:.35,pointRadius:3,pointBackgroundColor:"#c2675b"}];
+  if(hasAgg){ ds.push({label:agg.label||"Samtliga yrken i riket",data:agg.values,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:1.4,fill:false,tension:.35,pointRadius:0,spanGaps:true}); }
+  return new C(host,{type:"line",data:{labels:ai.years,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:hasAgg,position:"bottom",labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,pointStyle:"line",boxWidth:18,padding:10}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+" annonser per 1 000 "+((typeof enhet==="string"&&enhet)?enhet:"anst\u00e4llda");}}}},scales:{y:{min:0,ticks:{precision:0,callback:function(v){return nf.format(Math.round(v));},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
 }
 function fetchNatSysByYear(){
   if(window.__natSysPromise)return window.__natSysPromise;
@@ -18275,7 +18293,7 @@ function renderYrkeAI(){
     ? ($("#srcYAI").closest(".r-fig")||{querySelector:function(){return null;}}).querySelector(".r-fig-sub") : null);
   if(_aiSub){
     var _t=_aiSub.textContent.replace(/\s*$/,"");
-    var _extra=" Den streckade linjen visar annonsintensiteten f\u00f6r samtliga yrken i riket.";
+    var _extra=" Den gr\u00e5 linjen visar annonsintensiteten f\u00f6r samtliga yrken i riket.";
     if(_extra && _t.indexOf(_extra.trim().slice(0,24))<0) _aiSub.textContent=_t+_extra;
   }
   var src=$("#srcYAI"); if(src)src.textContent="Arbetsförmedlingen, Historiska platsannonser och SCB, Yrkesregistret.";
@@ -23322,9 +23340,9 @@ function buildUtbRegionMenu(){
   }
   function rdLine2(years,reg,rik,label){
     return {type:"line",data:{labels:years,datasets:[
-        {label:label,data:reg,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.5,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL},
-        {label:"Riket",data:rik,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:2,borderDash:[5,4],fill:false,tension:.35,pointRadius:0}]},
-      options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,boxHeight:6}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+"\u00a0%";}}}},
+        {label:label,data:reg,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.6,fill:true,tension:.35,pointRadius:3,pointBackgroundColor:PETROL},
+        {label:"Riket",data:rik,borderColor:REFERENS,backgroundColor:"transparent",borderWidth:1.4,fill:false,tension:.35,pointRadius:0}]},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,pointStyle:"line",boxWidth:18,boxHeight:6}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt1(c.parsed.y)+"\u00a0%";}}}},
         scales:{y:{min:0,max:100,ticks:{callback:function(v){return axTal(pct1(v))+"\u00a0%";},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}};
   }
   /* Namnet p\u00e5 den markerade raden s\u00e4tts i fet stil. Figuren k\u00e4nner raden p\u00e5 dess namn. */
@@ -25406,8 +25424,8 @@ function rdHeadAr(datas){
     /* Sista året är ofta ännu inte färdigt. Det streckas då, och punkten ritas som en romb,
        på samma sätt som i vyn för en enskild kompetens. */
     var _p=function(i){ return !!(prelim&&years[i]!=null&&String(years[i])>=String(prelim)); };
-    return {type:"line",data:{labels:years,datasets:series.map(function(s,i){var c=s.ref?"#9fb0b6":RD_PAL[i%RD_PAL.length];return {label:s.label,data:s.data,borderColor:c,backgroundColor:"transparent",borderWidth:s.ref?1.6:2.2,borderDash:s.ref?[6,4]:undefined,fill:false,tension:.35,pointRadius:s.ref?0:function(cx){return _p(cx.dataIndex)?3.6:2.4;},pointStyle:s.ref?"circle":function(cx){return _p(cx.dataIndex)?"rectRot":"circle";},pointBackgroundColor:s.ref?c:function(cx){return _p(cx.dataIndex)?"#fff":c;},pointBorderColor:c,pointBorderWidth:1.6,segment:(s.ref?undefined:{borderDash:function(cx){return _p(cx.p1DataIndex)?[5,4]:undefined;}})};})},
-      options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,boxHeight:6,padding:14}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+nf.format(c.parsed.y);}}}},
+    return {type:"line",data:{labels:years,datasets:series.map(function(s,i){var c=s.ref?REFERENS:RD_PAL[i%RD_PAL.length];return {label:s.label,data:s.data,borderColor:c,backgroundColor:"transparent",borderWidth:s.ref?1.4:2.2,fill:false,tension:.35,pointRadius:s.ref?0:function(cx){return _p(cx.dataIndex)?3.6:2.4;},pointStyle:s.ref?"circle":function(cx){return _p(cx.dataIndex)?"rectRot":"circle";},pointBackgroundColor:s.ref?c:function(cx){return _p(cx.dataIndex)?"#fff":c;},pointBorderColor:c,pointBorderWidth:1.6,segment:(s.ref?undefined:{borderDash:function(cx){return _p(cx.p1DataIndex)?[5,4]:undefined;}})};})},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,pointStyle:"line",boxWidth:18,boxHeight:6,padding:14}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+nf.format(c.parsed.y);}}}},
         scales:{y:rdAxisN(),x:{ticks:{callback:function(val){ var l=this.getLabelForValue(val);
       /* Det ofullständiga året märks i axeln, som i vyernas egna tidsserier. */
       var _pa=(prelim!=null&&/^\\d{4}$/.test(String(prelim)))?String(prelim):null;
@@ -25433,7 +25451,7 @@ function rdHeadAr(datas){
   function rdMultiLinePct(years,series,prelim){
     var _p=function(i){ return !!(prelim&&years[i]!=null&&String(years[i])>=String(prelim)); };
     return {type:"line",data:{labels:years,datasets:series.map(function(s,i){var c=RD_PAL[i%RD_PAL.length];return {label:s.label,data:s.data,borderColor:c,backgroundColor:"transparent",borderWidth:2.2,fill:false,tension:.35,pointRadius:function(cx){return _p(cx.dataIndex)?3.6:2.4;},pointStyle:function(cx){return _p(cx.dataIndex)?"rectRot":"circle";},pointBackgroundColor:function(cx){return _p(cx.dataIndex)?"#fff":c;},pointBorderColor:c,pointBorderWidth:1.6,segment:{borderDash:function(cx){return _p(cx.p1DataIndex)?[5,4]:undefined;}}};})},
-      options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,boxHeight:6,padding:14}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt2(c.parsed.y)+"\u00a0%";}}}},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,pointStyle:"line",boxWidth:18,boxHeight:6,padding:14}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+fmt2(c.parsed.y)+"\u00a0%";}}}},
         scales:{/* Ett fast tak på hundra låste axeln oavsett värden. Andelen av samtliga jobbannonser
              ligger långt under en procent för de flesta kompetenser, och serierna pressades då
              ned i en linje längs botten.
@@ -29406,12 +29424,15 @@ window.__KOMMUN_MAP={
             (figs||[]).forEach(function(f){
               if(!f||!f.querySelectorAll)return;
               [].slice.call(f.querySelectorAll(".r-legend .chip")).forEach(function(c){
+                /* Nyckelns form följer med. Ett linjediagram förklaras med ett streck och ett
+                   stapeldiagram med en kvadrat, både i vyn och i det exporterade dokumentet. */
+                var linje=!!(c.parentElement&&c.parentElement.classList&&c.parentElement.classList.contains("r-legend--linje"));
                 var sw=c.querySelector(".sw"), tx=(c.textContent||"").replace(/\s+/g," ").trim();
                 if(!tx)return;
                 var fg="16384A";
                 try{ var m=getComputedStyle(sw).backgroundColor.match(/\d+/g);
                      if(m&&m.length>=3)fg=((1<<24)+(+m[0]<<16)+(+m[1]<<8)+(+m[2])).toString(16).slice(1).toUpperCase(); }catch(e){}
-                ut.push({text:tx, farg:fg});
+                ut.push({text:tx, farg:fg, linje:linje});
               });
             });
             return ut;
@@ -29420,7 +29441,8 @@ window.__KOMMUN_MAP={
             if(!poster||!poster.length)return 0;
             var px=x;
             poster.forEach(function(p){
-              s.addShape("rect",{x:px,y:y+0.045,w:0.13,h:0.13,fill:{color:p.farg}});
+              if(p.linje) s.addShape("rect",{x:px,y:y+0.107,w:0.17,h:0.036,fill:{color:p.farg}});
+              else s.addShape("rect",{x:px,y:y+0.045,w:0.13,h:0.13,fill:{color:p.farg}});
               var bredd=Math.max(0.7, p.text.length*0.075+0.16);
               s.addText(p.text,{x:px+0.2,y:y,w:bredd,h:0.22,fontSize:10,color:"5A7785",margin:0,valign:"middle"});
               px+=0.2+bredd+0.18;
@@ -30641,7 +30663,7 @@ window.__renderKompOpts=function(q){
       window.__kombiIndexChart=new Chart(civ,{type:"line",data:{labels:kv,datasets:dsets},
         options:{responsive:true,maintainAspectRatio:false,animation:false,
           plugins:{legend:{display:true,labels:{font:{family:"Inter",size:11},color:"#1a1a1a",
-              usePointStyle:true,boxHeight:6,padding:14}},
+              usePointStyle:true,pointStyle:"line",boxWidth:18,boxHeight:6,padding:14}},
             tooltip:{callbacks:{
               title:function(it){ var l=(it&&it[0])?it[0].label:""; return (typeof _fmtKv==="function")?_fmtKv(l):l; },
               label:function(c){ var _pp=_pi(c.dataIndex)?(typeof kompPrelimPeriodTxt==="function"?kompPrelimPeriodTxt(kv&&kv[c.dataIndex]):""):""; return c.dataset.label+": "+fmt2(c.parsed.y)+(_pp?(" ("+_pp+")"):""); }}}},
@@ -39198,8 +39220,8 @@ window.__ritaGymOvg = async function(){
     wrap.innerHTML='<canvas id="yhStudCanvas"></canvas>';
     if(_ch1)_ch1.destroy();
     _ch1=new C(document.getElementById("yhStudCanvas"),{type:"line",data:{labels:years,datasets:[
-      {label:"Studerande",data:stud,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.5,fill:true,tension:.3,pointRadius:0},
-      {label:"Examinerade",data:exam,borderColor:"#c2675b",backgroundColor:"transparent",borderWidth:2,borderDash:[5,4],fill:false,tension:.3,pointRadius:0}
+      {label:"Studerande",data:stud,borderColor:PETROL,backgroundColor:"rgba(59,121,146,.10)",borderWidth:2.6,fill:true,tension:.3,pointRadius:0},
+      {label:"Examinerade",data:exam,borderColor:"#c2675b",backgroundColor:"transparent",borderWidth:2,fill:false,tension:.3,pointRadius:0}
     ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,position:"bottom",labels:{font:{family:"Inter",size:11},color:"#1a1a1a",usePointStyle:true,pointStyle:"line",boxWidth:18,padding:10}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+nf0(c.parsed.y);}}}},scales:{y:{min:0,ticks:{callback:function(v){return nf0(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},x:{ticks:{maxTicksLimit:8,font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
   }
   /* Riketstapeln förskjuts en halv stapelhöjd så att båda syns. Samma instick som
