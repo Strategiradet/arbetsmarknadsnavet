@@ -4607,17 +4607,24 @@ section.results .nav-tooltip,section.results .nav-tooltip *{color:#fff}
 /* Kompetenslistan. Tabellen kan rymma över femhundra rader i en bokstav, så raderna hålls
    låga och ramlösa: en skiljelinje räcker för att följa en rad tvärs över sidan. */
 .kl-verktyg{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:20px 0 12px}
-.kl-sok{flex:1 1 240px;min-width:0;max-width:380px;padding:9px 12px;border:1px solid var(--line);
-  border-radius:10px;background:#fff;font:600 var(--ts-brod)/1.2 var(--font-ui);color:var(--ink)}
+/* Sökfältet ska inte väga tyngre än texten omkring sig: normal vikt, en grad under
+   brödtexten, som verktygets övriga inmatningsfält. */
+.kl-sok{flex:1 1 240px;min-width:0;max-width:380px;padding:10px 13px;border:1px solid var(--line);
+  border-radius:10px;background:#fff;font:400 var(--ts-rubrik)/1.2 var(--font-ui);color:var(--ink)}
 .kl-sok:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.kl-bokstav{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 16px}
-.kl-bok{border:1px solid #d8d1c2;background:#fff;border-radius:8px;padding:5px 9px;cursor:pointer;
-  font:700 var(--ts-etikett)/1 var(--font-ui);color:var(--ink);min-width:30px}
-.kl-bok:hover:not([disabled]){border-color:var(--petrol)}
-.kl-bok[aria-pressed="true"]{background:var(--petrol);border-color:var(--petrol);color:#fff}
-.kl-bok[disabled]{opacity:.3;cursor:default}
-.kl-bok .kl-antal{font-weight:600;opacity:.6;margin-left:5px}
-.kl-bok[aria-pressed="true"] .kl-antal{opacity:.8}
+/* Bokstavsraden följer avsnittspillren: varken ram eller yta, bara ordet i dämpad ton, och
+   enbart det valda fyllt. Tjugonio inramade rutor blev sidans starkaste element trots att
+   raden är en sidokontroll. Antalet står i samma vikt med nedsatt opacitet, som antalen i
+   bristkolumnernas rubriker. */
+.kl-bokstav{display:flex;flex-wrap:wrap;gap:2px;margin:0 0 16px}
+.kl-bok{border:0;background:transparent;border-radius:8px;padding:7px 10px;cursor:pointer;
+  font:600 var(--ts-text)/1 var(--font-ui);color:var(--ink-soft);min-width:30px;
+  transition:background .15s ease,color .15s ease}
+.kl-bok:hover:not([disabled]){background:rgba(168,149,114,.14);color:var(--ink)}
+.kl-bok[aria-pressed="true"]{background:var(--petrol);color:#fff}
+.kl-bok[disabled]{opacity:.35;cursor:default}
+.kl-bok .kl-antal{font-weight:600;opacity:.55;margin-left:4px}
+.kl-bok[aria-pressed="true"] .kl-antal{opacity:.75}
 /* Tabellen följer verktygets rapporttabeller: en hårfin linje över och under, ett dämpat
    kolumnhuvud i minsta graden, inga ramar kring cellerna och siffror i fast bredd. Bredden
    hålls samlad, så att kolumnerna står nära varandra i stället för att spridas ut över hela
@@ -8864,9 +8871,8 @@ section.results .vcmp .rapport-matrix-wrap{
   <div class="method-doc">
     <a class="method-back" id="komplistaBack" href="#" role="button"><span aria-hidden="true">&#8592;</span> Tillbaka till verktyget</a>
     <h2 class="method-title" tabindex="-1">Kompetenslista</h2>
-    <p id="klIngress">Sammanst&#228;llningen visar samtliga kompetenser som g&#229;r att v&#228;lja i verktyget.</p>
-    <p>Kompetenserna läses maskinellt ur annonstexten genom Arbetsförmedlingens berikning JobAd Enrichments. En kompetens ingår i verktyget när den i genomsnitt nämns i minst 100 jobbannonser per helt år. Vissa enskilda kompetenser under denna gräns har inkluderats.</p>
-    <p>Listan finns även som nedladdningsbar fil under Ladda ned data.</p>
+    <p class="method-lead" id="klIngress">Sammanst&#228;llningen visar samtliga kompetenser som g&#229;r att v&#228;lja i verktyget.</p>
+    <p>Kompetenserna läses maskinellt ur annonstexten genom Arbetsförmedlingens berikning JobAd Enrichments. En kompetens ingår i verktyget när den i genomsnitt nämns i minst 100 jobbannonser per helt år. Vissa enskilda kompetenser under denna gräns har inkluderats. Listan finns även som nedladdningsbar fil under Ladda ned data.</p>
     <div class="kl-verktyg">
       <input type="search" id="klSok" class="kl-sok" placeholder="S&#246;k kompetens" aria-label="S&#246;k kompetens" autocomplete="off" spellcheck="false">
       <!-- Sorteringsväxeln är borttagen. Kolumnhuvudena bär sorteringen, och två kontroller
@@ -8958,19 +8964,37 @@ section.results .vcmp .rapport-matrix-wrap{
     return L.slice().sort(function(a,b){ return r*a.localeCompare(b,"sv"); });
   }
 
+  /* Bokstavsraden byggs en gång. Tidigare skrevs hela raden om vid varje tryck, och den
+     tryckta knappen försvann då ur dokumentet mitt i klicket. Fokus hamnade på body, och i
+     en del webbläsare rullar sidan till toppen när det som har fokus tas bort. Antalen
+     ändras inte heller mellan trycken, så det finns inget att bygga om: bara markeringen
+     flyttas. */
+  var bokstavsradKlar=false;
   function ritaBokstavsrad(){
     var host=el("klBokstav"); if(!host)return;
+    if(bokstavsradKlar){ markeraBokstav(); return; }
     var L=namnen(), rakn={};
     L.forEach(function(n){ var b=bokstav(n); rakn[b]=(rakn[b]||0)+1; });
     var bok=ALFABET.slice();
     if(rakn["0-9"]) bok.push("0-9");
-    var h='<button type="button" class="kl-bok" data-bok="alla" aria-pressed="'+((!valdBok||valdBok==="alla")?"true":"false")+'">Alla<span class="kl-antal">'+tal(L.length)+'</span></button>';
+    var h='<button type="button" class="kl-bok" data-bok="alla" aria-pressed="false">Alla<span class="kl-antal">'+tal(L.length)+'</span></button>';
     bok.forEach(function(b){
       var n=rakn[b]||0;
-      h+='<button type="button" class="kl-bok" data-bok="'+esc(b)+'" aria-pressed="'+((valdBok===b)?"true":"false")+'"'
-        +(n?"":" disabled")+'>'+esc(b==="0-9"?"0–9":b)+(n?('<span class="kl-antal">'+tal(n)+'</span>'):"")+'</button>';
+      h+='<button type="button" class="kl-bok" data-bok="'+esc(b)+'" aria-pressed="false"'
+        +(n?"":" disabled")+'>'+esc(b==="0-9"?"0\u20139":b)+(n?('<span class="kl-antal">'+tal(n)+'</span>'):"")+'</button>';
     });
     host.innerHTML=h;
+    bokstavsradKlar=true;
+    markeraBokstav();
+  }
+  /* Flyttar markeringen utan att röra knapparna i övrigt. */
+  function markeraBokstav(){
+    var host=el("klBokstav"); if(!host)return;
+    var vald=(!valdBok||valdBok==="alla")?"alla":valdBok;
+    if(sok.trim()) vald=null;      /* en sökning går över bokstavsvalet */
+    [].slice.call(host.querySelectorAll(".kl-bok")).forEach(function(b){
+      b.setAttribute("aria-pressed", (b.dataset.bok===vald)?"true":"false");
+    });
   }
 
   function radHtml(k, tot, finnsTal, visaYrke){
@@ -8985,10 +9009,11 @@ section.results .vcmp .rapport-matrix-wrap{
   function forklaring(antal){
     var q=sok.trim();
     if(q) return tal(antal)+" "+(antal===1?"kompetens innehåller":"kompetenser innehåller")+" ”"+q+"”.";
-    if(valdBok && valdBok!=="alla")
-      return tal(antal)+" "+(antal===1?"kompetens börjar":"kompetenser börjar")+" på "
-        +(valdBok==="0-9"?"siffra eller tecken":valdBok)+".";
-    return "Visar samtliga "+tal(antal)+" kompetenser.";
+    /* Vid ett bokstavsval står antalet redan i pillret, så raden säger ingenting nytt. */
+    if(valdBok && valdBok!=="alla") return "";
+    /* Med hela listan framme säger raden samma sak som pillret Alla, och två texter om
+       samma tal ovanför varandra är just det som gör sidan rörig. Den utgår då. */
+    return "";
   }
   /* Kolumnhuvudet är en knapp, så att sorteringen nås både med pekare och med tangentbord.
      aria-sort talar om för skärmläsaren vilken kolumn som gäller och åt vilket håll. */
@@ -9006,10 +9031,11 @@ section.results .vcmp .rapport-matrix-wrap{
     var forkl=el("klForkl");
     if(!aktuell.length){
       host.innerHTML='<div class="msg">Ingen kompetens matchar sökningen.</div>';
-      if(forkl)forkl.textContent="";
+      if(forkl){ forkl.textContent=""; forkl.style.display="none"; }
       return;
     }
-    if(forkl)forkl.textContent=forklaring(aktuell.length);
+    if(forkl){ var _f=forklaring(aktuell.length);
+               forkl.textContent=_f; forkl.style.display=_f?"":"none"; }
     var tot=totaler(), finnsTal=harTal();
     /* Kolumnen yrkesgrupp utgår helt när underlaget inte kan namnge någon grupp. En kolumn
        med enbart tankstreck ser ut som ett fel, och rubriken lovar då något som inte finns. */
