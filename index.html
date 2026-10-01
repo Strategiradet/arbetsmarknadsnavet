@@ -1790,11 +1790,6 @@ window.__kompSammanslagning = function(){
   .method-ordlista{margin:14px 0 26px}
   .method-ordlista dt,.method-underrubrik{font:700 var(--ts-rubrik)/1.35 var(--font-ui);color:var(--ink);margin:14px 0 3px}
   .method-ordlista dd{margin:0;font:400 var(--ts-rubrik)/1.6 var(--font-ui);color:var(--ink-soft)}
-  .method-back{display:inline-flex;align-items:center;gap:6px;margin:0 0 16px;padding:5px 13px 5px 10px;
-    font:600 var(--ts-text)/1 var(--font-ui);color:var(--rubrik);background:#fff;border:1px solid var(--line);
-    border-radius:999px;cursor:pointer;text-decoration:none;transition:background .2s var(--ease),border-color .2s var(--ease)}
-  .method-back:hover{background:var(--accent-soft);border-color:var(--accent)}
-  .method-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   .dl-note{font-size:var(--ts-rubrik);line-height:1.55;color:var(--ink-soft);background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:0 0 26px}
   .fakta-ruta{font:400 var(--fig-text)/1.55 var(--font-ui);color:var(--ink-soft);background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin:2px 0 14px}
   /* Regeln gjorde varje b i rutan till ett eget block, för att den inledande fetstilen ska
@@ -3631,7 +3626,11 @@ var RUTNAT=(getComputedStyle(document.documentElement).getPropertyValue("--paper
   /* Metodvyn saknar panelkolumn: toppraden glider undan och navlisten flyttas upp */
   body[data-view="method"] header{transform:none;opacity:1}
   body[data-view="method"] #navRail{padding-top:64px}
-body[data-view="method"] .method-doc,body[data-view="ladda"] .method-doc,body[data-view="komplista"] .method-doc{padding-top:68px}
+/* Rubriken ska ligga lika högt som titeln i en vanlig resultatvy. Där står den
+   16 bildpunkter under toppraden; här stod den 108, eftersom luften var satt efter
+   panelkolumnens 68 och knappen Tillbaka till verktyget tog ytterligare 40. Knappen
+   är borttagen, och luften är nu densamma som i övriga vyer. */
+body[data-view="method"] .method-doc,body[data-view="ladda"] .method-doc,body[data-view="komplista"] .method-doc{padding-top:16px}
 }
 }
 </style>
@@ -8788,7 +8787,6 @@ section.results .vcmp .rapport-matrix-wrap{
 
 <main id="view-method" class="view" style="display:none" aria-label="Om verktyget" tabindex="-1">
   <div class="method-doc">
-    <a class="method-back" id="methodBack" href="#" role="button"><span aria-hidden="true">←</span> Tillbaka till verktyget</a>
     <h2 class="method-title" id="methodTitle" tabindex="-1">Om verktyget</h2>
     <p class="method-lead">Arbetsmarknadsnavet är ett verktyg som utvecklats av Strategirådet. Verktyget samlar arbetsmarknadsdata och möjliggör avancerade analyser på ett enkelt och pedagogiskt sätt. Verktyget har flera användningsområden, såsom regionala analyser, utbildningsplanering eller som källa till rapporter och beslutsunderlag.</p>
 
@@ -8816,7 +8814,7 @@ section.results .vcmp .rapport-matrix-wrap{
         <p>Kompetenserna läses maskinellt ur annonstexten med Arbetsförmedlingens berikning JobAd Enrichments. Omkring nio av tio annonser ger minst en kompetens, medan övriga saknar utläst kompetens, ofta för att annonstexten är kort eller hänvisar vidare. Andelar som anges för en kompetens räknas mot samtliga annonser, alltså även mot de annonser som saknar utläst kompetens.</p>
         <!-- Urvalet av kompetenser stod bara i koden. Regeln och en väg till förteckningen
              hör hemma här, bredvid beskrivningen av hur kompetenserna läses ut. -->
-        <p>Alla utlästa kompetenser ingår inte i verktyget. En kompetens ingår när den i genomsnitt nämns i minst 100 jobbannonser per helt år. Vissa enskilda kompetenser under denna gräns har inkluderats. Samtliga kompetenser som går att välja är förtecknade under <a href="#" class="method-lank" id="lankKompLista" role="button">Kompetenslista</a>, och samma förteckning finns som nedladdningsbar fil under Ladda ned data.</p>
+        <p>Alla utlästa kompetenser ingår inte i verktyget. En kompetens ingår om den i genomsnitt nämns i minst 100 jobbannonser per helt år. Vissa enskilda kompetenser under denna gräns har inkluderats. Samtliga kompetenser som går att välja är förtecknade under <a href="#" class="method-lank" id="lankKompLista" role="button">Kompetenslista</a>, och samma förteckning finns som nedladdningsbar fil under Ladda ned data.</p>
         <p>Även kvaliteten på informationen varierar, bland annat vad gäller geografisk placering. I vissa annonser anges exempelvis &rdquo;hela Sverige&rdquo; eller kopplas till arbetsgivarens huvudkontor trots att arbetet utförs på annan ort. Det kan ge en missvisande bild av den geografiska efterfrågan.</p>
         <p>Slutligen publiceras vissa annonser av bemannings- eller rekryteringsföretag. Det kan innebära att samma kompetensbehov förekommer flera gånger i datan eller att den geografiska kopplingen blir mindre tydlig.</p>
         <h3 class="method-h" id="m-kalla">Källor</h3>
@@ -8868,7 +8866,6 @@ section.results .vcmp .rapport-matrix-wrap{
 
 <main id="view-ladda" class="view" style="display:none" aria-label="Ladda ned data" tabindex="-1">
   <div class="method-doc">
-    <a class="method-back" id="laddaBack" href="#" role="button"><span aria-hidden="true">←</span> Tillbaka till verktyget</a>
     <h2 class="method-title" tabindex="-1">Ladda ned data</h2>
     <!-- Texten är brödtext, inte ingress: samma klass som styckena under Om verktyget,
          så att färg och storlek blir desamma. -->
@@ -8887,10 +8884,13 @@ section.results .vcmp .rapport-matrix-wrap{
      glida isar fran verktyget. -->
 <main id="view-komplista" class="view" style="display:none" aria-label="Kompetenslista" tabindex="-1">
   <div class="method-doc">
-    <a class="method-back" id="komplistaBack" href="#" role="button"><span aria-hidden="true">&#8592;</span> Tillbaka till verktyget</a>
     <h2 class="method-title" tabindex="-1">Kompetenslista</h2>
-    <p class="method-lead" id="klIngress">Sammanst&#228;llningen visar samtliga kompetenser som g&#229;r att v&#228;lja i verktyget.</p>
-    <p>Kompetenserna läses maskinellt ur annonstexten genom Arbetsförmedlingens berikning JobAd Enrichments. En kompetens ingår i verktyget när den i genomsnitt nämns i minst 100 jobbannonser per helt år. Vissa enskilda kompetenser under denna gräns har inkluderats. Listan finns även som nedladdningsbar fil under Ladda ned data.</p>
+    <!-- Stycket var en ingress och sattes därför i större grad och dämpad ton, medan
+         stycket under det var brödtext. De två säger samma slags sak om listan, så
+         skillnaden i grad skilde dem åt utan att betyda något. Båda är nu brödtext.
+         Ingressformatet finns kvar i Om verktyget, där stycket inleder en längre text. -->
+    <p id="klIngress">Sammanst&#228;llningen visar samtliga kompetenser som g&#229;r att v&#228;lja i verktyget.</p>
+    <p>Kompetenserna läses maskinellt ur annonstexten genom Arbetsförmedlingens berikning JobAd Enrichments. En kompetens ingår i verktyget om den i genomsnitt nämns i minst 100 jobbannonser per helt år. Vissa enskilda kompetenser under denna gräns har inkluderats. Listan finns även som nedladdningsbar fil under Ladda ned data.</p>
     <div class="kl-verktyg">
       <input type="search" id="klSok" class="kl-sok" placeholder="S&#246;k kompetens" aria-label="S&#246;k kompetens" autocomplete="off" spellcheck="false">
       <!-- Sorteringsväxeln är borttagen. Kolumnhuvudena bär sorteringen, och två kontroller
@@ -9138,11 +9138,6 @@ section.results .vcmp .rapport-matrix-wrap{
         if(h) sorteraPa(h.dataset.kol);
       });
     }
-    var back=el("komplistaBack");
-    if(back)back.addEventListener("click",function(e){
-      e.preventDefault();
-      var n=document.querySelector('.viewnav-btn[data-vw="kompetens"]'); if(n)n.click();
-    });
     var mob=el("btnKompLista");
     if(mob)mob.addEventListener("click",function(){ var t2=el("tab-komplista"); if(t2)t2.click(); });
     /* Hänvisningen i Om verktyget leder hit. */
@@ -12782,16 +12777,6 @@ if(document.fonts&&document.fonts.ready){document.fonts.ready.then(()=>setTimeou
 moveNavIndicator();
 
 (function setupMethodView(){
-  var back=document.getElementById("methodBack");
-  var prev="region";
-  
-  function closeMethod(){
-    var n=document.querySelector('.viewnav-btn[data-vw="'+prev+'"]')||document.querySelector('.viewnav-btn[data-vw="region"]');
-    if(n)n.click();
-   
-  }
-  if(back)back.addEventListener("click",function(e){e.preventDefault();closeMethod();});
-  
   var doc=document.querySelector("#view-method .method-doc");
   if(doc){doc.querySelectorAll(".method-toc a").forEach(function(a){a.addEventListener("click",function(e){var id=a.getAttribute("href");if(id&&id.charAt(0)==="#"){var t=document.getElementById(id.slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"});}}});});}
 })();
@@ -12993,9 +12978,9 @@ moveNavIndicator();
       {id:"kompetenser_urval", namn:"Kompetenser som g\u00e5r att v\u00e4lja i verktyget",
         /* Samma lydelse som sidan Kompetenslista. De tre texterna om urvalet ska säga
            samma sak, annars läses skillnaden som att reglerna är olika. */
-        desc:function(){ return "Samtliga kompetenser som g\u00e5r att v\u00e4lja i verktyget, med antalet jobbannonser d\u00e4r kompetensen n\u00e4mns under perioden "
+        desc:function(){ return "Samtliga kompetenser som g\u00e5r att v\u00e4lja i verktyget, samt antalet jobbannonser d\u00e4r kompetensen n\u00e4mns under perioden "
           +dlKvPeriod()+" och den yrkesgrupp d\u00e4r den oftast efterfr\u00e5gas. "
-          +"En kompetens ing\u00e5r i verktyget n\u00e4r den i genomsnitt n\u00e4mns i minst 100 jobbannonser per helt \u00e5r. "
+          +"En kompetens ing\u00e5r i verktyget om den i genomsnitt n\u00e4mns i minst 100 jobbannonser per helt \u00e5r. "
           +"Vissa enskilda kompetenser under denna gr\u00e4ns har inkluderats."; },
         kalla:"Arbetsf\u00f6rmedlingen, Historiska platsannonser och JobAd Enrichments",
         build:function(){ var L=window.__KOMP_VALBARA||[], tot=(window.__kompTotals?window.__kompTotals():{})||{};
@@ -13059,7 +13044,6 @@ moveNavIndicator();
     if(/^arbetsgivare_/.test(it.id)&&window.__agNarKlar&&!(window.__agData&&window.__agData())){ btn.textContent="Sammanst\u00e4ller underlag\u2026"; btn.disabled=true; window.__agNarKlar(kor); }
     else if(window.__kompKlar&&!window.__kompKlar.klar()){ if(window.__kompStarta)window.__kompStarta(); btn.textContent="Sammanst\u00e4ller underlag\u2026"; btn.disabled=true; window.__kompKlar.then(kor); } else kor();
   }); });
-  var back=document.getElementById("laddaBack"); if(back)back.addEventListener("click",function(e){ e.preventDefault(); var n=document.querySelector('.viewnav-btn[data-vw="region"]'); if(n)n.click(); });
 })();
 (function setupSidebarToggle(){
   const btn=document.getElementById("sidebarToggle"); if(!btn)return;
@@ -36204,16 +36188,21 @@ B["Lönenivå"]=function(c){
     if(!isR&&riket){
       var stora=egen.andel[2]+egen.andel[3], storaR=riket.andel[2]+riket.andel[3];
       var d0=egen.andel[0]-riket.andel[0], d2=stora-storaR;
+      /* Predikatet låg inuti parentesen och bara i grenen "ligger i nivå med riket".
+         Valdes talgrenen blev meningen "Andelen med minst 20 anställda 0,4 procentenheter
+         högre.", alltså utan verb, vilket inträffade i tretton av tjugoen län. Jämförelsen
+         saknade dessutom "än i riket", som meningen före har. Båda grenarna bär nu sitt
+         eget verb: ligger i nivå med riket, eller är X procentenheter högre än i riket. */
       st.push("Andelen arbetsställen utan anställda är "+(Math.abs(d0)<0.5?"ungefär densamma som i riket"
           :(fmt1(Math.abs(d0))+" procentenheter "+(d0>0?"högre":"lägre")+" än i riket"))
-        +". Andelen med minst tjugo anställda "+(Math.abs(d2)<0.3?"ligger i nivå med riket"
-          :(fmt1(Math.abs(d2))+" procentenheter "+(d2>0?"högre":"lägre")))
+        +". Andelen med minst 20 anställda "+(Math.abs(d2)<0.3?"ligger i nivå med riket"
+          :("är "+fmt1(Math.abs(d2))+" procentenheter "+(d2>0?"högre":"lägre")+" än i riket"))
         +".");
     } else {
       /* Andelen stod som "Sju av tio" i texten medan den räknas fram ur underlaget strax
          ovanför. Talet skrivs nu ut, och beskrivningen av vad ett arbetsställe utan anställda
          är står i undertexten. */
-      st.push("Arbetsst\u00e4llen med minst tjugo anst\u00e4llda utg\u00f6r "+fmt1(egen.andel[2]+egen.andel[3])+" procent.");
+      st.push("Arbetsst\u00e4llen med minst 20 anst\u00e4llda utg\u00f6r "+fmt1(egen.andel[2]+egen.andel[3])+" procent.");
     }
     return {rubrik:"Arbetsställenas storlek", stycken:st};
   };
@@ -36226,24 +36215,37 @@ B["Lönenivå"]=function(c){
       return s>0?A.riket.map(function(x){ return 100*x/s; }):null; })():null;
     var namn=(d.name||"branschen");
     /* Definitionen av arbetsställe stod både här och i källraden. Den står nu i undertexten. */
+    /* Jämförelsetalen avser arbetsställen i samtliga näringsgrenar, alltså även offentliga.
+       Lydelsen "bland samtliga arbetsställen" kunde läsas som samtliga arbetsställen i
+       branschen, vilket hade gjort jämförelsen meningslös. Näringsgrenarna namnges därför,
+       med samma ord som länsvyns motsvarande text använder. */
     var st=[""
-      +"I riket har branschen "+nf.format(egen.tot)+" arbetsst\u00e4llen, varav "
-      +fmt1(egen.andel[0])+" procent saknar anst\u00e4llda"
-      +(alla?(" j\u00e4mf\u00f6rt med "+fmt1(alla[0])+" procent bland samtliga arbetsst\u00e4llen"):"")+"."];
+      +"I riket har branschen "+nf.format(egen.tot)+" arbetsställen. Av dem saknar "
+      +fmt1(egen.andel[0])+" procent anställda"
+      +(alla?(", jämfört med "+fmt1(alla[0])+" procent av arbetsställena i samtliga näringsgrenar"):"")+"."];
     var stora=egen.andel[2]+egen.andel[3];
     var storaAlla=alla?(alla[2]+alla[3]):null;
     /* Domen om att branschen bedrivs på färre och större arbetsplatser vilade på en satt
-       gräns, 1,3 gånger rikets andel. Talen står kvar och läsaren avgör själv. */
-    st.push("Arbetsst\u00e4llen med minst tjugo anst\u00e4llda utg\u00f6r "+fmt1(stora)+" procent av branschens"
-      +(storaAlla!=null?(", j\u00e4mf\u00f6rt med "+fmt1(storaAlla)+" procent bland samtliga arbetsst\u00e4llen"):"")+".");
+       gräns, 1,3 gånger rikets andel. Talen står kvar och läsaren avgör själv.
+       Meningen bar tidigare genitiven "av branschens" utan huvudord och avslutades med
+       samma jämförelseled som meningen före. Båda talen står nu med var sin bestämning.
+       Gränsen skrivs med siffra, samma form som nyckeltalskorten och storleksklasserna. */
+    st.push(storaAlla!=null
+      ? ("Andelen arbetsställen med minst 20 anställda är "+fmt1(stora)
+         +" procent i branschen och "+fmt1(storaAlla)+" procent i samtliga näringsgrenar.")
+      : ("Av branschens arbetsställen har "+fmt1(stora)+" procent minst 20 anställda."));
     if(d.region){
       var iLan=window.__aeRad(d.code,d.region);
       if(iLan){
         var lanNamn=(d.regionName||((typeof regionDisplayName==="function")?regionDisplayName(d.region):d.region));
-        st.push("I "+lanNamn+" har branschen "+nf.format(iLan.tot)+" arbetsställen. Där saknar "
+        /* Respektive-konstruktionen tvingade läsaren att para ihop två tal med två
+           egenskaper i rätt ordning. Rikets tal står nu i en egen mening, i samma ordning
+           som egenskaperna nämns i meningen före. Ordet anställda skrevs tidigare ut bara
+           en gång och fick hämtas ur meningen före. */
+        st.push("I "+lanNamn+" har branschen "+nf.format(iLan.tot)+" arbetsställen. Av dem saknar "
           +fmt1(iLan.andel[0])+" procent anställda och "+fmt1(iLan.andel[2]+iLan.andel[3])
-          +" procent har minst tjugo, j\u00e4mf\u00f6rt med "+fmt1(egen.andel[0])+" respektive "+fmt1(stora)
-          +" procent för branschen i riket.");
+          +" procent har minst 20 anställda. Motsvarande andelar för branschen i riket är "
+          +fmt1(egen.andel[0])+" och "+fmt1(stora)+" procent.");
       }
     }
     return {rubrik:"Arbetsställenas storlek", stycken:st};
