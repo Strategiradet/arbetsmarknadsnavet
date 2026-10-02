@@ -10552,7 +10552,7 @@ function _ovgRapportBlocks(blocks,code,keyCols){
 const UTB_PATH="/START/UF/UF0506/UF0506B/UtbBefRegionR";
 let _utbMeta=null;
 async function utbMetaGet(){ if(_utbMeta)return _utbMeta; _utbMeta=await apiGet(UTB_PATH); return _utbMeta; }
-function _utbParse(js, regDimId, nivDimId, hogCodes, regMap, totKod){
+function _utbParse(js, regDimId, nivDimId, hogCodes, regMap, totKod, okandKoder){
   if(!js||!js.value)return null;
   const id=js.id||[], size=js.size||[], dim=js.dimension||{};
   const ridx=id.indexOf(regDimId), nidx=id.indexOf(nivDimId);
@@ -10564,23 +10564,32 @@ function _utbParse(js, regDimId, nivDimId, hogCodes, regMap, totKod){
   const regByPos={}; Object.keys(regCat).forEach(c=>regByPos[regCat[c]]=c);
   const hogByPos={}; Object.keys(nivCat).forEach(c=>{ hogByPos[nivCat[c]]=hogCodes.has(c); });
   const totPos=(totKod!=null&&nivCat[totKod]!=null)?nivCat[totKod]:-1;
+  /* Okänd utbildningsnivå hålls utanför nämnaren. Fördelningsfiguren följer samma regel
+     (se fetchUtbFordelning), och innan den här raden fanns gav nyckeltalet och figuren
+     två olika tal för samma mening: andelen med minst treårig eftergymnasial utbildning.
+     Posten räknas för sig, så att dess storlek går att se vid summakollen nedan. */
+  const okandByPos={};
+  if(okandKoder&&okandKoder.size) Object.keys(nivCat).forEach(c=>{ if(okandKoder.has(c))okandByPos[nivCat[c]]=true; });
   const acc={};
   for(let idx=0; idx<s; idx++){
     const v=js.value[idx]; if(v==null||isNaN(v))continue;
     const rpos=Math.floor(idx/stride[ridx])%size[ridx];
     const npos=Math.floor(idx/stride[nidx])%size[nidx];
     const rc=regByPos[rpos]; if(rc==null)continue;
-    if(!acc[rc])acc[rc]={tot:0,hog:0,total:0};
+    if(!acc[rc])acc[rc]={tot:0,hog:0,total:0,okand:0};
     /* Totalposten räknas för sig och ingår inte i nämnaren. Den finns med i svaret bara
        för att summan av nivåerna ska kunna ställas mot källans egen total. */
     if(totKod!=null && npos===totPos){ acc[rc].total+=(+v); continue; }
+    if(okandByPos[npos]){ acc[rc].okand+=(+v); continue; }
     acc[rc].tot+=(+v); if(hogByPos[npos])acc[rc].hog+=(+v);
   }
   /* Stämmer inte delarna med helheten har något prickats eller fallit bort ur urvalet.
      Talet ändras inte, men avvikelsen loggas och syns med ?felsok=1 i adressen. */
   if(totKod!=null){
     Object.keys(acc).forEach(function(rc){
-      if(acc[rc].total>0 && window.__summakoll) window.__summakoll("utbildningsnivå "+rc, acc[rc].tot, acc[rc].total);
+      /* Källans total rymmer de okända, så de läggs tillbaka i jämförelsen. Utan det
+         hade kollen larmat om ett bortfall som är avsiktligt uteslutet. */
+      if(acc[rc].total>0 && window.__summakoll) window.__summakoll("utbildningsnivå "+rc, acc[rc].tot+acc[rc].okand, acc[rc].total);
     });
   }
   const res={};
@@ -10621,6 +10630,15 @@ async function fetchUtbNiva(regions){
     _nivDelar.push(kod);
   });
   if(!_nivDelar.length) _nivDelar=(nivV.values||[]).slice();
+  /* Nivån okänd eller uppgift saknas plockas ut och hålls utanför nämnaren i _utbParse.
+     Samma textprov som _utbfKlass använder för fördelningsfiguren, så att de två vägarna
+     avgränsar posten likadant. Den begärs ändå, eftersom summan av delarna annars inte
+     går att ställa mot källans total. */
+  var _nivOkand=new Set();
+  (nivV.values||[]).forEach(function(kod,i){
+    var txt=String(((nivV.valueTexts||[])[i])||"");
+    if(/uppgift|saknas|ok\u00e4nd/i.test(txt)) _nivOkand.add(kod);
+  });
   const q=[{code:regV.code,selection:{filter:"item",values:regSel}},
            {code:nivV.code,selection:{filter:"item",values:_nivTotal?_nivDelar.concat([_nivTotal]):_nivDelar}}];
   if(aldV&&aldSel)q.push({code:aldV.code,selection:{filter:"item",values:aldSel}});
@@ -10630,7 +10648,10 @@ async function fetchUtbNiva(regions){
   nv.forEach((code,i)=>{ const x=nt[i]||""; if(/eftergymnasial/i.test(x)&&/(3|tre)\s*\u00e5r eller mer|minst\s*(3|tre)/i.test(x))hog.add(code); if(/forskarutbildning/i.test(x))hog.add(code); });
   if(!hog.size)return null;
   const year=(tidV&&tidV.values&&tidV.values.length)?tidV.values[tidV.values.length-1]:null;
-  const byCode=_utbParse(js, regV.code, nivV.code, hog, regMap);
+  /* Totalposten skickas med. Utan den räknades den som en nivå och lades i nämnaren,
+     som då blev dubbelt så stor och andelen hälften så hög — just det fel kommentaren
+     ovanför urvalet varnar för. */
+  const byCode=_utbParse(js, regV.code, nivV.code, hog, regMap, _nivTotal, _nivOkand);
   if(!byCode)return null;
   byCode._year=year;
   return byCode;
@@ -11848,7 +11869,12 @@ function _privShareKom(b){
   if(!(tot>0)||b._priv==null) return null;
   if(window.__summakoll) window.__summakoll("näringsgrenar, kommun", sekt, tot);
   if(sekt>0 && sekt<tot*0.95) return null;
-  return b._priv/Math.max(tot,sekt)*100;
+  /* Nämnaren är summan av avdelningarna, alltså de sysselsatta vars näringsgren är känd.
+     Förut delades talet med max(totalrad, summan), och SCB:s totalrad rymmer posten
+     uppgift saknas. Figuren Näringslivets bredd i samma vy delar med summan av
+     avdelningarna, så kortet och staplarna vilade på två nämnare. Okänd näringsgren
+     hålls nu utanför på båda ställena, på samma vis som okänd utbildningsnivå. */
+  return b._priv/(sekt>0?sekt:tot)*100;
 }
 function buildKommunData(code,live){
   var lan=(window.SVE_KOMMUN&&window.SVE_KOMMUN.lan[code])||"01";
@@ -11876,9 +11902,16 @@ function buildKommunData(code,live){
     sys24Years=_sy24; sys24Series={region:_sy24.map(function(y){return live.syss2024[code][y];}),riket:_sy24.map(function(y){return live.syss2024["00"]?live.syss2024["00"][y]:null;})}; }
   if(live.arbl2024&&live.arbl2024[code]&&Object.keys(live.arbl2024[code]).length){ var _ay24=Object.keys(live.arbl2024[code]).sort(); var _ayl24=_ay24[_ay24.length-1]; arbReg2024=live.arbl2024[code][_ayl24]; arbRik2024=(live.arbl2024["00"]&&live.arbl2024["00"][_ayl24]!=null)?live.arbl2024["00"][_ayl24]:null;
     arb24Years=_ay24; arb24Series={region:_ay24.map(function(y){return live.arbl2024[code][y];}),riket:_ay24.map(function(y){return live.arbl2024["00"]?live.arbl2024["00"][y]:null;})}; }
-  var utbReal=!!(live&&live.utb&&live.utb[code]!=null);
-  var utbReg=utbReal?live.utb[code]:null;
-  var utbRik=(live&&live.utb&&live.utb["00"]!=null)?live.utb["00"]:null;
+  /* Andelen med minst treårig eftergymnasial utbildning tas ur fördelningen när den
+     finns. Fördelningen är den tabell figuren ritar, och där ligger okänd nivå utanför
+     nämnaren. Nyckeltalets egen tabell följer nu samma regel, men det är en annan tabell
+     med ett eget senaste år, så fördelningen går först. Då visar kortet, analystexten och
+     figuren samma tal i stället för två tal för samma mening. */
+  var _ufKom=(live&&live.utbFord&&live.utbFord[code])?live.utbFord[code]:null;
+  var _ufRik=(live&&live.utbFord&&live.utbFord["00"])?live.utbFord["00"]:null;
+  var utbReal=!!((_ufKom&&_ufKom.eft3!=null)||(live&&live.utb&&live.utb[code]!=null));
+  var utbReg=(_ufKom&&_ufKom.eft3!=null)?_ufKom.eft3:((live&&live.utb&&live.utb[code]!=null)?live.utb[code]:null);
+  var utbRik=(_ufRik&&_ufRik.eft3!=null)?_ufRik.eft3:((live&&live.utb&&live.utb["00"]!=null)?live.utb["00"]:null);
   var brReal=!!(live&&live.bransch&&live.bransch[code]&&live.bransch["00"]&&live.bransch[code]._tot);
   var lqBransch=brReal?lqFromCounts(live.bransch[code],live.bransch["00"],SNI_AREAS):[];
   var komYrkeReal=!!(live&&live.komYrke&&live.komYrke[code]&&live.komYrke["00"]&&live.komYrke[code]._tot>0&&live.komYrke["00"]._tot>0);
@@ -11915,7 +11948,13 @@ function buildKommunData(code,live){
     egen:_mkEK||null, riket:_mkRK||null}:null;
   if(live&&live.medink&&live.medink[code]){var _mk=Object.keys(live.medink[code]).filter(function(x){return /^\d{4}$/.test(x);}).sort();if(_mk.length){medInkReg=live.medink[code][_mk[_mk.length-1]]; medInkAr=_mk[_mk.length-1];}
     inkYears=_mk; inkSeries={region:_mk.map(function(y){return live.medink[code][y];}),riket:_mk.map(function(y){return (live.medink["00"]?live.medink["00"][y]:null);})};}
-  if(live&&live.medink&&live.medink["00"]){var _mkr=Object.keys(live.medink["00"]).sort();if(_mkr.length)medInkRik=live.medink["00"][_mkr[_mkr.length-1]];}
+  /* Bara fyrsiffriga år räknas. Objektet bär även __kon med könsuppdelningen, och
+     understreck ligger efter siffror i teckenordningen: osorterat hamnade __kon sist, och
+     riksvärdet blev hela objektet i stället för ett tal. deltaTag gav då tom sträng, så
+     inkomstkortet stod utan jämförelse mot riket medan de sex korten omkring det hade en,
+     och samma tystnad slog igenom i rapportmeningen och i sammanfattningskortet. Länsvyn
+     filtrerar redan på samma vis, se latest() i buildRegionData. */
+  if(live&&live.medink&&live.medink["00"]){var _mkr=Object.keys(live.medink["00"]).filter(function(x){return /^\d{4}$/.test(x);}).sort();if(_mkr.length)medInkRik=live.medink["00"][_mkr[_mkr.length-1]];}
   var baro=(typeof ybLanBaro==="function")?ybLanBaro(lan):[];
   return {code:code,name:name,lanCode:lan,lanName:lanName,utbFord:(live.utbFord||null),
     saknasData:!(sysReal||arbReal||utbReal||brReal||yrkeLanReal||komYrkeReal),
@@ -13223,7 +13262,14 @@ async function loadRegionData(){
     if(fel.length){ var st=document.getElementById("regionStatus"); if(st)st.innerHTML='<div class="msg">Kunde inte visa '+fel.join(", ")+' för länet. Övriga figurer visas.</div>'; }
   })();
 }
-function regionName(code){ if(LAN_NAMN[code])return LAN_NAMN[code][0]; const o=document.querySelector(`#ddRegionMenu .tabledd-opt[data-code="${code}"]`); if(o)return o.textContent; try{ if(typeof LAN_LISTA!=='undefined'&&LAN_LISTA){ var _r=LAN_LISTA.find(function(x){return x.code===String(code);}); if(_r)return _r.name; } }catch(e){} return "länet"; }
+function regionName(code){ if(LAN_NAMN[code])return LAN_NAMN[code][0]; const o=document.querySelector(`#ddRegionMenu .tabledd-opt[data-code="${code}"]`); if(o)return o.textContent; try{ if(typeof LAN_LISTA!=='undefined'&&LAN_LISTA){ var _r=LAN_LISTA.find(function(x){return x.code===String(code);}); if(_r)return _r.name; } }catch(e){}
+  /* Koden 90 är Arbetsförmedlingens kod för annonser utan angiven arbetsort och finns
+     därför inte i länslistan. Den namnges på samma vis som i nedladdningarna och i
+     lanKodNamn. Utan raden svarade funktionen "länet", och ett nyckeltal som råkade peka
+     på koden skrev ut "länet (4,04)". Raderna är spärrade där de byggs, men namnet står
+     kvar som skyddsnät. */
+  if(String(code)==="90")return "Ospecificerad arbetsort";
+  return "länet"; }
 function buildRegionData(code,live){
   /* Nycklarna är årtal. Medianinkomsten bär numera även __kon med uppdelningen på kön, och
      den skulle sorterats sist och lästs som det senaste året. Bara fyrsiffriga år räknas. */
@@ -13246,7 +13292,13 @@ function buildRegionData(code,live){
   if(live.arbl2024&&live.arbl2024[code]){const l=latest(live.arbl2024[code]);arbReg2024=l?l.value:null;const lr=latest(live.arbl2024["00"]);arbRik2024=lr?lr.value:null;
     const ys=Object.keys(live.arbl2024[code]).sort(); arb24Years=ys;
     arb24Series={region:ys.map(y=>live.arbl2024[code][y]),riket:ys.map(y=>(live.arbl2024["00"]?live.arbl2024["00"][y]:null))};}
-  let utbReg=null,utbRik=null; if(live.utb&&live.utb[code]!=null){utbReg=live.utb[code];} utbRik=(live.utb&&live.utb["00"]!=null)?live.utb["00"]:null;
+  /* Se kommentaren i buildKommunData: fördelningen går först, så att kortet, prosan och
+     figuren visar samma tal. */
+  let utbReg=null,utbRik=null;
+  const _ufLan=(live.utbFord&&live.utbFord[code])?live.utbFord[code]:null;
+  const _ufLanRik=(live.utbFord&&live.utbFord["00"])?live.utbFord["00"]:null;
+  if(_ufLan&&_ufLan.eft3!=null) utbReg=_ufLan.eft3; else if(live.utb&&live.utb[code]!=null) utbReg=live.utb[code];
+  if(_ufLanRik&&_ufLanRik.eft3!=null) utbRik=_ufLanRik.eft3; else if(live.utb&&live.utb["00"]!=null) utbRik=live.utb["00"];
   let lqYrke=[];
   if(live.yrke&&live.yrke[code]&&live.yrke["00"]&&live.yrke[code]._tot){ lqYrke=lqFromCounts(live.yrke[code],live.yrke["00"],SSYK_AREAS); }
   let lqBransch=[];
@@ -13257,8 +13309,10 @@ function buildRegionData(code,live){
        näringsgren, och andelen blir för låg. Talet ändras inte här, som i kommunvyn, men
        avvikelsen loggas så att den går att se med ?felsok=1 i adressen. */
     if(window.__summakoll) window.__summakoll("näringsgrenar, län", b._all||0, b._tot||0);
-    var tot=Math.max(b._tot||0,b._all||0);
-    return (tot>0&&b._priv!=null)?(b._priv/tot*100):null;
+    /* Se _privShareKom: nämnaren är summan av avdelningarna, så att okänd näringsgren
+       ligger utanför och kortet vilar på samma nämnare som figuren Näringslivets bredd. */
+    var _kand=b._all||0, _bas=(_kand>0)?_kand:(b._tot||0);
+    return (_bas>0&&b._priv!=null)?(b._priv/_bas*100):null;
   }
   let privShareReg=live.bransch?_privShare(live.bransch[code]):null, privShareRik=live.bransch?_privShare(live.bransch["00"]):null;
   /* Antalet bakom andelen. Andelen ensam säger hur stor tjänstesektorn är i förhållande
@@ -13880,9 +13934,13 @@ function kompKval(code, region){
 /* Referensen: samtliga jobbannonser, fördelade på yrkesområde ur yrke_ant. Räknas en gång. */
 function annonsKval(){
   if(window.__annKval!==undefined)return window.__annKval;
+  /* Referensen ska avse samma period som täljaren, alltså berikningsperioden. YRKE_ANT
+     bär i dag bara de åren, så filtret ändrar ingenting nu, men en datafil med fler år
+     skulle annars ställa kompetensens andel mot en bredare period än sin egen. */
+  var _fran=parseInt((window.KOMP_META&&window.KOMP_META.berikning_fran)||"0",10)||0;
   var YA=window.YRKE_ANT||{}, rad={};
   Object.keys(YA).forEach(function(s){
-    var t=0,y; for(y in YA[s])t+=YA[s][y];
+    var t=0,y; for(y in YA[s]){ if(parseInt(y,10)>=_fran) t+=YA[s][y]; }
     if(t>0){ var o=String(s).charAt(0); rad[o]=(rad[o]||0)+t; }
   });
   window.__annKval=kvalFran(rad);
@@ -14195,7 +14253,10 @@ function renderMatchning(cfg){
          namngav dessutom en grupp personer i stallet for en andel. */
       {cls:"",v:(e.tot.skillnad!=null?fmt1(e.tot.skillnad):"\u2013"),u:"%",l:"Andel anst\u00e4llda inom yrken som delvis eller inte alls matchar utbildningsbakgrunden",
        d:(isR||!r||r.tot==null||r.tot.skillnad==null)?'<span class="delta flat">avst\u00e5nd till f\u00f6rv\u00e4rvsgraden</span>':neutralJmf(e.tot.skillnad,r.tot.skillnad,"procentenheter","riket")},
-      {cls:"blue",v:(intGap!=null?fmt1(intGap):"\u2013"),u:"procentenheter",uord:true,l:"Matchningsgap, inrikes minus utrikes f\u00f6dda",
+      /* Gapet räknas här på E3:s nämnare, alltså samtliga personer med utbildningen.
+         Yrkesvyn har ett kort med samma namn som räknar på yrkets anställda (E5), och
+         utan basen i etiketten gick de två talen inte att skilja åt. */
+      {cls:"blue",v:(intGap!=null?fmt1(intGap):"\u2013"),u:"procentenheter",uord:true,l:"Matchningsgap bland dem med en utbildning, inrikes minus utrikes f\u00f6dda",
        d:(isR||intGapR==null)?'<span class="delta flat">i matchad f\u00f6rv\u00e4rvsgrad</span>':neutralJmf(intGap,intGapR,"procentenheter","riket")}
     ].map(kpiKortHtml).join("");
     if(C){
@@ -14594,12 +14655,28 @@ function renderBrist(){
    samma tal som kompetensvyns nyckeltal och startlägets topplista. Cachas. */
 /* Den direkta länsdatan per kompetens, summerad över 2020-2026. Samma serie som
    kompetensvyns länsdiagram använder. Cachas. */
+/* Perioden som andelsmåtten summerar över. Taket stod som "2026" på tre ställen och
+   skulle behöva ändras för hand vid varje årsskifte; läses det ur datan följer fönstret
+   med av sig själv. Golvet är berikningens startår, taket det senaste år som finns i
+   annonsdatan. Saknas uppgiften faller fönstret tillbaka på de gamla gränserna. */
+function annFonster(){
+  if(window.__annFonsterCache)return window.__annFonsterCache;
+  var fran=String((window.KOMP_META&&window.KOMP_META.berikning_fran)||"2020");
+  var till=null, NA=window.NAT_ANN||null, a;
+  if(NA){ for(a in NA){ if(/^\d{4}$/.test(a)&&(till==null||a>till))till=a; } }
+  if(till==null){ var kv=String((window.KOMP_META&&window.KOMP_META.kvartal_aktuellt)||"");
+                   if(/^\d{4}/.test(kv))till=kv.slice(0,4); }
+  if(till==null)till="2026";
+  return (window.__annFonsterCache={fran:fran, till:till});
+}
+try{ window.annFonster=annFonster; }catch(e){}
 function kompLanWindow(){
   if(window.__kompLanWinCache&&Object.keys(window.__kompLanWinCache).length)return window.__kompLanWinCache;
   var KL=window.KOMP_LAN||{}, ut={};
   Object.keys(KL).forEach(function(c){ var per=KL[c]||{}, m={};
     Object.keys(per).forEach(function(l){ var y=per[l]||{}, s=0;
-      for(var a in y){ if(a>="2020"&&a<="2026") s+=(y[a]||0); }
+      var _f=annFonster();
+      for(var a in y){ if(a>=_f.fran&&a<=_f.till) s+=(y[a]||0); }
       m[l]=s; });
     ut[c]=m; });
   window.__kompLanWinCache=ut; return ut;
@@ -14608,16 +14685,18 @@ function kompLanWindow(){
 function lanAnnWindow(){
   if(window.__lanAnnWinCache&&Object.keys(window.__lanAnnWinCache).length)return window.__lanAnnWinCache;
   var LA=window.LAN_ANN||{}, ut={};
+  var _fL=annFonster();
   Object.keys(LA).forEach(function(l){ var y=LA[l]||{}, s=0;
-    for(var a in y){ if(a>="2020"&&a<="2026") s+=(y[a]||0); }
+    for(var a in y){ if(a>=_fL.fran&&a<=_fL.till) s+=(y[a]||0); }
     ut[l]=s; });
   window.__lanAnnWinCache=ut; return ut;
 }
 function kompNatWindow(){
   if(window.__kompNatWinCache&&Object.keys(window.__kompNatWinCache).length)return window.__kompNatWinCache;
   var NK=window.NAT_KOMP||{}, ut={};
+  var _fN=annFonster();
   Object.keys(NK).forEach(function(c){ var y=NK[c]||{}, s=0;
-    for(var a in y){ if(a>="2020"&&a<="2026") s+=(y[a]||0); }
+    for(var a in y){ if(a>=_fN.fran&&a<=_fN.till) s+=(y[a]||0); }
     ut[c]=s; });
   window.__kompNatWinCache=ut; return ut;
 }
@@ -14651,7 +14730,8 @@ function regionKompLQ(d){
   if(!d||!kompDataMatt())return [];
   var natOf={}, regOf={};
   var REG=window.KOMP_REG;
-  if(REG&&REG.competences){ Object.keys(REG.competences).forEach(function(c){var k=REG.competences[c]; natOf[c]={namn:k.namn,nat:k.nat||0}; regOf[c]=(k.regioner&&k.regioner[d.code])||0;}); }
+  if(REG&&REG.competences){ Object.keys(REG.competences).forEach(function(c){var k=REG.competences[c];
+    natOf[c]={namn:k.namn,nat:k.nat||0}; regOf[c]=(k.regioner&&k.regioner[d.code])||0;}); }
   else { var live=(typeof kompLive==="function")?kompLive():null;
   if(live&&live.competences){
     Object.keys(live.competences).forEach(function(c){var k=live.competences[c];
@@ -14667,12 +14747,15 @@ function regionKompLQ(d){
      jobbannonserna, så samma term betecknade två mått. Nu delas även här med områdets
      jobbannonser, ur samma fönster som lanAnnWindow ger.
 
-     Talen är därmed samma sorts kvot som kompetensvyns, men inte identiska med den:
-     täljarna kommer ur KOMP_REG, ett eget aggregat med några hundra kompetenser och sin
-     egen avgränsning, medan kompetensvyn räknar ur KOMP_LAN. Underlaget behölls här
-     eftersom KOMP_LAN:s tjugoettusen kompetenser skulle fylla listan med små tal — i
-     Norrbotten med Jiddisch, Meänkieli och Romani överst — vilket är just det
-     kandidatspärren nedan finns för.
+     Kandidaterna är samtliga kompetenser som går att välja i verktyget. Underlaget var
+     en tid katalogen KOMP_REG, som byggs ur yrkenas topplistor och rymde drygt sexhundra
+     namn, med motiveringen att KOMP_LAN:s tjugoettusen kompetenser skulle fylla listan med
+     små tal. Katalogen kompletteras nu med uppmätta tal för menyns kompetenser, och det är
+     den mängden som rangordnas. Farhågan infriades inte: kandidatspärren nedan tar de
+     största i länet, så golvet steg i stället för att sjunka — i Västerbotten från 852 till
+     936 annonser och i Gävleborg från 635 till 746. Jiddisch och Romani kommer alltså inte
+     in, medan Samiska och Finska gör det, med flera tusen annonser var i de nordliga länen.
+     Priset är att kvoterna kan bli höga för kompetenser som bara märks upp i ett län.
 
      Saknas annonsfönstret får omnämnandena stå kvar som nämnare, så att figuren visar
      något även med en äldre datafil. */
@@ -16532,8 +16615,11 @@ async function fetchLanAlderAlla(omrade){
     var d=per[code];
     return {kod:code, namn:(typeof capFirst==="function"?capFirst(d.namn):d.namn),
             tot:d.tot, e55:d.e55, antalAvg:d.avg, basAvg:d.bas,
-            andel55:(d.tot>0?100*d.e55/d.tot:0),
-            andelAvg:(d.bas>0?100*d.avg/d.bas:0), avgInomFem:d.avg};
+            /* En rad utan underlag ger null, som i alderMatt. Med noll hamnade den sist i
+               rangordningen som om andelen vore uppmätt till ingenting, i stället för att
+               streckas som en uppgift som saknas. */
+            andel55:(d.tot>0?100*d.e55/d.tot:null),
+            andelAvg:(d.bas>0?100*d.avg/d.bas:null), avgInomFem:d.avg};
   }).filter(function(r){return r.tot>0;});
   rows.sort(function(a,b){return b.avgInomFem-a.avgInomFem;});
   return {rows:rows, ar:ar, omrade:omrade||"00"};
@@ -16597,7 +16683,10 @@ async function renderLanAlder(){
         +'<td class="la-rank">'+(i+1)+'</td>'
         +'<td>'+esc(r.namn)+'</td>'
         +'<td class="gd-c la-barcell"><span class="la-bar" style="width:'+bredd+'%"></span><span class="la-val">'+nf0(r.avgInomFem)+'</span></td>'
-        +'<td class="gd-c">'+nf0(r.andelAvg)+'\u00a0%</td>'
+        /* Kolumnen Andel 60–64 år skrevs här utan decimal och i branschöversiktens
+           tabell med en. Samma rubrik ska ge samma form, och fmt1 streckar ett tomt
+           värde i stället för att skriva noll. */
+        +'<td class="gd-c">'+fmt1(r.andelAvg)+'\u00a0%</td>'
         +'</tr>';
     }).join("");
   }
@@ -16790,8 +16879,9 @@ async function fetchBranschAlderAlla(){
     var d=per[code];
     return {kod:code, namn:renName(code,d.namn), tot:d.tot, e55:d.e55,
             antalAvg:d.avg, basAvg:d.bas,
-            andel55:(d.tot>0?100*d.e55/d.tot:0),
-            andelAvg:(d.bas>0?100*d.avg/d.bas:0), avgInomFem:d.avg};
+            /* Se länsöversikten: null när nämnaren saknas. */
+            andel55:(d.tot>0?100*d.e55/d.tot:null),
+            andelAvg:(d.bas>0?100*d.avg/d.bas:null), avgInomFem:d.avg};
   }).filter(function(r){return r.tot>0;});
   rows.sort(function(a,b){return b.avgInomFem-a.avgInomFem;});
   return {rows:rows, ar:ar};
@@ -17773,7 +17863,9 @@ function renderYrkeMatch(){
     if(K)K.innerHTML=[
       {cls:"accent",v:fmt1(e.tot.helt),u:"%",l:"Har en utbildning som helt matchar "+yrkeEnhet(d&&d.code),
        d:(r&&r.tot&&r.tot.helt!=null)?neutralJmf(e.tot.helt,r.tot.helt,"procentenheter","samtliga yrken"):('<span class="delta flat">av de anst\u00e4llda i '+yrkeEnhet(d&&d.code)+'</span>')},
-      {cls:"blue",v:(gap!=null?fmt1(gap):"\u2013"),u:"procentenheter",uord:true,l:"Matchningsgap, inrikes minus utrikes f\u00f6dda",
+      /* Se kortet med samma namn i läns- och kommunvyn: där är basen samtliga personer
+         med utbildningen, här yrkets anställda. Basen står i etiketten. */
+      {cls:"blue",v:(gap!=null?fmt1(gap):"\u2013"),u:"procentenheter",uord:true,l:"Matchningsgap bland yrkets anst\u00e4llda, inrikes minus utrikes f\u00f6dda",
        d:(gapR!=null)?neutralJmf(gap,gapR,"procentenheter","samtliga yrken"):'<span class="delta flat">i andel med matchande utbildning</span>'}
     ].map(kpiKortHtml).join("");
     var C=document.getElementById("cYMatch");
@@ -21076,8 +21168,17 @@ function kompKvSerie(code){
   for(var i=0;i<ax.length;i++){ if(String(ax[i])<"2020Q1")continue; labels.push(ax[i]); serie.push(arr[i]||0); }
   return labels.length?{labels:labels,serie:serie}:null;
 }
+/* Rikets annonser per kvartal, nämnare för andelsmåtten. Samma resonemang som i
+   __natAdsByYear: NAT_ANN_KV är den ofiltrerade totalen, medan summan av YRKE_ANN bara
+   omfattar annonser med yrkeskod och därför är något för låg. Kompetenssummorna i
+   täljaren räknas på alla annonser, även de utan yrkeskod, så nämnaren ska göra det med.
+   Förut delade kompetensvyns kurva med yrkessumman medan jämförelselägets kurva delade
+   med NAT_ANN_KV: 22 av 26 kvartal var lika, fyra skiljde sig, mest 1,37 procent för
+   2021Q2 och 2021Q3. Summan av YRKE_ANN står kvar som reserv för äldre datafiler. */
 window.__natAdsByQuarter=function(){
   if(window.__natAdsKvCache&&Object.keys(window.__natAdsKvCache).length)return window.__natAdsKvCache;
+  var NK=window.NAT_ANN_KV;
+  if(NK&&Object.keys(NK).length){ var n={}; for(var a in NK)n[a]=NK[a]; return (window.__natAdsKvCache=n); }
   var YA=window.YRKE_ANN||{}, t={};
   for(var s in YA){ var q=YA[s]; for(var k in q){ t[k]=(t[k]||0)+q[k]; } }
   return Object.keys(t).length?(window.__natAdsKvCache=t):t;
@@ -21528,7 +21629,14 @@ function renderKompEdu(){
 function kompRegionalData(code){
   if(window.KOMP_LAN&&window.KOMP_LAN[code]){
     var _KLt=window.KOMP_LAN[code], _perLan={};
-    { for(var _l in _KLt){ var _s=0,_y=_KLt[_l]; for(var _yy in _y)_s+=_y[_yy]; _perLan[_l]=_s; } }
+    /* Täljaren summeras över samma fönster som nämnaren, lanAnnWindow. Förut togs
+       samtliga år i KOMP_LAN. Datafilen bär i dag bara fönstrets år, så talen är
+       oförändrade, men en fil med fler år skulle ha gett täljare och nämnare olika
+       perioder, och kvoten hade då glidit utan att något såg fel ut. */
+    { var _fR=(typeof annFonster==="function")?annFonster():{fran:"2020",till:"2026"};
+      for(var _l in _KLt){ var _s=0,_y=_KLt[_l];
+        for(var _yy in _y){ if(_yy>=_fR.fran&&_yy<=_fR.till) _s+=_y[_yy]; }
+        _perLan[_l]=_s; } }
     /* Länets jobbannonser i samma fönster som annonsmåtten i övrigt. Saknas de faller
        räkningen tillbaka på omnämnandena, så att figuren visar något även med en äldre
        datafil — men talen blir då de gamla, vilket noten i undertexten inte säger.
@@ -21556,7 +21664,9 @@ function kompRegionalData(code){
   }
   const natTotal=Object.keys(compNat).reduce((su,c)=>su+compNat[c],0);
   const penNat=natTotal?natCount/natTotal:0;
-  return Object.keys(perLan).map(lan=>{const abs=perLan[lan]||0,lt=totalFn(lan);
+  /* Samma spärr som de två vägarna ovan: bara namngivna län blir rader. */
+  return Object.keys(perLan).filter(lan=>!!(window.SVE_LAN&&SVE_LAN.names&&SVE_LAN.names[lan]))
+    .map(lan=>{const abs=perLan[lan]||0,lt=totalFn(lan);
     const lq=(penNat&&lt)?((abs/lt)/penNat):0; return {code:lan,name:regCodeName(lan),abs,lq};});
 }
 /* ---- Testdiagram: två nämnare för andelsmåttet -----------------------------------------
@@ -21758,7 +21868,12 @@ function renderYrkeDemand(){
   var occLanTot=0,l; for(l in occLan) occLanTot+=occLan[l];
   var occKomTot=0,k; for(k in occKom) occKomTot+=occKom[k];
   function lq(part,partTot,baseObj,baseTot,cr){ if(!partTot||!baseTot) return null; var b=baseObj[cr]; if(!b) return null; var so=part/partTot, sb=b/baseTot; if(sb<=0) return null; return so/sb; }
-  var lanList=[]; for(l in occLan){ var q=lq(occLan[l],occLanTot,base.lan,base.lanTot,l); if(q!=null) lanList.push({code:l,name:window.SVE_LAN.names[l],lq:q,_ads:occLan[l]}); }
+  /* Bara riktiga län blir rader. Koden 90, annonser utan angiven arbetsort, fick förut en
+     rad för 135 av 147 yrkesgrupper, och för två av dem låg den överst med högst kvot.
+     Raden saknade namn, eftersom uppslaget i SVE_LAN.names misslyckades. Koden ligger kvar
+     i base.lanTot, så att kvoterna räknas mot samma annonser som förut. */
+  var lanList=[]; for(l in occLan){ if(!(window.SVE_LAN&&SVE_LAN.names&&SVE_LAN.names[l]))continue;
+    var q=lq(occLan[l],occLanTot,base.lan,base.lanTot,l); if(q!=null) lanList.push({code:l,name:window.SVE_LAN.names[l],lq:q,_ads:occLan[l]}); }
   var komList=[]; for(k in occKom){ if(occKom[k]<15) continue; var qk=lq(occKom[k],occKomTot,base.kom,base.komTot,k); if(qk!=null) komList.push({code:k,name:window.SVE_KOMMUN.names[k],lq:qk,_ads:occKom[k]}); }
   lanList.sort(function(a,b){return b.lq-a.lq;});
   window.renderLanMap("demMapY",lanList,"lan",komList);
@@ -24248,14 +24363,16 @@ function buildUtbRegionMenu(){
        antalet sysselsatta, som står i trendfigurens analys, och det som var eget för
        den, alltså rekryteringsläge, könsfördelning och lönenivå, står nu där i stället. */
     blocks.push(["kpis",[
-      kpi(d.antal!=null?rdNum(d.antal):"–","","Sysselsatta i yrket"+(reg?" i "+reg:" (riket)"),tr?(fmt1(Math.abs(tr.pct))+" % "+(tr.pct>0?"upp":"ned")+" "+tr.first+"\u2013"+tr.last):""),
+      kpi(d.antal!=null?rdNum(d.antal):"–","","Anställda i yrket"+(reg?" i "+reg:" (riket)"),tr?(fmt1(Math.abs(tr.pct))+" % "+(tr.pct>0?"upp":"ned")+" "+tr.first+"\u2013"+tr.last):""),
       kpi(d.kvinnor!=null?rdP1(d.kvinnor):"–","%","Andel kvinnor",d.kvinnor!=null?("män "+rdP1(100-d.kvinnor)+"\u00a0%"):""),
       ...(omrade?[]:[kpi(d.lon!=null?rdNum(d.lon):"–",d.lon!=null?"kr":"","Medianlön, heltid (kr/mån)",lonD!=null?rdDeltaKr(d.lon,_rml):"")]),
       (function(){ var _ai=(typeof yrkeAiKpi==="function")?yrkeAiKpi(d):null, _r=(_ai&&typeof aiRiketVarde==="function")?aiRiketVarde(_ai.ar):null;
         return kpi(_ai?rdP1(_ai.varde):"–","","Annonser per 1 000 anställda"+(_ai?" "+_ai.ar:""),
           (_ai&&_r!=null)?(rdP1(Math.abs(_ai.varde-_r))+" "+(_ai.varde>=_r?"över":"under")+" riket"):(_ai?"samtliga yrken som referens":"uppgift saknas")); })()
     ]]);
-    blocks.push(["fig",{title:"Antal sysselsatta över tid",sub:"Sysselsatta i "+d.name+(reg?" i "+reg:" i riket")+", per år.",id:"rapportTrend",source:"SCB."}]);
+    /* Figuren heter Antal anställda över tid i vyn, i jämförelsen och i figursökningen.
+       Rapporten kallade den sysselsatta och angav bara SCB som källa. */
+    blocks.push(["fig",{title:"Antal anställda över tid",sub:"Anställda i "+d.name+(reg?" i "+reg:" i riket")+", per år.",id:"rapportTrend",source:"SCB, Yrkesregistret."}]);
     var yProj=null;
     if(typeof yrkeBranchPaths==="function"&&d.antal!=null&&d.years&&d.years.length){
       var _sp=yrkeBranchPaths(d.code,d.region||"");
@@ -24265,7 +24382,7 @@ function buildUtbRegionMenu(){
     }
     if(yProj){
       blocks.push(["h2","Framskrivning till "+yProj.end]);
-      blocks.push(["p","Framskrivningen bygger p\u00e5 SCB:s branschframskrivning i Regionala trender och prognoser 2025 och p\u00e5 hur yrket f\u00f6rdelar sig \u00f6ver branscher i riket. Med den ansatsen väntas antalet anställda i yrket "+(yProj.pct>1?"växa":(yProj.pct<-1?"minska":"ligga ungefär stabilt"))+(Math.abs(yProj.pct)>=1?" med omkring "+fmt1(Math.abs(yProj.pct))+" procent":"")+" fram till "+yProj.end+(reg?" i "+reg:" i riket")+", från "+rdNum(d.antal)+" till "+rdNum(yProj.v)+" sysselsatta. Framskrivningen förutsätter att yrkets branschsammansättning består och att sysselsättningen i varje bransch följer den modellerade banan från SCB"+(reg?", och den använder länets näringsgrensbanor":"")+". "+(yProj.pct>3?"En växande sysselsättning ökar rekryteringsbehovet.":(yProj.pct<-3?"En vikande sysselsättning dämpar nyrekryteringsbehovet, medan ersättningsbehovet från pensionsavgångar kvarstår.":"En stabil sysselsättning innebär att rekryteringsbehovet främst styrs av att ersätta de som lämnar yrket."))]);
+      blocks.push(["p","Framskrivningen bygger p\u00e5 SCB:s branschframskrivning i Regionala trender och prognoser 2025 och p\u00e5 hur yrket f\u00f6rdelar sig \u00f6ver branscher i riket. Med den ansatsen väntas antalet anställda i yrket "+(yProj.pct>1?"växa":(yProj.pct<-1?"minska":"ligga ungefär stabilt"))+(Math.abs(yProj.pct)>=1?" med omkring "+fmt1(Math.abs(yProj.pct))+" procent":"")+" fram till "+yProj.end+(reg?" i "+reg:" i riket")+", från "+rdNum(d.antal)+" till "+rdNum(yProj.v)+" anställda. Framskrivningen förutsätter att yrkets branschsammansättning består och att sysselsättningen i varje bransch följer den modellerade banan från SCB"+(reg?", och den använder länets näringsgrensbanor":"")+". "+(yProj.pct>3?"En växande sysselsättning ökar rekryteringsbehovet.":(yProj.pct<-3?"En vikande sysselsättning dämpar nyrekryteringsbehovet, medan ersättningsbehovet från pensionsavgångar kvarstår.":"En stabil sysselsättning innebär att rekryteringsbehovet främst styrs av att ersätta de som lämnar yrket."))]);
     }
     /* Avsnittet hade en enda rubrik, så all text under den sköts upp ovanför
        åldersdiagrammet: lönespridning, matchning, kön och lönenivå på en gång. Varje
@@ -25090,9 +25207,21 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
      kompetenserna ligger där. Formen följer därför talets storlek, med samma gräns
      som andelsTal i den enskilda kompetensvyn: två decimaler under en procent, en
      över. Utan detta skrev de två lägena olika tal för samma kompetens. */
+  /* Ett tal under en hundradels procent skrivs med fler decimaler. Med två hamnade
+     det på "0,00", vilket läses som noll fast det inte är noll: Banteknik nämns i
+     196 jobbannonser, alltså 0,0040 procent av underlaget. Antalet decimaler sätts
+     så att talet får två värdesiffror, högst sex decimaler. Ett litet värde är ett
+     resultat och ska stå som det är. Tal från 0,005 och uppåt rör tillägget inte. */
+  function andelDec(n){
+    var d=(Math.abs(n)<1)?2:1;
+    if(n!==0&&Math.abs(n)<0.005){
+      try{ d=Math.min(6, 1-Math.floor(Math.log(Math.abs(n))/Math.LN10)); }catch(e){}
+    }
+    return d;
+  }
   function rdAndel(n){
     if(n==null||isNaN(n))return "uppgift saknas";
-    var d=(Math.abs(n)<1)?2:1;
+    var d=andelDec(n);
     try{ return Number(n).toLocaleString("sv-SE",{minimumFractionDigits:d,maximumFractionDigits:d}); }
     catch(e){ return fmt1(n); }
   }
@@ -25133,6 +25262,37 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
     return "Underlaget är tunt för "+rdList(t)+", under "+gr+" annonser, så "
       +vad+" bör läsas med försiktighet.";
   }
+  /* Annonsintensiteten: jobbannonser per 1 000 anställda. Raden delade senaste hela
+     annonsår med det senaste kända antalet anställda, medan figuren i yrkesvyn parar varje
+     annonsår med samma års sysselsatta. Yrkesregistret släpar efter annonsdatan, så de två
+     talen kom ofta från olika år, och kvoten blev för hög eller för låg beroende på hur
+     sysselsättningen rört sig däremellan. Hjälparen väljer det senaste år som finns i båda
+     serierna och som inte är preliminärt, och kolumnrubriken skriver ut vilket år det blev.
+     Finns inget gemensamt år faller raden tillbaka på det gamla sättet, hellre än att lämna
+     tomt, och året i rubriken är då annonsåret. */
+  function rdAnnInt(d){
+    try{
+      if(!d)return null;
+      var S=(typeof yrkeAnnonsSerie==="function")?yrkeAnnonsSerie(d.code,d.region||"",true):null;
+      if(!S||!S.years||!S.years.length)return null;
+      /* Saknar yrket länsserie faller hjälparen tillbaka på rikets tal, och raden skulle
+         då visa rikets annonser under länets rubrik. Samma spärr som annonsmåttet har. */
+      if(d.region && !S.regional) return null;
+      var pa=(S.prelimFrom!=null)?String(S.prelimFrom):null, i;
+      var sys={};
+      if(d.years&&d.serie){ for(i=0;i<d.years.length;i++){ if(d.serie[i]>0) sys[String(d.years[i])]=d.serie[i]; } }
+      for(i=S.years.length-1;i>=0;i--){
+        var y=String(S.years[i]);
+        if(pa&&y>=pa) continue;
+        if(S.serie[i]!=null&&sys[y]>0) return {ar:y, kvot:1000*S.serie[i]/sys[y]};
+      }
+      i=S.years.length-1;
+      while(i>=0 && pa && String(S.years[i])>=pa) i--;
+      if(i>=0 && S.serie[i]!=null && d.antal>0)
+        return {ar:String(S.years[i]), kvot:1000*S.serie[i]/d.antal, blandat:true};
+      return null;
+    }catch(e){ return null; }
+  }
   var RD_METRICS={
     kommun:[
       {label:"Sysselsättningsgrad",period:__arAv("sysSeries","sysYears"),unit:"%",get:function(d){return d.kpis.sysReg;},fmt:rdP1,dir:"high",noun:"sysselsättningsgrad",sup:"högst",inf:"lägst"},
@@ -25158,7 +25318,7 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
       {label:"Arbetstillfällen per 100 förvärvsarbetande i nattbefolkningen",period:__arFalt("pendling.ar"),unit:"",get:function(d){return (d.pendling&&d.pendling.kvot!=null)?d.pendling.kvot:null;},fmt:rdP1,dir:null},
       /* Måttet är andelen som arbetar i ett yrke som motsvarar utbildningen, samma sak som
          figuren med samma namn i huvudläget. */
-      {label:"Andel som arbetar i yrke som matchar utbildningen",period:__arFalt("match.ar"),unit:"%",get:function(d){return (d.match&&d.match.egen&&d.match.egen.tot&&d.match.egen.tot.matchad!=null)?d.match.egen.tot.matchad:null;},fmt:rdP1,dir:"high",noun:"matchad förvärvsgrad",sup:"högst",inf:"lägst"},
+      {label:"Andel av dem med en utbildning som arbetar i matchande yrke",period:__arFalt("match.ar"),unit:"%",get:function(d){return (d.match&&d.match.egen&&d.match.egen.tot&&d.match.egen.tot.matchad!=null)?d.match.egen.tot.matchad:null;},fmt:rdP1,dir:"high",noun:"matchad förvärvsgrad",sup:"högst",inf:"lägst"},
       {label:"Andel av nattbefolkningen som arbetar inom FA-regionen",period:__arFalt("pendling.ar"),unit:"%",get:function(d){return (d.pendling&&d.pendling.fa&&d.pendling.fa.boendeAndel!=null)?d.pendling.fa.boendeAndel:null;},fmt:rdP1,dir:null},
       /* FA-region är en fackterm. Namnet står kvar men med en förklarande tillägg, så att
          läsaren förstår att det är den lokala arbetsmarknad kommunen tillhör. */
@@ -25188,7 +25348,7 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
       {label:"Arbetstillfällen per 100 förvärvsarbetande i nattbefolkningen",period:__arFalt("pendling.ar"),unit:"",get:function(d){return (d.pendling&&d.pendling.kvot!=null)?d.pendling.kvot:null;},fmt:rdP1,dir:null},
       /* Måttet är andelen som arbetar i ett yrke som motsvarar utbildningen, samma sak som
          figuren med samma namn i huvudläget. */
-      {label:"Andel som arbetar i yrke som matchar utbildningen",period:__arFalt("match.ar"),unit:"%",get:function(d){return (d.match&&d.match.egen&&d.match.egen.tot&&d.match.egen.tot.matchad!=null)?d.match.egen.tot.matchad:null;},fmt:rdP1,dir:"high",noun:"matchad förvärvsgrad",sup:"högst",inf:"lägst"},
+      {label:"Andel av dem med en utbildning som arbetar i matchande yrke",period:__arFalt("match.ar"),unit:"%",get:function(d){return (d.match&&d.match.egen&&d.match.egen.tot&&d.match.egen.tot.matchad!=null)?d.match.egen.tot.matchad:null;},fmt:rdP1,dir:"high",noun:"matchad förvärvsgrad",sup:"högst",inf:"lägst"},
       /* Näringslivets bredd är borttagen ur länsjämförelsen. Måttet är ett
          koncentrationsindex som inte går att läsa av utan förklaring, och figuren med
          samma namn i huvudläget visar fördelningen tydligare. */
@@ -25198,10 +25358,17 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
       {label:"Bransch med högst specialiseringskvot",period:__arFalt("yrkeAr"),text:true,get:function(d){return d.lqBransch&&d.lqBransch[0]?d.lqBransch[0].name:null;}}
     ],
     yrke:[
-      {label:"Sysselsatta",period:__arAv("serie","years"),unit:"",get:function(d){return d.antal;},fmt:rdNum,noun:"sysselsatta",sup:"flest",inf:"minst"},
+      /* Talet kommer ur Yrkesregistret, YREG60BAS, vars population är anställda. Raden hette
+         Sysselsatta, liksom branschens rad strax nedanför, som verkligen är sysselsatta ur
+         BAS och alltså rymmer företagare. Yrkesvyns eget kort säger "Anställda i …" och
+         trendfiguren "Antal anställda över tid", så tabellen sade emot vyn om samma tal. */
+      {label:"Anställda",period:__arAv("serie","years"),unit:"",get:function(d){return d.antal;},fmt:rdNum,noun:"anställda",sup:"flest",inf:"minst"},
       /* Könsandelen hämtas ur samma register och med samma senaste år som antalet
          sysselsatta, så seriens sista år är också könsandelens år. */
-      {label:"Andel kvinnor",period:__arAv("serie","years"),unit:"%",get:function(d){return d.kvinnor;},fmt:rdP1,dir:null},
+      /* Populationen står i etiketten. Måttet heter samma sak i yrkes-, bransch- och
+         utbildningsjämförelsen men räknas på anställda, sysselsatta respektive
+         examinerade, och etiketten följer med i nedladdade filer utan sin vy. */
+      {label:"Andel kvinnor bland anst\u00e4llda",period:__arAv("serie","years"),unit:"%",get:function(d){return d.kvinnor;},fmt:rdP1,dir:null},
       /* Året ligger i lonSprid.ar men lästes från lonSprid.yrke.ar, som inte finns, och
          raden föll därför alltid tillbaka på "senaste år". Medianlönen kommer ur samma
          SCB-svar som spridningen, så samma år gäller båda lönemåtten. */
@@ -25228,19 +25395,18 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
             while(i>=0 && pa && String(S.years[i])===pa) i--;
             return (i>=0&&S.serie[i]!=null)?S.serie[i]:null; }catch(e){ return null; } },
      fmt:rdNum,noun:"antal jobbannonser",sup:"flest",inf:"f\u00e4rrest"},
-    {label:"Jobbannonser per 1 000 anst\u00e4llda",period:function(){ try{ var m=window.ANN_META, pa=m&&m.prelim_ar?parseInt(m.prelim_ar,10):null;
-       return (pa&&!isNaN(pa))?String(pa-1):""; }catch(e){ return ""; } },
-     unit:"",get:function(d){
-       try{ var S=(typeof yrkeAnnonsSerie==="function")?yrkeAnnonsSerie(d.code,d.region||"",true):null;
-            if(!S||!S.years||!S.years.length||!d.antal)return null;
-            /* Se annonsmåttet ovan: ingen blandning av läns- och rikstal. */
-            if(d.region && !S.regional) return null;
-            var pa=S.prelimFrom!=null?String(S.prelimFrom):null, i=S.years.length-1;
-            while(i>=0 && pa && String(S.years[i])===pa) i--;
-            var v=(i>=0)?S.serie[i]:null;
-            return (v!=null&&d.antal>0)?(1000*v/d.antal):null; }catch(e){ return null; } },
+    {label:"Jobbannonser per 1 000 anst\u00e4llda",
+     period:function(datas){
+       try{ var ar=[]; (datas||[]).forEach(function(d){ var x=rdAnnInt(d);
+              if(x&&x.ar&&ar.indexOf(x.ar)<0)ar.push(x.ar); });
+            ar.sort();
+            if(ar.length===1)return ar[0];
+            if(ar.length)return (typeof rdList==="function")?rdList(ar):ar.join(", ");
+            var m=window.ANN_META, pa=m&&m.prelim_ar?parseInt(m.prelim_ar,10):null;
+            return (pa&&!isNaN(pa))?String(pa-1):""; }catch(e){ return ""; } },
+     unit:"",get:function(d){ var x=rdAnnInt(d); return x?x.kvot:null; },
      fmt:rdP1,dir:"high",noun:"annonsintensitet",sup:"h\u00f6gst",inf:"l\u00e4gst"},
-    {label:"Andel med matchande utbildning",period:__arFalt("match5.ar"),unit:"%",get:function(d){return (d.match5&&d.match5.yrke&&d.match5.yrke.tot&&d.match5.yrke.tot.helt!=null)?d.match5.yrke.tot.helt:null;},fmt:rdP1,dir:"high",noun:"matchande utbildning",sup:"högst",inf:"lägst"},
+    {label:"Andel av yrkets anst\u00e4llda med matchande utbildning",period:__arFalt("match5.ar"),unit:"%",get:function(d){return (d.match5&&d.match5.yrke&&d.match5.yrke.tot&&d.match5.yrke.tot.helt!=null)?d.match5.yrke.tot.helt:null;},fmt:rdP1,dir:"high",noun:"matchande utbildning",sup:"högst",inf:"lägst"},
       /* P90/P10 är en fackterm. Etiketten säger nu vad kvoten jämför. */
       {label:"Lönespridning, högsta mot lägsta tiondel",niva:"riket",period:__arFalt("lonSprid.ar"),unit:"",get:function(d){return (d.lonSprid&&d.lonSprid.yrke&&d.lonSprid.yrke.kvot!=null)?d.lonSprid.yrke.kvot:null;},fmt:fmt2,dir:null}
       /* Raden Rekryteringsläge enligt Yrkesbarometern är borttagen ur yrkesjämförelsen.
@@ -25261,7 +25427,7 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
          länslistan i Specialisering per län samt tidsserien i Sysselsatta över tid. */
       /* Samma koppling som i yrkesjämförelsen: könsfördelningen hämtas ur samma tabell
          och samma senaste år som sysselsättningsserien. */
-      {label:"Andel kvinnor",period:__arAv("serie","years"),unit:"%",get:function(d){return d.kvinnor;},fmt:rdP1,dir:null},
+      {label:"Andel kvinnor bland sysselsatta",period:__arAv("serie","years"),unit:"%",get:function(d){return d.kvinnor;},fmt:rdP1,dir:null},
       {label:"Sysselsättningens utveckling",period:function(ds){return __serieSpann(ds)||"senaste år";},unit:"%",get:function(d){
         /* Förändring i procent från första till sista året i serien, samma tal som
            faktakortet i huvudläget visar under antalet sysselsatta. */
@@ -25283,7 +25449,7 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
          utbildningsobjektet fanns det aldrig, så kolumnen stod utan årtal medan
          tabellens övriga kolumner hade ett. Andelen avser samma årgång som antalet
          examinerade, och året tas därför ur examensserien, som Examinerade gör. */
-      {label:"Andel kvinnor",period:__arAv("serie","years"),unit:"%",get:function(d){return d.kvinnor;},fmt:rdP1,dir:null},
+      {label:"Andel kvinnor bland examinerade",period:__arAv("serie","years"),unit:"%",get:function(d){return d.kvinnor;},fmt:rdP1,dir:null},
       /* "Prognos 2040" sa inte vad som prognostiserades. Det är SCB:s bedömning av
          balansen mellan tillgång och efterfrågan år 2040. */
       {label:"Bedömd balans år 2040",text:true,get:function(d){return d.prognos?RD_LAGEW[d.prognos]:null;}},
@@ -25351,7 +25517,8 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
           var KL=(window.KOMP_LAN||{})[d.code]; if(!KL)return null;
           /* KOMP_LAN har en årsserie per län, inte ett tal. Fönstret är detsamma som i
              lanAnnWindow, så täljare och nämnare avser samma period. */
-          function _sum(o){ var s=0,a; for(a in (o||{})){ if(a>="2020"&&a<="2026") s+=(o[a]||0); } return s; }
+          var _fK=(typeof annFonster==="function")?annFonster():{fran:"2020",till:"2026"};
+          function _sum(o){ var s=0,a; for(a in (o||{})){ if(a>=_fK.fran&&a<=_fK.till) s+=(o[a]||0); } return s; }
           var lansTal={}, tot=0;
           Object.keys(KL).forEach(function(l){ var v=_sum(KL[l]); if(v>0){ lansTal[l]=v; tot+=v; } });
           if(!tot)return null;
@@ -25362,6 +25529,13 @@ try{ window.__amrRapportNamn=function(v){ return AMR_RAPPORTNAMN[v]||"Arbetsmark
           if(!riksTot)return null;
           var bast=null;
           Object.keys(lansTal).forEach(function(lan){
+            /* Samma spärr som kompetensvyns länsfigur har: bara riktiga län blir rader.
+               Koden 90 är annonser utan angiven arbetsort och förekommer i underlaget för
+               2020. Utan spärren pekades den ut som det län som har högst kvot för 192 av
+               menyns 4 447 kompetenser, med en kvot som vilar på ett enda års restkodning.
+               Den ligger kvar i tot och i riksTot, som i figuren, så att täljare och
+               nämnare avser samma annonser. */
+            if(!(window.SVE_LAN&&SVE_LAN.names&&SVE_LAN.names[lan]))return;
             var andel=lansTal[lan]/tot, ref=(LA[lan]||0)/riksTot;
             if(!ref||!andel)return;
             var kv=andel/ref;
@@ -30517,7 +30691,11 @@ window.__kompTotals=function(){ if(window.__kompTotCache&&Object.keys(window.__k
     var occ=(rich&&rich.yrken_ssyk&&rich.yrken_ssyk.length)?{top:rich.yrken_ssyk.slice(),n:rich.bredd||rich.yrken_ssyk.length}:window.__kompOcc(code);
     var _KL=(window.KOMP_LAN&&window.KOMP_LAN[code])||null;
     var _regioner={};
-    if(_KL){ for(var _l in _KL){ var _sum=0,_yv=_KL[_l]; for(var _yy in _yv)_sum+=_yv[_yy]; _regioner[_l]=_sum; } }
+    /* Samma fönster som kompRegionalData och lanAnnWindow använder. */
+    if(_KL){ var _fN2=(typeof annFonster==="function")?annFonster():{fran:"2020",till:"2026"};
+      for(var _l in _KL){ var _sum=0,_yv=_KL[_l];
+        for(var _yy in _yv){ if(_yy>=_fN2.fran&&_yy<=_fN2.till) _sum+=_yv[_yy]; }
+        _regioner[_l]=_sum; } }
     else if(rich&&rich.regioner){ _regioner=rich.regioner; }
     var _region=kompState.region||"", _regionName=_region?((typeof regionDisplayName==="function")?regionDisplayName(_region):_region):"";
     var _serie=serie,_ann=annonser,_trend=trend,_andel=andel;
@@ -30754,6 +30932,23 @@ window.__renderKompOpts=function(q){
   /* Urvalet exponeras för namngivningslagret, så att platshållaren {K} i figurtexterna
      kan räkna upp kompetenserna. En nedladdad bild säger då vilka de är. */
   window.__kombValda=(sel||[]).slice();
+  /* Andelarna i läget skrevs med en decimal, och en kombination av få kompetenser kan ligga
+     långt under en tiondels procent. Talet blev då "0,0 procent", vilket läses som noll
+     fast det inte är noll. Formen följer därför talets storlek, med samma regel som
+     jämförelseläget och den enskilda kompetensvyn: två decimaler under en procent, en
+     över. Samma tal skrivs då likadant i alla tre lägena. */
+  /* Regeln står här och inte som ett anrop till rdAndel, eftersom rdAndel ligger i
+     jämförelselägets omslutning och inte går att nå härifrån. Ett typeof-anrop föll
+     därför tillbaka på en decimal, och andelen 0,0049 procent skrevs "0,0 procent". */
+  var _kAndel=function(v){
+    if(v==null||isNaN(v))return "–";
+    var d=(Math.abs(v)<1)?2:1;
+    if(v!==0&&Math.abs(v)<0.005){
+      try{ d=Math.min(6, 1-Math.floor(Math.log(Math.abs(v))/Math.LN10)); }catch(e){}
+    }
+    try{ return Number(v).toLocaleString("sv-SE",{minimumFractionDigits:d,maximumFractionDigits:d}); }
+    catch(e){ return fmt1(v); }
+  };
     /* Enhet och tidsupplösning i efterfrågefiguren. Valen ligger i fönstret, så de står
        kvar när urvalet ändras, och läses av rubriker, text och källrad så att inget kan
        säga emot vad kurvan visar. */
@@ -30815,7 +31010,7 @@ window.__renderKompOpts=function(q){
          del av annonserna som n\u00e4mner flera av dem. Avsnittsnamnet s\u00e4tts fortfarande p\u00e5
          beh\u00e5llaren l\u00e4ngre ned, s\u00e5 avsnittsv\u00e4xlaren p\u00e5verkas inte. */
       '<div class="r-fig" id="figKombiTrend"><p class="r-fig-title">Efterfrågan över tid</p>'
-      +'<p class="r-fig-sub" id="subKombiTrend">'+_enhetOrd+' '+_periodOrd+' d\u00e4r minst en av {K} n\u00e4mns. En annons som n\u00e4mner flera av de valda kompetenserna r\u00e4knas en g\u00e5ng.'+(window.kompPrelimNot?window.kompPrelimNot(_period!=="helar"):"")+'</p>'
+      +'<p class="r-fig-sub" data-nivakalla="riket" id="subKombiTrend">'+_enhetOrd+' '+_periodOrd+' d\u00e4r minst en av {K} n\u00e4mns. En annons som n\u00e4mner flera av de valda kompetenserna r\u00e4knas en g\u00e5ng.'+(window.kompPrelimNot?window.kompPrelimNot(_period!=="helar"):"")+'</p>'
       +'<div class="fc-row">'
       + '<div class="unit-seg" role="group" aria-label="Enhet i diagrammet">'
       +   '<button type="button" class="unit-btn'+(_enhet==="antal"?" is-on":"")+'" data-kombenhet="antal" aria-pressed="'+(_enhet==="antal"?"true":"false")+'">Antal</button>'
@@ -30829,13 +31024,17 @@ window.__renderKompOpts=function(q){
       +'<div class="r-chart" style="height:300px"><canvas id="cKombiTrend"></canvas></div>'
       +'<p class="r-src">Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.</p></div>'
       +'<div class="r-fig" id="figKombiIndex"><p class="r-fig-title">Utveckling f\u00f6r respektive kompetens</p>'
-      +'<p class="r-fig-sub">Avser riket.</p>'
+      /* Undertexten sade bara "Avser riket.". Figuren visar indexerade kvartalsserier, och
+         varken enheten, basen eller vilka serierna \u00e4r framgick av bilden n\u00e4r den sparades
+         eller skrevs ut. Basen s\u00e4tts per serie, i seriens eget f\u00f6rsta kvartal med v\u00e4rde,
+         vilket texten s\u00e4ger ut: utan det l\u00e4ses 100 som en gemensam startpunkt. */
+      +'<p class="r-fig-sub" data-nivakalla="riket" id="subKombiIndex">Indexerat antal jobbannonser per kvartal f\u00f6r {K}, var och en f\u00f6r sig, samt f\u00f6r de annonser d\u00e4r minst en av dem n\u00e4mns. Indexv\u00e4rdet 100 motsvarar varje linjes f\u00f6rsta kvartal med v\u00e4rde. Avser riket.'+(window.kompPrelimNot?window.kompPrelimNot(true):"")+'</p>'
       +'<div class="r-chart" style="height:300px"><canvas id="cKombiIndex"></canvas></div>'
       +'<p class="r-src">Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.</p></div>'
       +((window.__kombHarYrkeLan&&window.__kombHarYrkeLan())
         ? ('<h3 class="r-sec">Yrken och geografi</h3>'
           +'<div class="r-fig" id="figKombiYrken"><p class="r-fig-title">Yrken där den sammanslagna kompetensen efterfrågas</p>'
-          +'<p class="r-fig-sub" id="subKombiYrken">Antal jobbannonser per yrkesgrupp bland de annonser d\u00e4r minst en av {K} n\u00e4mns. Avser riket.</p>'
+          +'<p class="r-fig-sub" data-nivakalla="riket" id="subKombiYrken">Antal jobbannonser per yrkesgrupp bland de annonser d\u00e4r minst en av {K} n\u00e4mns. Avser riket.</p>'
           +'<div class="r-chart" style="height:320px"><canvas id="cKombiYrken"></canvas></div>'
           +'<p class="r-src" id="srcKombiYrken"></p></div>'
           /* Analystexten sa vilket yrke som var starkast utmärkande utan att någon figur
@@ -30844,18 +31043,18 @@ window.__renderKompOpts=function(q){
              går att läsa av. Formen är listans, inte diagrammets, eftersom ett index har
              1,0 som mittvärde och en stapel från noll döljer åt vilket håll värdet avviker. */
           +'<div class="r-fig" id="figKombiYrkenLq"><p class="r-fig-title">Yrken där kombinationen är mest utmärkande</p>'
-          +'<p class="r-fig-sub" id="subKombiYrkenLq">Specialiseringskvot f\u00f6r de tio yrkesgrupper med flest annonser d\u00e4r minst en av {K} n\u00e4mns. Kvoten j\u00e4mf\u00f6r andelen av yrkesgruppens annonser d\u00e4r kompetenserna n\u00e4mns med motsvarande andel av samtliga annonser med k\u00e4nd yrkesgrupp. \u00d6ver 1,0 betyder att kompetenserna utg\u00f6r en st\u00f6rre andel i yrkesgruppen \u00e4n i riket, under 1,0 en mindre andel. Talet f\u00f6re kvoten \u00e4r antalet annonser som kvoten bygger p\u00e5. Avser riket.</p>'
+          +'<p class="r-fig-sub" data-nivakalla="riket" id="subKombiYrkenLq">Specialiseringskvot f\u00f6r de tio yrkesgrupper med flest annonser d\u00e4r minst en av {K} n\u00e4mns. Kvoten j\u00e4mf\u00f6r andelen av yrkesgruppens annonser d\u00e4r kompetenserna n\u00e4mns med motsvarande andel av samtliga annonser med k\u00e4nd yrkesgrupp. \u00d6ver 1,0 betyder att kompetenserna utg\u00f6r en st\u00f6rre andel i yrkesgruppen \u00e4n i riket, under 1,0 en mindre andel. Talet f\u00f6re kvoten \u00e4r antalet annonser som kvoten bygger p\u00e5. Avser riket.</p>'
           +'<div class="lq-list" id="lqListKombiYrke"></div>'
           +'<p class="r-src" id="srcKombiYrkeLq"></p></div>'
           /* Samma sak i geografin: texten sa var flest annonser finns, medan enda figuren
              visade kvoter. Antalsdiagrammet står före kvotlistan, så att avsnittet läser
              antal före kvot i både yrkes- och länsledet. */
           +'<div class="r-fig" id="figKombiLanAnt"><p class="r-fig-title">Annonser per län – antal</p>'
-          +'<p class="r-fig-sub" id="subKombiLanAnt">Antal jobbannonser per l\u00e4n d\u00e4r minst en av {K} n\u00e4mns.</p>'
+          +'<p class="r-fig-sub" data-nivakalla="riket" id="subKombiLanAnt">Antal jobbannonser per l\u00e4n d\u00e4r minst en av {K} n\u00e4mns.</p>'
           +'<div class="r-chart" style="height:300px"><canvas id="cKombiLanAnt"></canvas></div>'
           +'<p class="r-src" id="srcKombiLanAnt"></p></div>'
           +'<div class="r-fig" id="figKombiLan"><p class="r-fig-title">Specialisering per län – kvot</p>'
-          +'<p class="r-fig-sub" id="subKombiLan">Specialiseringskvot per l\u00e4n f\u00f6r de annonser d\u00e4r minst en av {K} n\u00e4mns. Kvoten j\u00e4mf\u00f6r andelen av l\u00e4nets annonser i kompetensunderlaget d\u00e4r kompetenserna n\u00e4mns med motsvarande andel i riket. Över 1,0 betyder att kompetenserna utgör en större andel i länet än i riket, under 1,0 en mindre andel.</p>'
+          +'<p class="r-fig-sub" data-nivakalla="riket" id="subKombiLan">Specialiseringskvot per l\u00e4n f\u00f6r de annonser d\u00e4r minst en av {K} n\u00e4mns. Kvoten j\u00e4mf\u00f6r andelen av l\u00e4nets annonser i kompetensunderlaget d\u00e4r kompetenserna n\u00e4mns med motsvarande andel i riket. Över 1,0 betyder att kompetenserna utgör en större andel i länet än i riket, under 1,0 en mindre andel.</p>'
           +'<div class="geo-wrap"><div class="lq-list" id="lqListKombi"></div></div>'
           +'<div class="lanmap-legend"><div class="lanmap-legend-bar"><i style="background:#bd5a34"></i><i style="background:#d4885d"></i><i style="background:#eab991"></i><i style="background:#e9efe9"></i><i style="background:#a9ceb6"></i><i style="background:#5fa37d"></i><i style="background:#2f7d57"></i></div>'
           +'<div class="lanmap-legend-lab"><span>Under 1,0</span><span>1,0</span><span>Över 1,0</span></div></div>'
@@ -30963,9 +31162,14 @@ window.__renderKompOpts=function(q){
           pointBorderColor:farg,pointBorderWidth:1.6,
           segment:{borderDash:function(c){return _pi(c.p1DataIndex)?[5,4]:undefined;}}};
       }
-      var dsets=[_linje("Kombinationen",indexera(U.serie),pal[0],2.8)];
+      /* Kombinationen ritas i textens svarta och inte ur paletten. Delarna tog förut
+         paletten från andra färgen, pal[(ix+1)%pal.length], och med sex valda kompetenser
+         föll den sjätte delen tillbaka på pal[0] — samma färg som kombinationen, och de
+         två linjerna gick inte att skilja åt. Delarna tar nu paletten från början, och
+         summan står mörkast, vilket också håller i svartvitt. */
+      var dsets=[_linje("Kombinationen",indexera(U.serie),"#1a1a1a",2.8)];
       U.delar.forEach(function(d,ix){
-        dsets.push(_linje(d.namn,indexera(d.serie),pal[(ix+1)%pal.length],2.2));
+        dsets.push(_linje(d.namn,indexera(d.serie),pal[ix%pal.length],2.2));
       });
       window.__kombiIndexChart=new Chart(civ,{type:"line",data:{labels:kv,datasets:dsets},
         options:{responsive:true,maintainAspectRatio:false,animation:false,
@@ -30992,7 +31196,10 @@ window.__renderKompOpts=function(q){
        städas bort automatiskt om figuren döljs. */
     try{
       if(window.__usAnalys){
-        var _lista=function(a){ return (a.length<2)?(a[0]||"") : (a.slice(0,-1).join(", ")+" och "+a[a.length-1]); };
+        /* Samma semikolonregel som ovan. Uppräkningen här bär redan samtliga namn. */
+        var _lista=function(a){ if(a.length<2)return (a[0]||"");
+          var skilj=a.some(function(x){ return String(x).indexOf(",")>=0; })?"; ":", ";
+          return a.slice(0,-1).join(skilj)+" och "+a[a.length-1]; };
         /* Kompetensnamnen sattes som ren text, medan verktygets övriga analystexter sätter
        namn i kursiv genom kurs(). Analystexten infogas som html, så taggen håller. */
     var _namn=_lista(sel.map(function(x){ return (typeof kurs==="function")?kurs(x):x; }));
@@ -31005,44 +31212,42 @@ window.__renderKompOpts=function(q){
         var _p1="Figuren visar antalet jobbannonser d\u00e4r minst en av kompetenserna "+_namn+" n\u00e4mns. "
           +"En annons som n\u00e4mner flera av kompetenserna i urvalet r\u00e4knas en g\u00e5ng. "
           +"Kompetenserna f\u00f6rekommer i sammanlagt "+nf.format(U.antal)+" annonser under perioden "+kv[0]+" till "+kv[KvN-1]
-          +(U.andelTot!=null?(", vilket utg\u00f6r "+fmt2(U.andelTot)+" procent av samtliga jobbannonser i underlaget"):"")
+          +(U.andelTot!=null?(", vilket utg\u00f6r "+_kAndel(U.andelTot)+" procent av samtliga jobbannonser i underlaget"):"")
           +".";
           /* Stycket om f\u00f6r\u00e4ndringen mellan f\u00f6rsta och sista hela \u00e5ret \u00e4r borttaget.
              Utvecklingen framg\u00e5r av kurvan intill. */
           window.__usAnalys("figKombiTrend","Jobbannonser d\u00e4r minst en av kompetenserna n\u00e4mns",[_p1]);
 
-        /* Indexfiguren: vilken del som dragit ifrån och vilken som halkat efter, räknat
-           på hela år av samma skäl som trenden ovan. */
-        var _vx=null,_lg=null;
-        U.delar.forEach(function(d){
-          var a=tillAr(d.serie);
-          var i0=null,iN=null;
-          helIx.forEach(function(ix){ if(a.varden[ix]>0&&i0===null)i0=a.varden[ix]; if(a.varden[ix]!=null)iN=a.varden[ix]; });
-          if(!i0||iN==null) return;
-          var v=(iN-i0)/i0;
-          if(!_vx||v>_vx.v)_vx={namn:d.namn,v:v};
-          if(!_lg||v<_lg.v)_lg={namn:d.namn,v:v};
-        });
+        /* Stycket som räknade fram vilken del som dragit ifrån och vilken som halkat
+           efter är borttaget tillsammans med texten det skrevs för. */
         /* Kompetenserna r\u00e4knas upp h\u00e4r med kursiv stil. Platsh\u00e5llaren {K} byts i textnoder
            och kan d\u00e4rf\u00f6r inte b\u00e4ra m\u00e4rkning. Basen l\u00e4ses ur seriens f\u00f6rsta kvartal. */
         var _kNamn=(function(){ try{ var a=window.__kombValda||[]; if(!a.length)return "de valda kompetenserna";
-          var b=a.slice(0,4).map(function(x){ return window.__kursNamn?window.__kursNamn(String(x)):String(x); });
-          var upp=(b.length<2)?b[0]:(b.slice(0,-1).join(", ")+" och "+b[b.length-1]);
-          return ((b.length<2)?"kompetensen ":"kompetenserna ")+upp+((a.length>4)?" med flera":""); }catch(e){} return "de valda kompetenserna"; })();
+          var b=a.map(function(x){ return window.__kursNamn?window.__kursNamn(String(x)):String(x); });
+          /* Samma två regler som platshållaren {K}: alla namn skrivs ut, och semikolon
+             skiljer leden när ett namn självt innehåller komma. Kommatestet görs på det
+             kursiverade namnet, som bär samma komma som det råa. */
+          var skilj=b.some(function(x){ return String(x).indexOf(",")>=0; })?"; ":", ";
+          var upp=(b.length<2)?b[0]:(b.slice(0,-1).join(skilj)+" och "+b[b.length-1]);
+          return ((b.length<2)?"kompetensen ":"kompetenserna ")+upp; }catch(e){} return "de valda kompetenserna"; })();
         var _kBas=(function(){ try{ var q=String(kv[0]||""), m=q.match(/^(\d{4})Q(\d)$/);
           var ord=["f\u00f6rsta","andra","tredje","fj\u00e4rde"];
           return (m&&ord[+m[2]-1]) ? (ord[+m[2]-1]+" kvartalet "+m[1]) : q; }catch(e){} return ""; })();
         var _i1="Figuren visar den indexerade utvecklingen f\u00f6r antalet jobbannonser per kvartal med omn\u00e4mnanden av "
           +_kNamn+" sammantaget och var och en f\u00f6r sig."
           +(_kBas?(" Indexv\u00e4rdet 100 motsvarar "+_kBas+"."):"");
-        var _i2="", _i3="";
+        var _i3="";
         /* Åren som jämförelsen faktiskt bygger på. Texten sade tidigare bara "talen avser
            hela år" och att innevarande år inte ingår, vilket var sant om beräkningen men
            läste sig som ett påstående om figuren — som visar det pågående året. Åren skrivs
            nu ut, så att det inte går att missförstå vad som jämförs. */
         var _arF=(helIx.length)?arU.ar[helIx[0]]:null;
         var _arS=(helIx.length)?arU.ar[helIx[helIx.length-1]]:null;
-        if(_vx&&_lg&&_vx.namn!==_lg.namn&&_arF&&_arS){
+        /* Meningen handlar om kombinationens egen topp och botten. Villkoret krävde
+           tidigare att två delar hade vuxit olika mycket, ett krav som hörde till det
+           borttagna stycket om delarna. Den föll därför bort när en enda kompetens var
+           vald, trots att figuren visade en ojämn kurva. Nu styr bara de hela åren. */
+        if(_arF&&_arS){
           /* Stycket som jämförde första och sista hela året är borttaget. Det plockade ut två
              kompetenser ur urvalet utan att säga varför just de, blandade enskilda kompetenser
              med kombinationen i samma mening, och talen gick inte att koppla till kurvorna.
@@ -31060,7 +31265,7 @@ window.__renderKompOpts=function(q){
             }
           }catch(e){}
         }
-        window.__usAnalys("figKombiIndex","Utveckling f\u00f6r respektive kompetens",[_i1,_i2,_i3].filter(Boolean));
+        window.__usAnalys("figKombiIndex","Utveckling f\u00f6r respektive kompetens",[_i1,_i3].filter(Boolean));
       }
     }catch(e){ if(window.__fel)__fel("kombinationslägets analystext",e); }
 
@@ -31102,8 +31307,11 @@ window.__renderKompOpts=function(q){
           var ysub=document.getElementById("subKombiYrken");
           if(ysub) ysub.textContent="Antal jobbannonser per yrkesgrupp bland de annonser d\u00e4r minst en av {K} n\u00e4mns. "
             +"Figuren visar de "+antalOrd(FD.yrken.length)+" yrkesgrupper som har flest av dessa annonser, tillsammans "
-            +(_tackning!=null?fmt1(_tackning):"\u2013")+" procent av annonserna med känd yrkesgrupp. "
-            +"Uppgift om yrkesgrupp saknas f\u00f6r "+nf.format(FD.utanYrke)+" annonser. Avser riket. "
+            +(_tackning!=null?_kAndel(_tackning):"\u2013")+" procent av annonserna med känd yrkesgrupp. "
+            /* Meningen om saknad uppgift stod kvar även när ingen annons saknade den,
+               och sade då "saknas för 0 annonser", alltså en upplysning om ingenting. */
+            +((FD.utanYrke>0)?("Uppgift om yrkesgrupp saknas f\u00f6r "+nf.format(FD.utanYrke)+" annonser. "):"")
+            +"Avser riket. "
             +_kombPeriodMening();
           if(yv){
             if(typeof Chart==="undefined"){
@@ -31134,7 +31342,7 @@ window.__renderKompOpts=function(q){
                      ser staplarna ut som vad de \u00e4r: en redovisning, inte en meny. */
                   plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
                     var r=_rader[c.dataIndex];
-                    return nf.format(c.parsed.x)+" annonser ("+fmt1(r.andel)+"\u00a0% av kombinationen, kvot "+fmt2(r.lq)+")"; }}}},
+                    return nf.format(c.parsed.x)+" annonser ("+_kAndel(r.andel)+"\u00a0% av kombinationen, kvot "+fmt2(r.lq)+")"; }}}},
                   scales:{x:{min:0,ticks:{precision:0,callback:function(v){return nf.format(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
                     y:{ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},font:{family:"Inter",size:11},color:"#1a1a1a",autoSkip:false},grid:{display:false},border:{display:false}}}}});
             }
@@ -31162,7 +31370,7 @@ window.__renderKompOpts=function(q){
                 return '<div>'
                   +'<div class="lq-top"><span class="lq-name">'+safe+'</span>'
                   +lqAntalHtml(y.antal,"annonser")
-                  +'<span class="lq-val" style="color:'+f+'" title="'+fmt1(y.andel)+'\u00a0procent av kombinationens annonser">'+fmt2(y.lq)+'</span></div>'
+                  +'<span class="lq-val" style="color:'+f+'" title="'+_kAndel(y.andel)+'\u00a0procent av kombinationens annonser">'+fmt2(y.lq)+'</span></div>'
                   +'<div class="lq-track"><span class="mid"></span>'
                   +'<span class="lq-fill '+(over?"over":"under")+'" data-w="'+w+'"></span></div></div>';
               }).join("");
@@ -31213,7 +31421,7 @@ window.__renderKompOpts=function(q){
                   /* Diagrammet \u00e4r inte l\u00e4ngre klickbart, som \u00f6vriga diagram i verktyget. */
                   plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
                     var r=_lanAnt[c.dataIndex];
-                    return nf.format(c.parsed.x)+" annonser ("+fmt1(r.andel)+"\u00a0% av kombinationen, kvot "+fmt2(r.lq)+")"; }}}},
+                    return nf.format(c.parsed.x)+" annonser ("+_kAndel(r.andel)+"\u00a0% av kombinationen, kvot "+fmt2(r.lq)+")"; }}}},
                   scales:{x:{min:0,ticks:{precision:0,callback:function(v){return nf.format(v);},font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{color:RUTNAT},border:{display:false}},
                     y:{ticks:{callback:function(v){var t=this.getLabelForValue(v);if(!window.wrapChartLabel||!window.etikettTecken)return t;var ruta=this.chart&&this.chart.canvas&&this.chart.canvas.parentNode;return window.wrapChartLabel(t,window.etikettTecken(ruta),0);},autoSkip:false,font:{family:"Inter",size:11},color:"#1a1a1a"},grid:{display:false},border:{display:false}}}}});
             }
@@ -31222,7 +31430,7 @@ window.__renderKompOpts=function(q){
           if(lantsrc) lantsrc.textContent="Arbetsförmedlingen, Historiska platsannonser och JobAd Enrichments.";
           var lantsub=document.getElementById("subKombiLanAnt");
           if(lantsub) lantsub.textContent="Antal jobbannonser per l\u00e4n d\u00e4r minst en av {K} n\u00e4mns. "
-            +"Uppgift om l\u00e4n saknas f\u00f6r "+nf.format(FD.utanLan)+" jobbannonser. "
+            +((FD.utanLan>0)?("Uppgift om l\u00e4n saknas f\u00f6r "+nf.format(FD.utanLan)+" jobbannonser. "):"")
             +_kombPeriodMening();
 
           /* Länsfiguren: samma lista som enskilt läge, med samtliga län sorterade efter kvot. */
@@ -31249,7 +31457,8 @@ window.__renderKompOpts=function(q){
             +"Kvoten j\u00e4mf\u00f6r andelen av l\u00e4nets annonser i kompetensunderlaget d\u00e4r kompetenserna n\u00e4mns med motsvarande andel i riket. "
             +"\u00d6ver 1,0 betyder att kompetenserna utg\u00f6r en st\u00f6rre andel i l\u00e4net \u00e4n i riket, under 1,0 en mindre andel. "
             +"Talet f\u00f6re kvoten \u00e4r antalet annonser som kvoten bygger p\u00e5. "
-            +"Uppgift om l\u00e4n saknas f\u00f6r "+nf.format(FD.utanLan)+" jobbannonser. Avser riket. "
+            +((FD.utanLan>0)?("Uppgift om l\u00e4n saknas f\u00f6r "+nf.format(FD.utanLan)+" jobbannonser. "):"")
+            +"Avser riket. "
             +_kombPeriodMening();
 
           /* Analystext till figurerna. Varje påstående står vid den figur som visar det:
@@ -31260,7 +31469,7 @@ window.__renderKompOpts=function(q){
           if(window.__usAnalys&&FD.yrken.length){
             var y1=FD.yrken[0];
             var _ay=""
-              +"Flest annonser finns i yrkesgruppen "+_yn(y1.kod)+", som står för "+fmt1(y1.andel)+" procent av annonserna.";
+              +"Flest annonser finns i yrkesgruppen "+_yn(y1.kod)+", som står för "+_kAndel(y1.andel)+" procent av annonserna.";
             window.__usAnalys("figKombiYrken","Yrken",[_ay]);
             var _hog=FD.yrken.filter(function(x){ return x.lq!=null; })
                              .slice().sort(function(a,b){return b.lq-a.lq;})[0];
@@ -31279,7 +31488,7 @@ window.__renderKompOpts=function(q){
             var _hl=_lanAnt.slice().sort(function(a,b){return b.lq-a.lq;})[0];
             window.__usAnalys("figKombiLanAnt","Geografi",
               [""
-               +"Flest annonser avser arbeten i "+(LN2[_st.kod]||_st.kod)+", som st\u00e5r f\u00f6r "+fmt1(_st.andel)+" procent av annonserna."]);
+               +"Flest annonser avser arbeten i "+(LN2[_st.kod]||_st.kod)+", som st\u00e5r f\u00f6r "+_kAndel(_st.andel)+" procent av annonserna."]);
             if(_hl) window.__usAnalys("figKombiLan","Specialisering per län",
               ["Listan visar specialiseringskvoten per län f\u00f6r de annonser d\u00e4r minst en av {K} n\u00e4mns. "
                +"Kvoten jämför andelen av l\u00e4nets annonser i kompetensunderlaget d\u00e4r kompetenserna n\u00e4mns med motsvarande andel i riket.",
@@ -32271,12 +32480,18 @@ window.utbListFor = function(niva){
        är valt: "i riket, jämfört med riket" är nonsens. Segmentet {?R …} tas med bara
        när området inte är riket, och {?!R …} bara när det är riket. Innerhållet
        behålls ordagrant, inklusive skiljetecken och mellanslag. */
-    /* {K}: kombinationslägets kompetenser uppräknade, högst fyra med namn och därefter
-       "med flera". Saknas urvalet står det allmänna ledet kvar. */
+    /* {K}: kombinationslägets kompetenser uppräknade. Samtliga namn skrivs ut. Förut
+       skrevs högst fyra och därefter "med flera", och eftersom läget tar sex kompetenser
+       kunde undertexten alltså utelämna två av dem — och figuren bär inget annat som
+       säger vilka de är. Leden skiljs med semikolon så snart ett namn självt innehåller
+       komma, samma regel som rdList följer i jämförelseläget: med komma blev "Python,
+       programmeringsspråk" två led i uppräkningen. Saknas urvalet står det allmänna
+       ledet kvar. */
     var k=(function(){ try{ var a=window.__kombValda; if(!a||!a.length)return "";
-      var b=a.slice(0,4).map(String);
-      var upp=(b.length<2)?b[0]:(b.slice(0,-1).join(", ")+" och "+b[b.length-1]);
-      return ((b.length<2)?"kompetensen ":"kompetenserna ")+upp+((a.length>4)?" med flera":""); }catch(e){} return ""; })();
+      var b=a.map(String);
+      var skilj=b.some(function(x){ return x.indexOf(",")>=0; })?"; ":", ";
+      var upp=(b.length<2)?b[0]:(b.slice(0,-1).join(skilj)+" och "+b[b.length-1]);
+      return ((b.length<2)?"kompetensen ":"kompetenserna ")+upp; }catch(e){} return ""; })();
     text=text.replace(/\{K\}/g, k||"de valda kompetenserna");
     /* {Q}: kvartalet som uppgiften om lediga jobb avser, skrivet i klartext. Undertexten
        sade "senaste kvartalet", vilket inte går att kontrollera mot någon källa och blir
@@ -32527,6 +32742,13 @@ window.utbListFor = function(niva){
           var valt=nivaValdFor(fig);
           /* Riksfiguren märks när något område är valt. Länsfiguren bara i kommunvyn. */
           visa=(g.kalla==="riket")?((valt!=="riket")?"riket":""):((valt==="kommun")?"lanet":"");
+          /* En figur som själv deklarerar riksnivå märks alltid. Regeln ovan vilar på att
+             nivån är underförstådd när inget område är valt, vilket gäller de figurer som
+             följer vyns regionval. Kombinationslägets figurer gör inte det: de räknas på
+             nationella tal vad vyn än står på, och en figur som sparas eller skrivs ut bär
+             ingen väljare som säger vilken nivå talen avser. Deklarationen beskriver därför
+             figuren och inte valet, och väger över. */
+          if(sub.getAttribute("data-nivakalla")==="riket") visa="riket";
         }
         undertextSkriv(fig, sub, visa);
       }
@@ -40470,6 +40692,44 @@ window.__ritaGymOvg = async function(){
           andrade++;
         });
         window.KOMP_DATA.__omraknad=andrade;
+        /* Katalogen byggs ur yrkenas topplistor, alltså bara de yrken där kompetensen
+           ligger bland de tjugo mest nämnda. En kompetens som aldrig gör det saknas helt,
+           hur stor den än är: Samiska är den tredje mest nämnda kompetensen i Norrbottens
+           annonser och fanns inte bland katalogens 613 namn, medan Molekylärbiologi med
+           sju annonser i Västmanland fanns där. Omräkningen ovan rättar talen för de poster
+           som finns men kan inte lägga till någon, eftersom den går igenom Object.keys(K).
+           Här läggs de övriga till, med uppmätta tal ur nat_komp och komp_lan och med samma
+           urvalsregel som menyn använder. Fälten som bara katalogen bär, branscher och
+           utbildningar, lämnas tomma; de anropare som behöver dem härleder dem redan själva
+           när de saknas. */
+        try{
+          var _lagg=0;
+          var _kand=(window.__KOMP_VALBARA&&window.__KOMP_VALBARA.length)
+                      ?window.__KOMP_VALBARA:Object.keys(NAT);
+          _kand.forEach(function(c){
+            if(K[c])return;
+            if(typeof kompOverGolv==="function" && !kompOverGolv(c))return;
+            var nk=NAT[c]; if(!nk)return;
+            var serie=ar.map(function(a){ return nk[a]||0; });
+            var summa=0; serie.forEach(function(v){ summa+=v; });
+            if(!(summa>0))return;
+            var reg={}, lm=LAN[c];
+            if(lm) Object.keys(lm).forEach(function(l){ var m=lm[l], v=0;
+              ar.forEach(function(a){ v+=(m[a]||0); }); if(v>0)reg[l]=v; });
+            var yr=YR[c];
+            var s0=serie[0], sN=serie[serie.length-1], gg=s0>0?(sN-s0)/s0:0;
+            K[c]={namn:c, omrade:"", nat:summa, annonser:summa,
+                  andel:Math.round(1000*summa/tot)/10,
+                  trend:(gg>0.08?"vaxande":(gg<-0.08?"vikande":"stabil")),
+                  serie:serie, bredd:(yr&&yr.n>0)?yr.n:0,
+                  related:[], yrken:[],
+                  yrken_ssyk:(yr&&yr.top&&yr.top.length)?yr.top.slice(0,8).map(function(r){return r[0];}):[],
+                  branscher:null, branschVikt:null, utbildningar:null,
+                  regioner:reg, _tillagd:true};
+            _lagg++;
+          });
+          window.KOMP_DATA.__tillagda=_lagg;
+        }catch(e){ if(window.__fel)__fel("kompetenskatalogens komplettering",e); }
         return andrade>0;
       };
       window.__fyllRelated=function(){
@@ -43395,8 +43655,18 @@ try{ window._sumOm=_sumOm; }catch(e){}
      f\u00f6ljer nu talets storlek: tv\u00e5 decimaler under en procent, samma format som
      trendfigurens andelsl\u00e4ge redan anv\u00e4nder. Kvar blir 42 kompetenser med f\u00e4rre
      \u00e4n trettio annonser, som visar 0,00 procent. */
+  /* Samma trappa som rdAndel i jämförelseläget, med samma skäl: en andel under en
+     hundradels procent skrivs med två värdesiffror i stället för som noll. Regeln
+     står här också, eftersom funktionerna ligger i skilda omslutningar. */
+  function andelsDec(v){
+    var d=(Math.abs(v)<1)?2:1;
+    if(v!==0&&Math.abs(v)<0.005){
+      try{ d=Math.min(6, 1-Math.floor(Math.log(Math.abs(v))/Math.LN10)); }catch(e){}
+    }
+    return d;
+  }
   function andelsTal(v){ if(v==null||isNaN(v))return null;
-    return tal(v, (Math.abs(v)<1)?2:1); }
+    return tal(v, andelsDec(v)); }
   /* Det p\u00e5g\u00e5ende \u00e5ret \u00e4r inte helt. Trendfigurens undertext s\u00e4ger det, men korten
      st\u00e5r f\u00f6rst i vyn och l\u00e4ses ofta ensamma. Noten skrivs ut n\u00e4r kortets \u00e5rtal
      \u00e4r det p\u00e5g\u00e5ende, med samma lydelse som figuren anv\u00e4nder. */
