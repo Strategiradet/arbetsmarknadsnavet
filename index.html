@@ -30888,16 +30888,21 @@ window.__renderKompOpts=function(q){
           +'<span class="rd-opt-label">'+window.__esc(window.kompBrytNamn?window.kompBrytNamn(e.code):e.code)+'</span>'
           +'<span class="rd-opt-meta">'+nf.format(tot[e.code]||0)+'</span></div>';
       }).join("");
-    } else
-    /* Är taket nått går inga fler att välja. Raderna tonas då ned och märks som
-       spärrade, så att det syns före klicket och inte bara efter. Redan valda står
-       kvar fullt läsbara, eftersom de går att bocka av. */
-    var _tak=(typeof vcModeOf==="function"&&vcModeOf("kompetens")!=="enskild"
-              && sel.length>=VIEW_CMP_MAX);
-    wrap.innerHTML=show.map(function(o){ var on=sel.indexOf(o.code)>=0;
-      var _sp=(_tak&&!on);
-      return '<div class="tabledd-opt'+(on?" selected":"")+(_sp?" is-tak":"")+'" role="option" aria-selected="'+(on?"true":"false")+'"'+(_sp?' aria-disabled="true"':'')+' tabindex="0" data-code="'+window.__esc(o.code)+'"><span class="rd-box" aria-hidden="true"></span><span class="rd-opt-label">'+window.__esc(window.kompBrytNamn?window.kompBrytNamn(o.name):o.name)+'</span><span class="rd-opt-meta">'+nf.format(tot[o.code]||0)+'</span></div>';
-    }).join("");
+    } else {
+      /* Klamrarna håller grenarna isär. Utan dem tog else-grenen bara var-satsen nedan,
+         och tilldelningen efter den låg utanför if-satsen och kördes i båda fallen. I
+         exempelläget är show en tom lista, så rutan tömdes i samma ögonblick som
+         exempelraderna skrivits ut, och väljaren stod tom tills något söktes. */
+      /* Är taket nått går inga fler att välja. Raderna tonas då ned och märks som
+         spärrade, så att det syns före klicket och inte bara efter. Redan valda står
+         kvar fullt läsbara, eftersom de går att bocka av. */
+      var _tak=(typeof vcModeOf==="function"&&vcModeOf("kompetens")!=="enskild"
+                && sel.length>=VIEW_CMP_MAX);
+      wrap.innerHTML=show.map(function(o){ var on=sel.indexOf(o.code)>=0;
+        var _sp=(_tak&&!on);
+        return '<div class="tabledd-opt'+(on?" selected":"")+(_sp?" is-tak":"")+'" role="option" aria-selected="'+(on?"true":"false")+'"'+(_sp?' aria-disabled="true"':'')+' tabindex="0" data-code="'+window.__esc(o.code)+'"><span class="rd-box" aria-hidden="true"></span><span class="rd-opt-label">'+window.__esc(window.kompBrytNamn?window.kompBrytNamn(o.name):o.name)+'</span><span class="rd-opt-meta">'+nf.format(tot[o.code]||0)+'</span></div>';
+      }).join("");
+    }
     /* Redan valda kompetenser visas alltid överst, även om de inte matchar sökningen. De ska
        därför inte räknas som träffar. Tidigare gav det orimliga besked som "2 av 1 träffar". */
     if(note){
