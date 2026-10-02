@@ -18074,8 +18074,11 @@ function renderYrkeLon(){
        inte i en lydelse som nivåpasset känner igen — figuren stod därför omärkt under en
        rubrik med länets namn. Meningen nedan stryks av passet, som skriver den på nytt sist
        och sätter etiketten Riksnivå. */
-    if(d.lonSprid&&d.lonSprid.ar) _t+=" Avser \u00e5r "+d.lonSprid.ar+".";
-    _t+=" Avser riket.";
+    /* F\u00f6rbeh\u00e5llet om saknade delar st\u00e5r f\u00f6re meningarna om period och niv\u00e5, inte efter
+       dem. Niv\u00e5passet v\u00e4ver ihop niv\u00e5n med ett avslutande f\u00f6rbeh\u00e5ll om tid, men bara n\u00e4r
+       det st\u00e5r sist i texten. Med f\u00f6rbeh\u00e5llet efter\u00e5t uteblev v\u00e4vningen, och undertexten
+       fick tv\u00e5 meningar som b\u00e5da b\u00f6rjar med Avser, \u00e5tskilda av en tredje: "Avser \u00e5r 2025.
+       F\u00f6r X saknas uppgift om medianen ... Avser riket." */
     if(!_harKv||!_harMd){
       var _bada=(!_harKv&&!_harMd);
       var _vad=_bada?"medianen och den mittersta h\u00e4lften"
@@ -18083,6 +18086,8 @@ function renderYrkeLon(){
       _t+=" F\u00f6r "+_namnY+" saknas uppgift om "+_vad+", s\u00e5 "
         +(_bada?"de delarna \u00e4r inte utritade":"den delen \u00e4r inte utritad")+".";
     }
+    if(d.lonSprid&&d.lonSprid.ar) _t+=" Avser \u00e5r "+d.lonSprid.ar+".";
+    _t+=" Avser riket.";
     _lsSub.textContent=_t;
   }
   if(src)src.textContent="SCB, L\u00f6nestrukturstatistik.";
@@ -32774,7 +32779,10 @@ window.utbListFor = function(niva){
       var _vavd=null;
       var _m;
       if((_m=bas.match(/(^|\s)Avser \u00e5r (\d{4})\.\s*$/)))
-        _vavd="Avser "+nivaOrd+" \u00e5r "+_m[2]+".";
+        /* Kommatecknet skiljer niv\u00e5n fr\u00e5n \u00e5rtalet. Utan det l\u00e4ses "Avser riket \u00e5r 2025"
+           som ett svep, och de tv\u00e5 upplysningarna \u2014 vilket omr\u00e5de och vilket \u00e5r \u2014 l\u00f6per
+           ihop. Formen \u00e4r gemensam f\u00f6r varje figur d\u00e4r niv\u00e5 och \u00e5rtal v\u00e4vs ihop. */
+        _vavd="Avser "+nivaOrd+", \u00e5r "+_m[2]+".";
       else if((_m=bas.match(/(^|\s)Avser senaste kvartalet\.\s*$/)))
         _vavd="Avser "+nivaOrd+" senaste kvartalet.";
       else if((_m=bas.match(/(^|\s)Avser perioden ([^.]+)\.\s*$/)))
