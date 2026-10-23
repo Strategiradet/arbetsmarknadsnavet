@@ -39221,7 +39221,6 @@ window.__ritaSkolverketTabell = function(cfg){
   var kommunlage = !!cfg.kommunNamn;
   var kommunNamn = cfg.kommunNamn || "";
   var riksniva = (lanKey==="00") && !kommunlage;
-  var nyttAr = DIM.nyttAr || 2026;
   /* Årtalet i källraden stod tidigare inskrivet på tre ställen och följde inte med när
      datablocket byttes till 2026 års underlag. Det tas nu ur datan. */
   var kallAr = DIM.ar || 2026;
@@ -39331,7 +39330,7 @@ window.__ritaSkolverketTabell = function(cfg){
       +sortTh("lan","Antal l\u00e4n","gd-c")
       +'</tr></thead><tbody></tbody></table></figure>';
     ritaKropp(); kopplaSortering();
-    if(sub)sub.textContent="Skolverkets vanligaste bed\u00f6mning per nationellt program bland de 21 l\u00e4nen, och i hur m\u00e5nga l\u00e4n den delas. V\u00e4lj ett enskilt l\u00e4n f\u00f6r l\u00e4nets egna platsandelar. Ett uppdaterat underlag publiceras i oktober "+nyttAr+".";
+    if(sub)sub.textContent="Skolverkets vanligaste bed\u00f6mning per nationellt program bland de 21 l\u00e4nen, och i hur m\u00e5nga l\u00e4n den delas. V\u00e4lj ett enskilt l\u00e4n f\u00f6r l\u00e4nets egna platsandelar.";
     if(src)src.textContent="Skolverket, regionala planeringsunderlag "+kallAr+".";
   } else {
     var tot=karta._tot||{};
@@ -39452,8 +39451,7 @@ window.__ritaSkolverketTabell = function(cfg){
         p2+=" Andelarna avser examinerade och inte platser, s\u00e5 j\u00e4mf\u00f6relsen med Skolverkets platsbed\u00f6mning \u00e4r ungef\u00e4rlig.";
       }
     }
-    var p3="Ett uppdaterat planeringsunderlag publiceras i oktober "+nyttAr+" och kan \u00e4ndra bed\u00f6mningarna.";
-    var stycken=[p1]; if(p2)stycken.push(p2); stycken.push(p3);
+    var stycken=[p1]; if(p2)stycken.push(p2);
     window.__usAnalys(figId,"Skolverkets bed\u00f6mning av platsutbudet",stycken);
   }
 };
